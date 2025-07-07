@@ -1,0 +1,537 @@
+
+body {
+  background-color: #0a0c1b;
+  color: #ffffff;
+  font-family: 'IBM Plex Sans', 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background-color: #0e0f20;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.logo img {
+  width: 80px;
+  height: auto;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  margin-left: 20px;
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+nav a:hover {
+  color: #ffd500;
+}
+
+.hero {
+  padding: 80px 20px;
+  background: radial-gradient(circle at center, #1f2235, #0a0c1b);
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.hero p {
+  font-size: 20px;
+  max-width: 700px;
+  margin: 0 auto 30px;
+  color: #ccc;
+}
+
+.cta-buttons {
+  margin-top: 30px;
+}
+
+button.primary {
+  background-color: #ffd500;
+  border: none;
+  padding: 14px 30px;
+  font-weight: bold;
+  margin: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button.primary:hover {
+  background-color: #ffcc00;
+}
+
+button.secondary {
+  background: transparent;
+  border: 1px solid white;
+  color: white;
+  padding: 14px 30px;
+  margin: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button.secondary:hover {
+  background-color: #ffcc00;
+  color: #0a0c1b;
+}
+
+section {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.plans {
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.plans h2 {
+  font-size: 32px;
+  margin-bottom: 50px;
+}
+
+.plans-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 40px;
+}
+
+.plan {
+  background-color: #131628;
+  padding: 40px;
+  border-radius: 16px;
+  width: 300px;
+  text-align: left;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s ease;
+}
+
+.plan:hover {
+  transform: translateY(-10px);
+}
+
+.plan h3 {
+  font-size: 22px;
+  margin-bottom: 15px;
+}
+
+.plan ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+}
+
+.plan ul li {
+  padding: 8px 0;
+  color: #ccc;
+  border-bottom: 1px solid #2a2d45;
+}
+
+.plan ul li:last-child {
+  border-bottom: none;
+}
+
+.plan p {
+  color: #ccc;
+  margin: 12px 0;
+}
+
+.wallet {
+  padding: 80px 20px;
+  background-color: #0e1023;
+  text-align: center;
+}
+
+.wallet h2 {
+  font-size: 28px;
+  margin-bottom: 15px;
+}
+
+.wallet-id {
+  font-size: 16px;
+  color: #999;
+}
+
+.wallet-amount {
+  font-size: 26px;
+  margin: 20px 0;
+}
+
+.wallet-amount span {
+  color: #ffd500;
+}
+
+.wallet-buttons {
+  margin-top: 30px;
+}
+
+.history {
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.history h2 {
+  margin-bottom: 40px;
+  font-size: 28px;
+}
+
+table {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  border-collapse: collapse;
+  color: white;
+  background-color: #1a1c2f;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+th, td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #333;
+}
+
+th {
+  background-color: #2a2d45;
+  color: #ffd500;
+  text-align: left;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+footer {
+  background-color: #0a0c1b;
+  padding: 60px 20px;
+  color: white;
+}
+
+.footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 40px;
+}
+
+.footer-col {
+  flex: 1;
+  min-width: 220px;
+}
+
+.footer-col h4 {
+  margin-bottom: 15px;
+  color: #ffd500;
+}
+
+.footer-col ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-col li {
+  margin-bottom: 10px;
+  color: #ccc;
+}
+
+.crypto-icons {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.crypto-icons img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 50%;
+  background-color: white;
+  padding: 4px;
+}
+
+.register-button {
+  background-color: #ffd500;
+  padding: 10px 20px;
+  border-radius: 6px;
+  color: #000;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.3s ease;
+}
+
+.register-button:hover {
+  background-color: #ffb800;
+  color: #000;
+}
+
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  nav {
+    margin-top: 10px;
+  }
+
+  nav a {
+    display: block;
+    margin: 10px 0;
+  }
+
+  .plans-container,
+  .footer-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .plan {
+    width: 100%;
+    max-width: 400px;
+  }
+}
+.crypto-animation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  margin: 40px auto;
+}
+
+.crypto-animation img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #fff;
+  padding: 6px;
+  animation: float 3s ease-in-out infinite;
+}
+
+.crypto-animation img:nth-child(2) {
+  animation-delay: 0.3s;
+}
+.crypto-animation img:nth-child(3) {
+  animation-delay: 0.6s;
+}
+.crypto-animation img:nth-child(4) {
+  animation-delay: 0.9s;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+.register-split {
+  display: flex;
+  min-height: 100vh;
+}
+
+.register-info {
+  flex: 1;
+  background: linear-gradient(135deg, #1f2235, #0a0c1b);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px;
+}
+
+.register-info h1 {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.register-info p {
+  font-size: 18px;
+  max-width: 400px;
+}
+
+.register-form-container {
+  flex: 1;
+  background: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.register-form {
+  max-width: 400px;
+  width: 100%;
+}
+
+.register-form input {
+  width: 100%;
+  padding: 16px 18px;
+  margin: 12px 0;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.register-form button {
+  width: 100%;
+  background-color: #ffd500;
+  border: none;
+  padding: 16px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.register-form button:hover {
+  background-color: #ffcc00;
+}
+
+.terms-text {
+  font-size: 12px;
+  color: #666;
+  margin-top: 12px;
+}
+
+.terms-text a {
+  color: #333;
+  text-decoration: underline;
+}
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0a0c1b;
+}
+
+.login-form-container {
+  background: #131628;
+  padding: 60px 40px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  text-align: center;
+  color: white;
+  max-width: 400px;
+  width: 100%;
+}
+
+.login-form-container h2 {
+  margin-bottom: 30px;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 14px 16px;
+  margin: 12px 0;
+  border: none;
+  border-radius: 6px;
+  outline: none;
+}
+
+.login-form button {
+  width: 100%;
+  background-color: #ffd500;
+  border: none;
+  padding: 16px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.login-form button:hover {
+  background-color: #ffcc00;
+}
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+  }
+
+  nav {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  nav a {
+    display: block;
+    width: 100%;
+    padding: 12px 0;
+    border-bottom: 1px solid #333;
+  }
+
+  .hero h1 {
+    font-size: 28px;
+  }
+
+  .hero p {
+    font-size: 16px;
+  }
+
+  .plans-container,
+  .footer-container,
+  .about-cards {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .plan {
+    width: 90%;
+    max-width: 100%;
+  }
+
+  .wallet {
+    padding: 40px 20px;
+  }
+
+  .history {
+    padding: 40px 20px;
+  }
+
+  table {
+    font-size: 14px;
+  }
+
+  .login-page,
+  .register-page {
+    padding: 20px;
+  }
+
+  .login-form-container,
+  .register-form-container {
+    width: 100%;
+    margin: 0 10px;
+  }
+}
