@@ -535,3 +535,152 @@ footer {
     margin: 0 10px;
   }
 }
+#preloader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff; /* Or #000 for black */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+#preloader img {
+  width: 120px;
+  height: auto;
+  max-width: 40%;
+  opacity: 0;
+  animation: fadein 1s forwards;
+}
+
+@keyframes fadein {
+  to { opacity: 1; }
+}
+/* Make forms look neat without breaking rest of site */
+.form-card {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 20px auto;
+  max-width: 400px;
+  box-shadow: 0 0 10px #ccc;
+}
+
+.form-card h2 {
+  margin-top: 0;
+}
+
+.form-card input {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+}
+
+.form-card button {
+  padding: 10px 20px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.form-card button:hover {
+  background: #0056b3;
+}
+.dashboard-container {
+  max-width: 800px;
+  margin: 50px auto;
+  padding: 30px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 20px #ddd;
+  text-align: center;
+}
+
+.dashboard-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dashboard-info {
+  margin-bottom: 30px;
+}
+
+.dashboard-profile img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+#uploadForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#uploadForm input[type="file"] {
+  margin-bottom: 10px;
+}
+
+#uploadForm button {
+  padding: 10px 20px;
+  background: #007bff;
+  border: none;
+  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#uploadForm button:hover {
+  background: #0056b3;
+}
+.dashboard-container {
+  max-width: 600px;
+  margin: 50px auto;
+  text-align: center;
+}
+
+.dashboard-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 20px #ddd;
+  padding: 30px;
+}
+
+.dashboard-profile img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+#updateBalanceForm {
+  margin-top: 20px;
+}
+
+#updateBalanceForm input {
+  padding: 10px;
+  width: 60%;
+  margin-bottom: 10px;
+}
+
+#updateBalanceForm button {
+  padding: 10px 20px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#updateBalanceForm button:hover {
+  background: #0056b3;
+}
