@@ -1,178 +1,18 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BYBIT</title>
-  <link rel="stylesheet" href="styles.css"> 
-  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-  <script>
-    AOS.init();
-  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bybit Crypto Animation</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <!-- Preloader -->
-  <div id="preloader">
-    <img src="images/bybit-logo.png" alt="Logo">
-  </div>
-
-  <script>
-    window.addEventListener('load', function(){
-      const preloader = document.getElementById('preloader');
-      preloader.style.opacity = '0';
-      preloader.style.visibility = 'hidden';
-      preloader.style.transition = 'opacity 0.5s ease';
-      setTimeout(() => {
-        preloader.remove();
-      }, 500);
-    });
-  </script>
-
-  <!-- Header -->
-  <header>
-    <a href="index.html" class="logo">
-      <img src="images/bybit-logo.png" alt="BYBIT GLOBAL Logo" />
-      <span>BYBIT</span>
-    </a>
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="#plans">Investment Plans</a>
-      <a href="#contact">Contact</a>
-      <a href="#register" class="register-button">Register</a>
-      <a href="#login" class="login-button">Login</a>
-    </nav>
-  </header>
-
-  <!-- Hero -->
-  <section class="hero">
-    <h1>Grow with the Power of <br>Web3 Investments</h1>
-    <p>Join the Top Global Network of Smart Investors Today.</p>
-    <div class="cta-buttons">
-      <a href="#register" class="primary">Get Started</a>
-      <a href="#plans" class="secondary">View Plans</a>
-    </div>
-  </section>
-
-  <!-- Crypto Logos -->
   <div class="crypto-animation">
-    <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=032" alt="BTC">
-    <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=032" alt="ETH">
-    <img src="https://cryptologos.cc/logos/tether-usdt-logo.png?v=032" alt="USDT">
-    <img src="https://cryptologos.cc/logos/solana-sol-logo.png?v=032" alt="SOL">
+    <img src="images/bitcoin.png" alt="BTC">
+    <img src="images/ethereum.png" alt="ETH">
+    <img src="images/tether.png" alt="USDT">
+    <img src="images/solana.png" alt="SOL">
   </div>
-
-  <!-- Plans -->
-  <section class="plans" id="plans">
-    <h2>Choose Your Plan</h2>
-    <div class="plans-container">
-      <div class="plan web3">
-        <h3>WEB3 PUMPS</h3>
-        <ul class="crypto-list">
-          <li>Ethereum – $5,000–$50,000</li>
-          <li>Thrones – $3,000–$15,000</li>
-          <li>Solana – $5,000–$50,000</li>
-          <li>Trump – $5,000–$25,000</li>
-          <li>Dodge – $4,000–$30,000</li>
-          <li>BTC – $20,000–1 BTC</li>
-        </ul>
-        <button class="primary">Invest Now</button>
-      </div>
-
-      <div class="plan joint">
-        <h3>PARTNERS JOINT ACCOUNT</h3>
-        <p>Stage 1 – $50,000 – $100,000</p>
-        <p>Stage 2 – $100,000 – $500,000</p>
-        <button class="secondary">Join Plan</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Forex Ticker -->
-  <div class="forex-ticker">
-    <div class="forex-track">
-      <span>EUR/USD 🔼 Buy @ 1.0880</span>
-      <span>GBP/USD 🔽 Sell @ 1.2750</span>
-      <span>USD/JPY 🔼 Buy @ 143.20</span>
-      <span>AUD/USD 🔽 Sell @ 0.6680</span>
-    </div>
-  </div>
-
-  <!-- Register Form -->
-  <section class="register-form" id="register">
-    <h2>Register</h2>
-    <form action="#" method="post">
-      <input type="text" name="fullname" placeholder="Full Name" required />
-      <input type="email" name="email" placeholder="Email Address" required />
-      <input type="password" name="password" placeholder="Create Password" required />
-      <button type="submit" class="primary">Register</button>
-    </form>
-  </section>
-
-  <!-- Login Form -->
-  <section class="login-form" id="login">
-    <h2>Login</h2>
-    <form class="login-form">
-      <input type="email" placeholder="Email Address" required />
-      <input type="password" placeholder="Password" required />
-      <button type="submit" class="primary">Login</button>
-    </form>
-  </section>
-
-  <!-- Dashboard -->
-  <section class="dashboard" id="dashboard" style="display:none;">
-    <h2>My Dashboard</h2>
-    <p><strong>Email:</strong> <span id="userEmail"></span></p>
-    <p><strong>Balance:</strong> $<span id="userBalance"></span></p>
-    <p><strong>Profile Pic:</strong></p>
-    <img id="profilePic" src="" alt="Profile Picture" width="120" style="border-radius:8px;">
-  </section>
-
-  <!-- Contact -->
-  <section class="contact" id="contact">
-    <h2>Contact Us</h2>
-    <p>Need help or have questions? Reach out to us anytime.</p>
-    <div class="contact-details">
-      <p><strong>📍 Address:</strong> 450 Market Street, Suite 900, San Francisco, CA</p>
-      <p><strong>📞 Phone:</strong> +1 (706) 990-0220</p>
-      <p><strong>✉️ Email:</strong> support@bybitglobal.com</p>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer>
-    <div class="footer-container">
-      <div class="footer-col">
-        <h4>Quick Links</h4>
-        <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="#plans">Investment Plans</a></li>
-          <li><a href="#dashboard">Dashboard</a></li>
-          <li><a href="#faq">FAQ</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Terms & Conditions</h4>
-        <ul>
-          <li><a href="about.html">About Us</a></li>
-          <li><a href="#">How It Works</a></li>
-          <li><a href="#">Security & Rent</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Supported</h4>
-        <div class="crypto-icons">
-          <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=032" alt="BTC" />
-          <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=032" alt="ETH" />
-          <img src="https://cryptologos.cc/logos/tether-usdt-logo.png?v=032" alt="USDT" />
-        </div>
-      </div>
-    </div>
-    <p>&copy; 2025 Bybit Global Ltd. All rights reserved.</p>
-  </footer>
-
-  <!-- ✅ This must be LAST -->
-  <script src="app.js"></script>
 </body>
 </html>

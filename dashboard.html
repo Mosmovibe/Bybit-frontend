@@ -7,23 +7,26 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <!-- ✅ Header -->
   <header>
     <a href="index.html" class="logo">
       <img src="images/bybit-logo.png" alt="BYBIT GLOBAL Logo" />
       <span>BYBIT</span>
     </a>
+    <button id="logoutBtn">Logout</button>
   </header>
 
+  <!-- ✅ Dashboard Main -->
   <main class="dashboard-container">
     <h2>Welcome to Your Dashboard</h2>
     <div class="dashboard-card">
       <div class="dashboard-info">
-        <p><strong>Email:</strong> <span id="userEmail"></span></p>
-        <p><strong>Balance:</strong> $<span id="userBalance"></span></p>
+        <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
+        <p><strong>Balance:</strong> $<span id="userBalance">0.00</span></p>
       </div>
       <div class="dashboard-profile">
         <h3>Profile Picture</h3>
-        <img id="profilePic" src="" alt="Profile Picture" />
+        <img id="profilePic" src="https://via.placeholder.com/120" alt="Profile Picture" width="120" style="border-radius: 8px;">
         <form id="uploadForm">
           <input type="file" name="profilePic" accept="image/*" required />
           <button type="submit">Upload New Picture</button>
@@ -32,6 +35,7 @@
     </div>
   </main>
 
+  <!-- ✅ Your dashboard JS -->
   <script src="dashboard.js"></script>
 </body>
 </html>
