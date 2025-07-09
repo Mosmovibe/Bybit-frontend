@@ -17,7 +17,6 @@
   <div id="preloader">
     <img src="images/bybit-logo.png" alt="Logo">
   </div>
-
   <script>
     window.addEventListener('load', function(){
       const preloader = document.getElementById('preloader');
@@ -37,7 +36,7 @@
       <span>BYBIT</span>
     </a>
     <nav>
-      <a href="index.html">Home</a>
+      <a href="#hero">Home</a>
       <a href="#plans">Investment Plans</a>
       <a href="#contact">Contact</a>
       <a href="#register" class="register-button">Register</a>
@@ -46,7 +45,7 @@
   </header>
 
   <!-- Hero -->
-  <section class="hero">
+  <section class="hero" id="hero">
     <h1>Grow with the Power of <br>Web3 Investments</h1>
     <p>Join the Top Global Network of Smart Investors Today.</p>
     <div class="cta-buttons">
@@ -54,14 +53,6 @@
       <a href="#plans" class="secondary">View Plans</a>
     </div>
   </section>
-
-  <!-- Crypto Logos -->
-  <div class="crypto-animation">
-    <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=032" alt="BTC">
-    <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=032" alt="ETH">
-    <img src="https://cryptologos.cc/logos/tether-usdt-logo.png?v=032" alt="USDT">
-    <img src="https://cryptologos.cc/logos/solana-sol-logo.png?v=032" alt="SOL">
-  </div>
 
   <!-- Plans -->
   <section class="plans" id="plans">
@@ -102,7 +93,7 @@
   <!-- Register Form -->
   <section class="register-form" id="register">
     <h2>Register</h2>
-    <form action="#" method="post">
+    <form>
       <input type="text" name="fullname" placeholder="Full Name" required />
       <input type="email" name="email" placeholder="Email Address" required />
       <input type="password" name="password" placeholder="Create Password" required />
@@ -113,9 +104,9 @@
   <!-- Login Form -->
   <section class="login-form" id="login">
     <h2>Login</h2>
-    <form class="login-form">
-      <input type="email" placeholder="Email Address" required />
-      <input type="password" placeholder="Password" required />
+    <form>
+      <input type="email" name="email" placeholder="Email Address" required />
+      <input type="password" name="password" placeholder="Password" required />
       <button type="submit" class="primary">Login</button>
     </form>
   </section>
@@ -146,7 +137,7 @@
       <div class="footer-col">
         <h4>Quick Links</h4>
         <ul>
-          <li><a href="index.html">Home</a></li>
+          <li><a href="#hero">Home</a></li>
           <li><a href="#plans">Investment Plans</a></li>
           <li><a href="#dashboard">Dashboard</a></li>
           <li><a href="#faq">FAQ</a></li>
@@ -162,17 +153,12 @@
       </div>
       <div class="footer-col">
         <h4>Supported</h4>
-        <div class="crypto-icons">
-          <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=032" alt="BTC" />
-          <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=032" alt="ETH" />
-          <img src="https://cryptologos.cc/logos/tether-usdt-logo.png?v=032" alt="USDT" />
-        </div>
       </div>
     </div>
     <p>&copy; 2025 Bybit Global Ltd. All rights reserved.</p>
   </footer>
 
-  <!-- ✅ This must be LAST -->
+  <!-- ✅ Must be LAST -->
   <script src="app.js"></script>
 </body>
 </html>

@@ -6,7 +6,7 @@ async function loadDashboard() {
     return;
   }
 
-  const res = await fetch('http://localhost:3000/api/dashboard', {
+  const res = await fetch('https://bybit-backend-xeuv.onrender.com/api/dashboard', {
     headers: { 'Authorization': token }
   });
 
@@ -15,21 +15,27 @@ async function loadDashboard() {
 
   if (!data.email) {
     alert('Unauthorized or error. Please login again.');
+    localStorage.removeItem('token');
     window.location.href = 'index.html';
     return;
   }
 
+  // ✅ Fill user data
   document.getElementById('greeting').textContent = `Hi, ${data.email}`;
   document.getElementById('userBalance').textContent = data.balance;
 
   if (data.profilePic) {
-    document.getElementById('profilePic').src = `http://localhost:3000/${data.profilePic}`;
+    document.getElementById('profilePic').src = `https://bybit-backend-xeuv.onrender.com/${data.profilePic}`;
   } else {
     document.getElementById('profilePic').src = 'https://via.placeholder.com/120';
   }
 
+  // ✅ Show admin controls if needed
   if (data.isAdmin) {
-    document.getElementById('adminControls').style.display = 'block';
+    const adminControls = document.getElementById('adminControls');
+    if (adminControls) {
+      adminControls.style.display = 'block';
+    }
   }
 }
 
@@ -46,7 +52,7 @@ document.getElementById('uploadForm')?.addEventListener('submit', async (e) => {
   const formData = new FormData();
   formData.append('profilePic', file);
 
-  const res = await fetch('http://localhost:3000/api/upload', {
+  const res = await fetch('https://bybit-backend-xeuv.onrender.com/api/upload', {
     method: 'POST',
     headers: {
       'Authorization': token
@@ -59,7 +65,7 @@ document.getElementById('uploadForm')?.addEventListener('submit', async (e) => {
 
   if (data.profilePic) {
     alert('✅ Profile picture updated!');
-    document.getElementById('profilePic').src = `http://localhost:3000/${data.profilePic}`;
+    document.getElementById('profilePic').src = `https://bybit-backend-xeuv.onrender.com/${data.profilePic}`;
   } else {
     alert(data.error || 'Upload failed.');
   }
