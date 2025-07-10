@@ -143,31 +143,6 @@
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer>
-    <div class="footer-container">
-      <div class="footer-col">
-        <h4>Quick Links</h4>
-        <ul>
-          <li><a href="#hero">Home</a></li>
-          <li><a href="#plans">Investment Plans</a></li>
-          <li><a href="#about">About Us</a></li>
-          <li><a href="#contact">Contact</a></li>
-          <li><a href="#dashboard">Dashboard</a></li>
-          <li><a href="#faq">FAQ</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Terms & Conditions</h4>
-        <ul>
-          <li><a href="#">How It Works</a></li>
-          <li><a href="#">Security & Rent</a></li>
-        </ul>
-      </div>
-    </div>
-    <p>&copy; 2025 Bybit Global Ltd. All rights reserved.</p>
-  </footer>
-
   <!-- ✅ Final Toggle Script wrapped correctly -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -216,5 +191,57 @@
 
   <!-- Your App Logic -->
   <script src="app.js"></script>
+  <script>
+  // Wait until the DOM is loaded
+  document.addEventListener('DOMContentLoaded', function() {
+
+    // Select all buttons inside the plans
+    const investButtons = document.querySelectorAll('.plan button');
+
+    // Attach a click event to each
+    investButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        alert('Please register or login to continue.');
+        // Optionally scroll to Register section:
+        document.getElementById('register').scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+  });
+</script>
 </body>
 </html>
+<section class="testimonials">
+  <h2>What Our Investors Say</h2>
+  <div class="testimonial">
+    <p>“Bybit helped me grow my crypto portfolio safely!”</p>
+    <strong>— Sarah J.</strong>
+  </div>
+</section>
+<footer>
+  <div class="footer-container">
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="#hero">Home</a></li>
+        <li><a href="#plans">Investment Plans</a></li>
+        <li><a href="#about">About Us</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <ul>
+        <li><a href="#">How It Works</a></li>
+        <li><a href="#">Security & Rent</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ✅ Add a separate bar for copyright & terms -->
+  <div class="footer-bottom">
+    <p>© 2025 Bybit Global Ltd. All rights reserved.</p>
+    <a href="#">Terms & Conditions</a>
+  </div>
+</footer>
