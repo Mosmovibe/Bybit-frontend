@@ -21,7 +21,7 @@ if (registerForm) {
 
     if (data.message) {
       alert('✅ Registered successfully! Now login.');
-      window.location.href = 'login.html'; // Optional: redirect to login page
+      window.location.href = '#login'; // ✅ FIXED: use same-page section instead of login.html
     } else {
       alert(data.error || 'Something went wrong!');
     }
@@ -36,8 +36,8 @@ if (loginForm) {
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const email = loginForm.querySelector('input[type="email"]').value;
-    const password = loginForm.querySelector('input[type="password"]').value;
+    const email = loginForm.querySelector('input[name="email"]').value;
+    const password = loginForm.querySelector('input[name="password"]').value;
 
     const res = await fetch('https://bybit-backend-xeuv.onrender.com/api/login', {
       method: 'POST',
@@ -51,7 +51,7 @@ if (loginForm) {
     if (data.token) {
       localStorage.setItem('token', data.token);
       alert('✅ Login successful!');
-      window.location.href = 'dashboard.html';
+      window.location.href = 'dashboard.html'; // ✅ make sure dashboard.html exists and works
     } else {
       alert(data.error || 'Login failed!');
     }
