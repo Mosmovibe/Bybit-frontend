@@ -9,11 +9,11 @@ async function loadDashboard() {
 
   try {
     const res = await fetch('https://bybit-backend-xeuv.onrender.com/api/dashboard', {
-      headers: { 'Authorization': token }
+      headers: { Authorization: token }
     });
 
     const data = await res.json();
-    console.log(data);
+    console.log('[✅ Dashboard Data]', data);
 
     if (!data.email) {
       alert('Session expired or unauthorized. Please login again.');
@@ -22,14 +22,19 @@ async function loadDashboard() {
       return;
     }
 
-    // ✅ Show user info
-    document.getElementById('greeting').textContent = `Hi, ${data.email}`;
-    document.getElementById('userBalance').textContent = `$${data.balance.toFixed(2)}`;
+    // ✅ Fill greeting & balance
+    const greetingEl = document.getElementById('greeting');
+    const balanceEl = document.getElementById('userBalance');
+    const profilePicEl = document.getElementById('profilePic');
 
-    const profilePic = document.getElementById('profilePic');
-    profilePic.src = data.profilePic
-      ? `https://bybit-backend-xeuv.onrender.com/${data.profilePic}`
-      : 'https://via.placeholder.com/120';
+    if (greetingEl) greetingEl.textContent = `Hi, ${data.email}`;
+    if (balanceEl) balanceEl.textContent = `$${Number(data.balance).toFixed(2)}`;
+
+    if (profilePicEl) {
+      profilePicEl.src = data.profilePic
+        ? `https://bybit-backend-xeuv.onrender.com/${data.profilePic}`
+        : 'https://via.placeholder.com/120';
+    }
 
   } catch (err) {
     console.error('❌ Dashboard load error:', err);
@@ -62,12 +67,12 @@ if (uploadForm) {
     try {
       const res = await fetch('https://bybit-backend-xeuv.onrender.com/api/upload', {
         method: 'POST',
-        headers: { 'Authorization': token },
+        headers: { Authorization: token },
         body: formData
       });
 
       const data = await res.json();
-      console.log(data);
+      console.log('[✅ Upload Response]', data);
 
       if (data.profilePic) {
         alert('✅ Profile picture updated!');
@@ -90,4 +95,4 @@ if (logoutBtn) {
     alert('✅ You have been logged out.');
     window.location.href = 'index.html#login';
   });
-}
+});
