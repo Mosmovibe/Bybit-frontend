@@ -26,8 +26,8 @@
 
   <!-- Header -->
   <header>
-    <a href="index.html" class="logo">
-      <img src="images/bybit-logo.png" alt="BYBIT GLOBAL Logo" />
+    <a href="#hero" class="logo">
+      <img src="images/bybit-logo.png" alt="BYBIT Logo" />
       <span>BYBIT</span>
     </a>
     <nav>
@@ -124,7 +124,7 @@
     <img id="profilePic" src="" alt="Profile Picture" width="120" style="border-radius:8px;">
   </section>
 
-  <!-- About Us (hidden by default) -->
+  <!-- About Us -->
   <section class="about" id="about" style="display: none;">
     <h2>About Us</h2>
     <p>At Bybit, our mission is to empower every investor with the best Web3 tools and insights.
@@ -132,7 +132,7 @@
       Join us to shape the future of finance together.</p>
   </section>
 
-  <!-- Contact (hidden by default) -->
+  <!-- Contact -->
   <section class="contact" id="contact" style="display: none;">
     <h2>Contact Us</h2>
     <p>Need help or have questions? Reach out to us anytime.</p>
@@ -143,105 +143,76 @@
     </div>
   </section>
 
-  <!-- ✅ Final Toggle Script wrapped correctly -->
+  <!-- Testimonials -->
+  <section class="testimonials">
+    <h2>What Our Investors Say</h2>
+    <div class="testimonial">
+      <p>“Bybit helped me grow my crypto portfolio safely!”</p>
+      <strong>— Sarah J.</strong>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-container">
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#hero">Home</a></li>
+          <li><a href="#plans">Investment Plans</a></li>
+          <li><a href="#about">About Us</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <ul>
+          <li><a href="#">How It Works</a></li>
+          <li><a href="#">Security & Rent</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Bybit Global Ltd. All rights reserved.</p>
+      <a href="#">Terms & Conditions</a>
+    </div>
+  </footer>
+
+  <!-- Toggle Scripts -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-
-      // CONTACT
       document.querySelector('a[href="#contact"]').addEventListener('click', function(e) {
         e.preventDefault();
-        document.querySelector('.hero').style.display = 'none';
-        document.querySelector('.plans').style.display = 'none';
-        document.querySelector('.register-form').style.display = 'none';
-        document.querySelector('.login-form').style.display = 'none';
-        document.querySelector('.dashboard').style.display = 'none';
-        document.querySelector('.about').style.display = 'none';
+        document.querySelectorAll('section').forEach(s => s.style.display = 'none');
         document.querySelector('.contact').style.display = 'block';
-        document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
       });
-
-      // ABOUT
       document.querySelector('a[href="#about"]').addEventListener('click', function(e) {
         e.preventDefault();
-        document.querySelector('.hero').style.display = 'none';
-        document.querySelector('.plans').style.display = 'none';
-        document.querySelector('.register-form').style.display = 'none';
-        document.querySelector('.login-form').style.display = 'none';
-        document.querySelector('.dashboard').style.display = 'none';
-        document.querySelector('.contact').style.display = 'none';
+        document.querySelectorAll('section').forEach(s => s.style.display = 'none');
         document.querySelector('.about').style.display = 'block';
-        document.getElementById('about').scrollIntoView({ behavior: 'smooth' });
       });
-
-      // HOME
       document.querySelector('a[href="#hero"]').addEventListener('click', function(e) {
         e.preventDefault();
-        document.querySelector('.hero').style.display = 'block';
-        document.querySelector('.plans').style.display = 'block';
-        document.querySelector('.register-form').style.display = 'block';
-        document.querySelector('.login-form').style.display = 'block';
-        document.querySelector('.dashboard').style.display = 'none';
+        document.querySelectorAll('section').forEach(s => s.style.display = 'block');
         document.querySelector('.about').style.display = 'none';
         document.querySelector('.contact').style.display = 'none';
-        document.getElementById('hero').scrollIntoView({ behavior: 'smooth' });
       });
-
     });
   </script>
 
-  <!-- Your App Logic -->
+  <!-- App Logic -->
   <script src="app.js"></script>
   <script>
-  // Wait until the DOM is loaded
-  document.addEventListener('DOMContentLoaded', function() {
-
-    // Select all buttons inside the plans
-    const investButtons = document.querySelectorAll('.plan button');
-
-    // Attach a click event to each
-    investButtons.forEach(button => {
-      button.addEventListener('click', function(e) {
-        e.preventDefault();
-        alert('Please register or login to continue.');
-        // Optionally scroll to Register section:
-        document.getElementById('register').scrollIntoView({ behavior: 'smooth' });
+    document.addEventListener('DOMContentLoaded', function() {
+      const investButtons = document.querySelectorAll('.plan button');
+      investButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          alert('Please register or login to continue.');
+          document.getElementById('register').scrollIntoView({ behavior: 'smooth' });
+        });
       });
     });
+  </script>
 
-  });
-</script>
 </body>
 </html>
-<section class="testimonials">
-  <h2>What Our Investors Say</h2>
-  <div class="testimonial">
-    <p>“Bybit helped me grow my crypto portfolio safely!”</p>
-    <strong>— Sarah J.</strong>
-  </div>
-</section>
-<footer>
-  <div class="footer-container">
-    <div class="footer-col">
-      <h4>Quick Links</h4>
-      <ul>
-        <li><a href="#hero">Home</a></li>
-        <li><a href="#plans">Investment Plans</a></li>
-        <li><a href="#about">About Us</a></li>
-        <li><a href="#contact">Contact</a></li>
-      </ul>
-    </div>
-
-    <div class="footer-col">
-      <ul>
-        <li><a href="#">How It Works</a></li>
-        <li><a href="#">Security & Rent</a></li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- ✅ Add a separate bar for copyright & terms -->
-  <div class="footer-bottom">
-    <p>© 2025 Bybit Global Ltd. All rights reserved.</p>
-    <a href="#">Terms & Conditions</a>
-  </div>
-</footer>

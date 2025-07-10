@@ -23,8 +23,8 @@ async function loadDashboard() {
     }
 
     // ✅ Show user info
-    document.getElementById('greeting').textContent = `Welcome, ${data.email}`;
-    document.getElementById('userBalance').textContent = `$${data.balance}`;
+    document.getElementById('greeting').textContent = `Hi, ${data.email}`;
+    document.getElementById('userBalance').textContent = `$${data.balance.toFixed(2)}`;
 
     const profilePic = document.getElementById('profilePic');
     profilePic.src = data.profilePic
@@ -32,7 +32,7 @@ async function loadDashboard() {
       : 'https://via.placeholder.com/120';
 
   } catch (err) {
-    console.error(err);
+    console.error('❌ Dashboard load error:', err);
     alert('Something went wrong. Please login again.');
     localStorage.removeItem('token');
     window.location.href = 'index.html#login';
@@ -49,7 +49,7 @@ if (uploadForm) {
 
     const token = localStorage.getItem('token');
     const fileInput = document.querySelector('input[name="profilePic"]');
-    const file = fileInput.files[0];
+    const file = fileInput?.files?.[0];
 
     if (!file) {
       alert('Please select an image to upload.');
@@ -73,21 +73,21 @@ if (uploadForm) {
         alert('✅ Profile picture updated!');
         document.getElementById('profilePic').src = `https://bybit-backend-xeuv.onrender.com/${data.profilePic}`;
       } else {
-        alert(data.error || 'Upload failed.');
+        alert(data.error || '❌ Upload failed.');
       }
     } catch (err) {
-      console.error(err);
-      alert('Upload failed. Please try again.');
+      console.error('❌ Upload error:', err);
+      alert('❌ Upload failed. Try again.');
     }
   });
 }
 
-// ✅ Logout button
+// ✅ Logout button logic
 const logoutBtn = document.getElementById('logoutBtn');
 if (logoutBtn) {
   logoutBtn.addEventListener('click', () => {
     localStorage.removeItem('token');
     alert('✅ You have been logged out.');
-    window.location.href = 'index.html';
+    window.location.href = 'index.html#login';
   });
 }
