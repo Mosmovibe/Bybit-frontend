@@ -1,4 +1,4 @@
-// ✅ Load user dashboard info
+// ✅ Load user dashboard info when page loads
 async function loadDashboard() {
   const token = localStorage.getItem('token');
   if (!token) {
@@ -7,34 +7,41 @@ async function loadDashboard() {
     return;
   }
 
-  const res = await fetch('https://bybit-backend-xeuv.onrender.com/api/dashboard', {
-    headers: { 'Authorization': token }
-  });
+  try {
+    const res = await fetch('https://bybit-backend-xeuv.onrender.com/api/dashboard', {
+      headers: { 'Authorization': token }
+    });
 
-  const data = await res.json();
-  console.log(data);
+    const data = await res.json();
+    console.log(data);
 
-  if (!data.email) {
-    alert('Session expired or unauthorized. Please login again.');
+    if (!data.email) {
+      alert('Session expired or unauthorized. Please login again.');
+      localStorage.removeItem('token');
+      window.location.href = 'index.html#login';
+      return;
+    }
+
+    // ✅ Show user info
+    document.getElementById('greeting').textContent = `Welcome, ${data.email}`;
+    document.getElementById('userBalance').textContent = `$${data.balance}`;
+
+    const profilePic = document.getElementById('profilePic');
+    profilePic.src = data.profilePic
+      ? `https://bybit-backend-xeuv.onrender.com/${data.profilePic}`
+      : 'https://via.placeholder.com/120';
+
+  } catch (err) {
+    console.error(err);
+    alert('Something went wrong. Please login again.');
     localStorage.removeItem('token');
     window.location.href = 'index.html#login';
-    return;
-  }
-
-  // ✅ Fill user info
-  document.getElementById('greeting').textContent = `Hi, ${data.email}`;
-  document.getElementById('userBalance').textContent = data.balance;
-
-  if (data.profilePic) {
-    document.getElementById('profilePic').src = `https://bybit-backend-xeuv.onrender.com/${data.profilePic}`;
-  } else {
-    document.getElementById('profilePic').src = 'https://via.placeholder.com/120';
   }
 }
 
 window.addEventListener('DOMContentLoaded', loadDashboard);
 
-// ✅ Upload profile picture logic
+// ✅ Upload new profile picture
 const uploadForm = document.getElementById('uploadForm');
 if (uploadForm) {
   uploadForm.addEventListener('submit', async (e) => {
@@ -44,23 +51,43 @@ if (uploadForm) {
     const fileInput = document.querySelector('input[name="profilePic"]');
     const file = fileInput.files[0];
 
+    if (!file) {
+      alert('Please select an image to upload.');
+      return;
+    }
+
     const formData = new FormData();
     formData.append('profilePic', file);
 
-    const res = await fetch('https://bybit-backend-xeuv.onrender.com/api/upload', {
-      method: 'POST',
-      headers: { 'Authorization': token },
-      body: formData
-    });
+    try {
+      const res = await fetch('https://bybit-backend-xeuv.onrender.com/api/upload', {
+        method: 'POST',
+        headers: { 'Authorization': token },
+        body: formData
+      });
 
-    const data = await res.json();
-    console.log(data);
+      const data = await res.json();
+      console.log(data);
 
-    if (data.profilePic) {
-      alert('✅ Profile picture updated!');
-      document.getElementById('profilePic').src = `https://bybit-backend-xeuv.onrender.com/${data.profilePic}`;
-    } else {
-      alert(data.error || 'Upload failed.');
+      if (data.profilePic) {
+        alert('✅ Profile picture updated!');
+        document.getElementById('profilePic').src = `https://bybit-backend-xeuv.onrender.com/${data.profilePic}`;
+      } else {
+        alert(data.error || 'Upload failed.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Upload failed. Please try again.');
     }
+  });
+}
+
+// ✅ Logout button
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem('token');
+    alert('✅ You have been logged out.');
+    window.location.href = 'index.html';
   });
 }

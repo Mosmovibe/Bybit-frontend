@@ -2,42 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Dashboard | BYBIT</title>
+  <title>Bybit Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+
+  <!-- ✅ Header -->
   <header>
-    <a href="index.html" class="logo">
-      <img src="images/bybit-logo.png" alt="BYBIT Logo" />
+    <div class="logo">
+      <img src="images/bybit-logo.png" alt="Bybit Logo" style="height: 40px;">
       <span>BYBIT</span>
-    </a>
+    </div>
+    <button id="logoutBtn">Logout</button>
   </header>
 
+  <!-- ✅ Dashboard content -->
   <main class="dashboard-container">
-    <h2 id="greeting">Hi, User</h2>
+    <h2>Welcome to Your Dashboard</h2>
+    <p><strong id="greeting">Hi, </strong></p>
+    <p><strong>Balance:</strong> <span id="userBalance">$0</span></p>
 
-    <div class="dashboard-card">
-      <div class="profile-section">
-        <h3>Your Profile Picture</h3>
-        <img id="profilePic" src="https://via.placeholder.com/120" alt="Profile Picture" class="profile-pic"/>
-        <form id="uploadForm">
-          <input type="file" name="profilePic" accept="image/*" required />
-          <button type="submit">Upload New Picture</button>
-        </form>
-      </div>
+    <div class="profile-section">
+      <h3>Your Profile Picture</h3>
+      <img id="profilePic" src="https://via.placeholder.com/120" alt="Profile Picture" width="120" style="border-radius:8px;">
 
-      <div class="balance-section">
-        <h3>Account Balance</h3>
-        <p>$<span id="userBalance">0</span></p>
-      </div>
+      <form id="uploadForm">
+        <input type="file" name="profilePic" accept="image/*" required>
+        <button type="submit">Upload New Picture</button>
+      </form>
     </div>
   </main>
 
-  <footer>
-    <p>&copy; 2025 Bybit Global Ltd. All rights reserved. | <a href="index.html#terms">Terms & Conditions</a></p>
-  </footer>
-
+  <!-- ✅ Dashboard script -->
   <script src="dashboard.js"></script>
 </body>
 </html>

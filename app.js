@@ -6,14 +6,13 @@ if (registerForm) {
   registerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const fullname = registerForm.querySelector('input[name="fullname"]').value;
     const email = registerForm.querySelector('input[name="email"]').value;
     const password = registerForm.querySelector('input[name="password"]').value;
 
     const res = await fetch('https://bybit-backend-xeuv.onrender.com/api/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fullname, email, password })
+      body: JSON.stringify({ email, password })
     });
 
     const data = await res.json();
@@ -21,7 +20,7 @@ if (registerForm) {
 
     if (data.message) {
       alert('✅ Registered successfully! Now login.');
-      window.location.href = '#login'; // ✅ FIXED: use same-page section instead of login.html
+      window.location.href = '#login'; // stays on the same page, scrolls to login
     } else {
       alert(data.error || 'Something went wrong!');
     }
@@ -51,7 +50,7 @@ if (loginForm) {
     if (data.token) {
       localStorage.setItem('token', data.token);
       alert('✅ Login successful!');
-      window.location.href = 'dashboard.html'; // ✅ make sure dashboard.html exists and works
+      window.location.href = 'dashboard.html'; // redirect to dashboard page
     } else {
       alert(data.error || 'Login failed!');
     }
