@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Bybit Crypto Animation</title>
+  <title>Bybit</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
   <!-- Preloader -->
   <div id="preloader">
     <img src="images/bybit-logo.png" alt="Logo">
@@ -32,6 +33,7 @@
     <nav>
       <a href="#hero">Home</a>
       <a href="#plans">Investment Plans</a>
+      <a href="#about">About Us</a>
       <a href="#contact">Contact</a>
       <a href="#register" class="register-button">Register</a>
       <a href="#login" class="login-button">Login</a>
@@ -48,12 +50,12 @@
     </div>
   </section>
 
-  <!-- ✅ FIXED: Crypto Animation using external links -->
-  <div class="crypto-animation">
-    <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=032" alt="BTC">
-    <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=032" alt="ETH">
-    <img src="https://cryptologos.cc/logos/tether-usdt-logo.png?v=032" alt="USDT">
-    <img src="https://cryptologos.cc/logos/solana-sol-logo.png?v=032" alt="SOL">
+  <!-- Crypto Banner -->
+  <div class="crypto-banner">
+    <img src="images/bitcoin.png" alt="BTC">
+    <img src="images/ethereum.png" alt="ETH">
+    <img src="images/tether.png" alt="USDT">
+    <img src="images/solana.png" alt="SOL">
   </div>
 
   <!-- Plans -->
@@ -122,8 +124,16 @@
     <img id="profilePic" src="" alt="Profile Picture" width="120" style="border-radius:8px;">
   </section>
 
-  <!-- Contact -->
-  <section class="contact" id="contact">
+  <!-- About Us (hidden by default) -->
+  <section class="about" id="about" style="display: none;">
+    <h2>About Us</h2>
+    <p>At Bybit, our mission is to empower every investor with the best Web3 tools and insights.
+      We believe in secure, transparent, and innovative crypto investing for everyone, everywhere.
+      Join us to shape the future of finance together.</p>
+  </section>
+
+  <!-- Contact (hidden by default) -->
+  <section class="contact" id="contact" style="display: none;">
     <h2>Contact Us</h2>
     <p>Need help or have questions? Reach out to us anytime.</p>
     <div class="contact-details">
@@ -141,6 +151,8 @@
         <ul>
           <li><a href="#hero">Home</a></li>
           <li><a href="#plans">Investment Plans</a></li>
+          <li><a href="#about">About Us</a></li>
+          <li><a href="#contact">Contact</a></li>
           <li><a href="#dashboard">Dashboard</a></li>
           <li><a href="#faq">FAQ</a></li>
         </ul>
@@ -148,7 +160,6 @@
       <div class="footer-col">
         <h4>Terms & Conditions</h4>
         <ul>
-          <li><a href="about.html">About Us</a></li>
           <li><a href="#">How It Works</a></li>
           <li><a href="#">Security & Rent</a></li>
         </ul>
@@ -157,7 +168,53 @@
     <p>&copy; 2025 Bybit Global Ltd. All rights reserved.</p>
   </footer>
 
-  <!-- ✅ Must be LAST -->
+  <!-- ✅ Final Toggle Script wrapped correctly -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+      // CONTACT
+      document.querySelector('a[href="#contact"]').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelector('.hero').style.display = 'none';
+        document.querySelector('.plans').style.display = 'none';
+        document.querySelector('.register-form').style.display = 'none';
+        document.querySelector('.login-form').style.display = 'none';
+        document.querySelector('.dashboard').style.display = 'none';
+        document.querySelector('.about').style.display = 'none';
+        document.querySelector('.contact').style.display = 'block';
+        document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+      });
+
+      // ABOUT
+      document.querySelector('a[href="#about"]').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelector('.hero').style.display = 'none';
+        document.querySelector('.plans').style.display = 'none';
+        document.querySelector('.register-form').style.display = 'none';
+        document.querySelector('.login-form').style.display = 'none';
+        document.querySelector('.dashboard').style.display = 'none';
+        document.querySelector('.contact').style.display = 'none';
+        document.querySelector('.about').style.display = 'block';
+        document.getElementById('about').scrollIntoView({ behavior: 'smooth' });
+      });
+
+      // HOME
+      document.querySelector('a[href="#hero"]').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelector('.hero').style.display = 'block';
+        document.querySelector('.plans').style.display = 'block';
+        document.querySelector('.register-form').style.display = 'block';
+        document.querySelector('.login-form').style.display = 'block';
+        document.querySelector('.dashboard').style.display = 'none';
+        document.querySelector('.about').style.display = 'none';
+        document.querySelector('.contact').style.display = 'none';
+        document.getElementById('hero').scrollIntoView({ behavior: 'smooth' });
+      });
+
+    });
+  </script>
+
+  <!-- Your App Logic -->
   <script src="app.js"></script>
 </body>
 </html>
