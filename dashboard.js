@@ -2,7 +2,7 @@
 async function loadDashboard() {
   const token = localStorage.getItem('token');
   if (!token) {
-    alert('You must login first!');
+    alert('❌ You must login first!');
     window.location.href = 'index.html#login';
     return;
   }
@@ -15,30 +15,24 @@ async function loadDashboard() {
     const data = await res.json();
     console.log('[✅ Dashboard Data]', data);
 
-    if (!data.email) {
-      alert('Session expired or unauthorized. Please login again.');
+    if (!data.fullname) {
+      alert('❌ Session expired. Please login again.');
       localStorage.removeItem('token');
       window.location.href = 'index.html#login';
       return;
     }
 
-    // ✅ Fill greeting & balance
-    const greetingEl = document.getElementById('greeting');
-    const balanceEl = document.getElementById('userBalance');
+    document.getElementById('greeting').textContent = `Hi, ${data.fullname}`;
+    document.getElementById('userBalance').textContent = `$${Number(data.balance).toFixed(2)}`;
+
     const profilePicEl = document.getElementById('profilePic');
-
-    if (greetingEl) greetingEl.textContent = `Hi, ${data.email}`;
-    if (balanceEl) balanceEl.textContent = `$${Number(data.balance).toFixed(2)}`;
-
-    if (profilePicEl) {
-      profilePicEl.src = data.profilePic
-        ? `https://bybit-backend-xeuv.onrender.com/${data.profilePic}`
-        : 'https://via.placeholder.com/120';
-    }
+    profilePicEl.src = data.profilePic
+      ? `https://bybit-backend-xeuv.onrender.com/${data.profilePic}`
+      : 'https://via.placeholder.com/120';
 
   } catch (err) {
     console.error('❌ Dashboard load error:', err);
-    alert('Something went wrong. Please login again.');
+    alert('❌ Something went wrong. Please login again.');
     localStorage.removeItem('token');
     window.location.href = 'index.html#login';
   }
@@ -46,18 +40,24 @@ async function loadDashboard() {
 
 window.addEventListener('DOMContentLoaded', loadDashboard);
 
-// ✅ Upload new profile picture
+// ✅ Upload profile pic
 const uploadForm = document.getElementById('uploadForm');
 if (uploadForm) {
   uploadForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const token = localStorage.getItem('token');
+    if (!token) {
+      alert('❌ You must be logged in.');
+      window.location.href = 'index.html#login';
+      return;
+    }
+
     const fileInput = document.querySelector('input[name="profilePic"]');
     const file = fileInput?.files?.[0];
 
     if (!file) {
-      alert('Please select an image to upload.');
+      alert('❌ Please select an image to upload.');
       return;
     }
 
@@ -93,6 +93,6 @@ if (logoutBtn) {
   logoutBtn.addEventListener('click', () => {
     localStorage.removeItem('token');
     alert('✅ You have been logged out.');
-    window.location.href = 'index.html#login';
+    window.location.href = 'index.html#hero'; // Home
   });
-});
+}

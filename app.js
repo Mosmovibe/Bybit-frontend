@@ -1,4 +1,4 @@
-// ✅ REGISTER FORM
+// ✅ REGISTER FORM — with fullname
 const registerForm = document.querySelector('.register-form form');
 if (registerForm) {
   console.log('✅ Register form loaded!');
@@ -6,10 +6,11 @@ if (registerForm) {
   registerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    const fullname = registerForm.querySelector('input[name="fullname"]').value.trim();
     const email = registerForm.querySelector('input[name="email"]').value.trim();
     const password = registerForm.querySelector('input[name="password"]').value.trim();
 
-    if (!email || !password) {
+    if (!fullname || !email || !password) {
       alert('❌ Please fill in all fields.');
       return;
     }
@@ -17,11 +18,11 @@ if (registerForm) {
     const res = await fetch('https://bybit-backend-xeuv.onrender.com/api/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ fullname, email, password })
     });
 
     const data = await res.json();
-    console.log(data);
+    console.log('[✅ Register]', data);
 
     if (data.message) {
       alert('✅ Registered successfully! Please login now.');
@@ -55,12 +56,12 @@ if (loginForm) {
     });
 
     const data = await res.json();
-    console.log(data);
+    console.log('[✅ Login]', data);
 
     if (data.token) {
       localStorage.setItem('token', data.token);
       alert('✅ Login successful!');
-      window.location.href = 'dashboard.html'; // make sure this matches your working dashboard filename
+      window.location.href = 'dashboard.html';
     } else {
       alert(data.error || '❌ Login failed!');
     }
