@@ -1,36 +1,36 @@
-/* ✅ Verify Page Styling */
-.verify-container {
-  max-width: 600px;
-  margin: 100px auto;
-  text-align: center;
-  padding: 40px 20px;
-  border: 2px solid #f7931a;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 0 20px rgba(0,0,0,0.1);
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Verify Your Bybit Account</title>
+  <link rel="stylesheet" href="verify.css" />
+</head>
+<body>
+  <div class="verify-container">
+    <h1>Account Verification</h1>
+    <div id="verify-message">Verifying your account, please wait...</div>
+  </div>
 
-.verify-container h1 {
-  font-size: 2em;
-  margin-bottom: 20px;
-  color: #333;
-}
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
 
-#verify-message {
-  font-size: 1.2em;
-  color: #555;
-}
-
-#verify-message a {
-  display: inline-block;
-  margin-top: 20px;
-  background: #f7931a;
-  color: #fff;
-  padding: 12px 24px;
-  text-decoration: none;
-  border-radius: 4px;
-}
-
-#verify-message a:hover {
-  background: #d97900;
-}
+    if (token) {
+      fetch(`https://bybit-backend-xeuv.onrender.com/api/verify?token=${token}`)
+        .then(res => res.text())
+        .then(message => {
+          document.getElementById('verify-message').innerHTML = message + 
+            '<br><a href="index.html#login">Go to Login</a>';
+        })
+        .catch(err => {
+          console.error(err);
+          document.getElementById('verify-message').innerHTML = 
+            '❌ Verification failed. Please try again.';
+        });
+    } else {
+      document.getElementById('verify-message').innerHTML = 
+        '❌ Invalid verification link.';
+    }
+  </script>
+</body>
+</html>

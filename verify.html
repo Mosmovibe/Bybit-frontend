@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Verify Your Bybit Account</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      text-align: center;
+      background: #f9f9f9;
+    }
+    #result {
+      font-size: 1.2rem;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h2>Account Verification</h2>
+  <div id="result">Verifying your account, please wait...</div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+
+    if (token) {
+      fetch(`https://bybit-backend-xeuv.onrender.com/api/verify?token=${token}`)
+        .then(res => res.text())
+        .then(message => {
+          document.getElementById('result').innerHTML = message;
+        })
+        .catch(err => {
+          console.error(err);
+          document.getElementById('result').innerHTML = '❌ Verification failed. Please try again.';
+        });
+    } else {
+      document.getElementById('result').innerHTML = '❌ Invalid verification link.';
+    }
+  </script>
+</body>
+</html>
