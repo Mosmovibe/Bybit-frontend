@@ -1,0 +1,36 @@
+/* ✅ Verify Page Styling */
+.verify-container {
+  max-width: 600px;
+  margin: 100px auto;
+  text-align: center;
+  padding: 40px 20px;
+  border: 2px solid #f7931a;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+.verify-container h1 {
+  font-size: 2em;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+#verify-message {
+  font-size: 1.2em;
+  color: #555;
+}
+
+#verify-message a {
+  display: inline-block;
+  margin-top: 20px;
+  background: #f7931a;
+  color: #fff;
+  padding: 12px 24px;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+#verify-message a:hover {
+  background: #d97900;
+}
