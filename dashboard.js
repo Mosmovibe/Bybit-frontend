@@ -1,4 +1,4 @@
-const API_URL = 'https://bybit-backend-xeuv.onrender.com/api';
+const API_URL = 'https://YOUR-BACKEND.onrender.com/api';
 
 const token = localStorage.getItem('token');
 if (!token) {
@@ -33,7 +33,7 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
   window.location.href = 'index.html';
 });
 
-// ✅ Upload profile picture
+// ✅ Upload profile pic
 document.getElementById('uploadForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const fileInput = e.target.querySelector('input[name="profilePic"]');

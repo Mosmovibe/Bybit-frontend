@@ -1,51 +1,73 @@
-const API_URL = 'https://bybit-backend-xeuv.onrender.com/api';
+const API_URL = 'https://YOUR-BACKEND.onrender.com/api';
 
-const token = localStorage.getItem('token');
-if (!token) {
-  alert('Session expired. Please login again.');
-  window.location.href = 'index.html';
+// ✅ Register Form
+const registerForm = document.querySelector('.register-form form');
+if (registerForm) {
+  registerForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const fullname = registerForm.querySelector('input[name="fullname"]').value.trim();
+    const email = registerForm.querySelector('input[name="email"]').value.trim();
+    const password = registerForm.querySelector('input[name="password"]').value.trim();
+
+    if (!fullname || !email || !password) {
+      alert('❌ Please fill in all fields.');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullname, email, password })
+      });
+
+      const data = await res.json();
+      if (data.message) {
+        alert('✅ Registered successfully! Please login.');
+        window.location.href = '#login';
+      } else {
+        alert(data.error || '❌ Registration failed.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('❌ Something went wrong.');
+    }
+  });
 }
 
-// ✅ Get dashboard data
-fetch(`${API_URL}/dashboard`, {
-  headers: { Authorization: token }
-})
-  .then(res => {
-    if (!res.ok) throw new Error('Session expired');
-    return res.json();
-  })
-  .then(data => {
-    document.getElementById('greeting').textContent = `Hi, ${data.fullname}`;
-    document.getElementById('userBalance').textContent = `$${data.balance.toFixed(2)}`;
-    if (data.profilePic) {
-      document.getElementById('profilePic').src = data.profilePic;
+// ✅ Login Form
+const loginForm = document.querySelector('.login-form form');
+if (loginForm) {
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email = loginForm.querySelector('input[name="email"]').value.trim();
+    const password = loginForm.querySelector('input[name="password"]').value.trim();
+
+    if (!email || !password) {
+      alert('❌ Please fill in all fields.');
+      return;
     }
-  })
-  .catch(err => {
-    alert('Session expired. Please login again.');
-    localStorage.removeItem('token');
-    window.location.href = 'index.html';
+
+    try {
+      const res = await fetch(`${API_URL}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        alert('✅ Login successful!');
+        window.location.href = 'dashboard.html';
+      } else {
+        alert(data.error || '❌ Login failed.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('❌ Something went wrong.');
+    }
   });
-
-// ✅ Logout
-document.getElementById('logoutBtn').addEventListener('click', () => {
-  localStorage.removeItem('token');
-  window.location.href = 'index.html';
-});
-
-// ✅ Upload profile picture
-document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const fileInput = e.target.querySelector('input[name="profilePic"]');
-  const formData = new FormData();
-  formData.append('profilePic', fileInput.files[0]);
-
-  const response = await fetch(`${API_URL}/upload`, {
-    method: 'POST',
-    headers: { Authorization: token },
-    body: formData
-  });
-
-  const data = await response.json();
-  document.getElementById('profilePic').src = data.profilePic;
-});
+}
