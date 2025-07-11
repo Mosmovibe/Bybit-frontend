@@ -4,34 +4,40 @@
   <meta charset="UTF-8" />
   <title>Bybit Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ✅ Security CSP -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; script-src 'self'; style-src 'self';">
+
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body style="background: #0a0a1a; color: #fff; text-align: center;">
+<body>
 
   <!-- ✅ Header -->
-  <header style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
-    <div class="logo" style="display: flex; align-items: center;">
-      <img src="images/bybit-logo.png" alt="Bybit Logo" style="height: 40px; margin-right: 10px;">
+  <header>
+    <div class="logo">
+      <img src="images/bybit-logo.png" alt="Bybit Logo">
       <span>BYBIT</span>
     </div>
-  <button id="logoutBtn">Logout</button>
+    <button id="logoutBtn">Logout</button>
   </header>
 
   <!-- ✅ Dashboard content -->
-  <main style="max-width: 600px; margin: 50px auto;">
+  <main>
     <h2 id="greeting">Hi, User</h2>
     <p><strong>Balance:</strong> <span id="userBalance">$0.00</span></p>
 
     <div class="profile-section">
       <h3>Your Profile Picture</h3>
-      <img id="profilePic" src="https://via.placeholder.com/120" alt="Profile Picture" width="120" style="border-radius: 8px;">
-      <form id="uploadForm" style="margin-top: 20px;">
-        <input type="file" name="profilePic" accept="image/*" required />
+      <img id="profilePic" src="https://via.placeholder.com/120" alt="Profile Picture" width="120">
+      <form id="uploadForm">
+        <input type="file" name="profilePic" accept="image/*" required>
+        <br/>
         <button type="submit">Upload New Picture</button>
       </form>
     </div>
   </main>
 
+  <!-- ✅ Logic -->
   <script src="dashboard.js"></script>
 </body>
 </html>

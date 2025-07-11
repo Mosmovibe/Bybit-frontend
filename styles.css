@@ -802,3 +802,53 @@ footer a {
   color: #fff;
   text-decoration: underline;
 }
+body {
+  background: #0a0a1a;
+  color: #fff;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  height: 40px;
+  margin-right: 10px;
+}
+
+.logo span {
+  font-weight: bold;
+}
+
+button {
+  padding: 8px 16px;
+  background: #f7931a;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+main {
+  max-width: 600px;
+  margin: 50px auto;
+}
+
+.profile-section {
+  margin-top: 40px;
+}
+
+.profile-section img {
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
