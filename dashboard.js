@@ -1,14 +1,19 @@
-// ✅ Check if token exists
+const API_URL = 'https://bybit-backend-xeuv.onrender.com/api';
+
 const token = localStorage.getItem('token');
 if (!token) {
-  window.location.href = 'index.html'; // Redirect to login
+  alert('Session expired. Please login again.');
+  window.location.href = 'index.html';
 }
 
-// ✅ Fetch dashboard data
-fetch('/api/dashboard', {
-  headers: { 'Authorization': token }
+// ✅ Get dashboard data
+fetch(`${API_URL}/dashboard`, {
+  headers: { Authorization: token }
 })
-  .then(res => res.json())
+  .then(res => {
+    if (!res.ok) throw new Error('Session expired');
+    return res.json();
+  })
   .then(data => {
     document.getElementById('greeting').textContent = `Hi, ${data.fullname}`;
     document.getElementById('userBalance').textContent = `$${data.balance.toFixed(2)}`;
@@ -17,7 +22,8 @@ fetch('/api/dashboard', {
     }
   })
   .catch(err => {
-    console.error(err);
+    alert('Session expired. Please login again.');
+    localStorage.removeItem('token');
     window.location.href = 'index.html';
   });
 
@@ -27,16 +33,16 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
   window.location.href = 'index.html';
 });
 
-// ✅ Upload profile pic
+// ✅ Upload profile picture
 document.getElementById('uploadForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const fileInput = e.target.querySelector('input[name="profilePic"]');
   const formData = new FormData();
   formData.append('profilePic', fileInput.files[0]);
 
-  const response = await fetch('/api/upload', {
+  const response = await fetch(`${API_URL}/upload`, {
     method: 'POST',
-    headers: { 'Authorization': token },
+    headers: { Authorization: token },
     body: formData
   });
 

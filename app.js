@@ -1,75 +1,51 @@
-// ✅ REGISTER FORM
-const registerForm = document.querySelector('.register-form form');
-if (registerForm) {
-  registerForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+const API_URL = 'https://bybit-backend-xeuv.onrender.com/api';
 
-    const fullname = registerForm.querySelector('input[name="fullname"]').value.trim();
-    const email = registerForm.querySelector('input[name="email"]').value.trim();
-    const password = registerForm.querySelector('input[name="password"]').value.trim();
-
-    if (!fullname || !email || !password) {
-      alert('❌ Please fill in all fields.');
-      return;
-    }
-
-    try {
-      const res = await fetch('https://bybit-backend-xeuv.onrender.com/api/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullname, email, password })
-      });
-
-      const data = await res.json();
-      console.log('[✅ Register Response]', data);
-
-      if (data.message) {
-        alert('✅ Registered successfully! Please login now.');
-        window.location.href = '#login';
-      } else {
-        alert(data.error || '❌ Registration failed.');
-      }
-    } catch (err) {
-      console.error('❌ Register error:', err);
-      alert('❌ Registration failed. Try again.');
-    }
-  });
+const token = localStorage.getItem('token');
+if (!token) {
+  alert('Session expired. Please login again.');
+  window.location.href = 'index.html';
 }
 
-// ✅ LOGIN FORM
-const loginForm = document.querySelector('.login-form form');
-if (loginForm) {
-  loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const email = loginForm.querySelector('input[name="email"]').value.trim();
-    const password = loginForm.querySelector('input[name="password"]').value.trim();
-
-    if (!email || !password) {
-      alert('❌ Please fill in all fields.');
-      return;
+// ✅ Get dashboard data
+fetch(`${API_URL}/dashboard`, {
+  headers: { Authorization: token }
+})
+  .then(res => {
+    if (!res.ok) throw new Error('Session expired');
+    return res.json();
+  })
+  .then(data => {
+    document.getElementById('greeting').textContent = `Hi, ${data.fullname}`;
+    document.getElementById('userBalance').textContent = `$${data.balance.toFixed(2)}`;
+    if (data.profilePic) {
+      document.getElementById('profilePic').src = data.profilePic;
     }
-
-    try {
-      const res = await fetch('https://bybit-backend-xeuv.onrender.com/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-
-      const data = await res.json();
-      console.log('[✅ Login Response]', data);
-
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-        alert('✅ Login successful!');
-        window.location.href = 'dashboard.html';
-      } else {
-        alert(data.error || '❌ Login failed.');
-      }
-    } catch (err) {
-      console.error('❌ Login error:', err);
-      alert('❌ Login failed. Try again.');
-    }
+  })
+  .catch(err => {
+    alert('Session expired. Please login again.');
+    localStorage.removeItem('token');
+    window.location.href = 'index.html';
   });
-}
+
+// ✅ Logout
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  localStorage.removeItem('token');
+  window.location.href = 'index.html';
+});
+
+// ✅ Upload profile picture
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fileInput = e.target.querySelector('input[name="profilePic"]');
+  const formData = new FormData();
+  formData.append('profilePic', fileInput.files[0]);
+
+  const response = await fetch(`${API_URL}/upload`, {
+    method: 'POST',
+    headers: { Authorization: token },
+    body: formData
+  });
+
+  const data = await response.json();
+  document.getElementById('profilePic').src = data.profilePic;
+});
