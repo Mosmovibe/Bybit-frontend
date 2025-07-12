@@ -1,119 +1,82 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Bybit Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
+const API_URL = 'https://bybit-backend-xeuv.onrender.com';
 
-  <!-- ✅ Header -->
-  <header>
-    <div class="logo">
-      <img src="images/bybit-logo.png" alt="Bybit Logo">
-      <span>BYBIT</span>
-    </div>
-    <button id="logoutBtn">Logout</button>
-  </header>
+// ✅ Ensure user is authenticated
+const token = localStorage.getItem('token');
+if (!token) {
+  alert('❌ Session expired. Please login again.');
+  window.location.href = 'index.html';
+}
 
-  <!-- ✅ Dashboard Content -->
-  <main>
-    <h2 id="greeting">Hi, User</h2>
-    <p><strong>Balance:</strong> <span id="userBalance">$0.00</span></p>
+// ✅ Fetch user dashboard data
+fetch(`${API_URL}/api/dashboard`, {
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+})
+  .then(res => {
+    if (!res.ok) throw new Error('Session expired');
+    return res.json();
+  })
+  .then(data => {
+    const { fullname, balance, profilePic } = data;
 
-    <div class="profile-section">
-      <h3>Your Profile Picture</h3>
-      <img id="profilePic" src="https://via.placeholder.com/120" alt="Profile Picture" width="120">
-      <form id="uploadForm">
-        <input type="file" name="profilePic" accept="image/*" required>
-        <br/>
-        <button type="submit">Upload New Picture</button>
-      </form>
-    </div>
-  </main>
-
-  <script>
-    const API_URL = 'https://bybit-backend-xeuv.onrender.com';
-
-    // ✅ Utility to fetch with token
-    async function authFetch(url, options = {}) {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        alert('❌ Session expired. Please log in again.');
-        window.location.href = 'index.html';
-        return;
-      }
-
-      return fetch(url, {
-        ...options,
-        headers: {
-          ...options.headers,
-          'Authorization': `Bearer ${token}`
-        }
-      });
+    if (!fullname || typeof balance !== 'number') {
+      throw new Error('Incomplete or invalid user data');
     }
 
-    // ✅ Load dashboard data
-    async function loadUserData() {
-      try {
-        const res = await authFetch(`${API_URL}/api/dashboard`);
-        const data = await res.json();
+    document.getElementById('greeting').textContent = `Hi, ${fullname}`;
+    document.getElementById('userBalance').textContent = `$${balance.toFixed(2)}`;
 
-        if (data.error) {
-          alert('❌ Session expired. Please log in again.');
-          localStorage.removeItem('token');
-          window.location.href = 'index.html';
-        } else {
-          document.getElementById('greeting').textContent = `Hi, ${data.fullname}`;
-          document.getElementById('userBalance').textContent = `$${data.balance.toFixed(2)}`;
-          document.getElementById('profilePic').src = data.profilePic || 'https://via.placeholder.com/120';
-        }
-      } catch (err) {
-        console.error(err);
-        alert('❌ Failed to load dashboard.');
-      }
+    if (profilePic) {
+      document.getElementById('profilePic').src = profilePic;
     }
+  })
+  .catch(err => {
+    console.error('[Dashboard Error]', err);
+    alert('❌ Session expired or unauthorized. Please login again.');
+    localStorage.removeItem('token');
+    window.location.href = 'index.html';
+  });
 
-    // ✅ Logout
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      localStorage.removeItem('token');
-      window.location.href = 'index.html';
+// ✅ Logout logic
+document.getElementById('logoutBtn')?.addEventListener('click', () => {
+  localStorage.removeItem('token');
+  window.location.href = 'index.html';
+});
+
+// ✅ Upload new profile picture
+document.getElementById('uploadForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const fileInput = e.target.querySelector('input[name="profilePic"]');
+  if (!fileInput.files.length) {
+    alert('❌ Please select an image to upload.');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('profilePic', fileInput.files[0]);
+
+  try {
+    const res = await fetch(`${API_URL}/api/upload`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+        // ❗ Do NOT include 'Content-Type' for FormData – the browser sets it
+      },
+      body: formData
     });
 
-    // ✅ Upload new profile picture
-    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
+    const data = await res.json();
 
-      const fileInput = document.querySelector('input[name="profilePic"]');
-      const formData = new FormData();
-      formData.append('profilePic', fileInput.files[0]);
-
-      try {
-        const token = localStorage.getItem('token');
-        const res = await fetch(`${API_URL}/api/upload-profile`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          body: formData
-        });
-
-        const data = await res.json();
-        if (data.profilePicUrl) {
-          document.getElementById('profilePic').src = data.profilePicUrl;
-          alert('✅ Profile picture updated!');
-        } else {
-          alert(data.error || '❌ Upload failed.');
-        }
-      } catch (err) {
-        console.error(err);
-        alert('❌ Upload error.');
-      }
-    });
-
-    // Load dashboard on start
-    loadUserData();
-  </script>
-</body>
-</html>
+    if (res.ok && data.profilePic) {
+      document.getElementById('profilePic').src = data.profilePic;
+      alert('✅ Profile picture updated!');
+    } else {
+      throw new Error(data.error || 'Upload failed');
+    }
+  } catch (err) {
+    console.error('[Upload Error]', err);
+    alert('❌ Error uploading profile picture.');
+  }
+});

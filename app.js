@@ -19,7 +19,7 @@ async function authFetch(url, options = {}) {
   });
 }
 
-// ✅ Register Form
+// ✅ Register Form Logic
 const registerForm = document.querySelector('.register-form form');
 if (registerForm) {
   registerForm.addEventListener('submit', async (e) => {
@@ -42,7 +42,13 @@ if (registerForm) {
       });
 
       const data = await res.json();
-      if (data.message) {
+
+      if (data.token) {
+        // ✅ Automatically log in after successful signup
+        localStorage.setItem('token', data.token);
+        alert('✅ Signup successful!');
+        window.location.href = 'dashboard.html';
+      } else if (data.message) {
         alert('✅ Registered successfully! Please login.');
         window.location.href = '#login';
       } else {
@@ -55,7 +61,7 @@ if (registerForm) {
   });
 }
 
-// ✅ Login Form
+// ✅ Login Form Logic
 const loginForm = document.querySelector('.login-form form');
 if (loginForm) {
   loginForm.addEventListener('submit', async (e) => {
@@ -77,6 +83,7 @@ if (loginForm) {
       });
 
       const data = await res.json();
+
       if (data.token) {
         localStorage.setItem('token', data.token);
         alert('✅ Login successful!');
