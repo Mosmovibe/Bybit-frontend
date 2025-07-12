@@ -8,7 +8,7 @@ if (!token) {
 
 // ✅ Get dashboard data
 fetch(`${API_URL}/dashboard`, {
-  headers: { Authorization: token }
+  headers: { Authorization: `Bearer ${token}` }
 })
   .then(res => {
     if (!res.ok) throw new Error('Session expired');
@@ -42,7 +42,9 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
 
   const response = await fetch(`${API_URL}/upload`, {
     method: 'POST',
-    headers: { Authorization: token },
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
     body: formData
   });
 
