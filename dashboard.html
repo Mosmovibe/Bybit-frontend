@@ -33,7 +33,87 @@
     </div>
   </main>
 
-  <!-- ✅ Only dashboard logic here -->
-  <script src="dashboard.js"></script>
+  <script>
+    const API_URL = 'https://bybit-backend-xeuv.onrender.com';
+
+    // ✅ Utility to fetch with token
+    async function authFetch(url, options = {}) {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('❌ Session expired. Please log in again.');
+        window.location.href = 'index.html';
+        return;
+      }
+
+      return fetch(url, {
+        ...options,
+        headers: {
+          ...options.headers,
+          'Authorization': `Bearer ${token}`
+        }
+      });
+    }
+
+    // ✅ Load dashboard data
+    async function loadUserData() {
+      try {
+        const res = await authFetch(`${API_URL}/api/dashboard`);
+        const data = await res.json();
+
+        if (data.error) {
+          alert('❌ Session expired. Please log in again.');
+          localStorage.removeItem('token');
+          window.location.href = 'index.html';
+        } else {
+          document.getElementById('greeting').textContent = `Hi, ${data.fullname}`;
+          document.getElementById('userBalance').textContent = `$${data.balance.toFixed(2)}`;
+          document.getElementById('profilePic').src = data.profilePic || 'https://via.placeholder.com/120';
+        }
+      } catch (err) {
+        console.error(err);
+        alert('❌ Failed to load dashboard.');
+      }
+    }
+
+    // ✅ Logout
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('token');
+      window.location.href = 'index.html';
+    });
+
+    // ✅ Upload new profile picture
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const fileInput = document.querySelector('input[name="profilePic"]');
+      const formData = new FormData();
+      formData.append('profilePic', fileInput.files[0]);
+
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API_URL}/api/upload-profile`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+
+        const data = await res.json();
+        if (data.profilePicUrl) {
+          document.getElementById('profilePic').src = data.profilePicUrl;
+          alert('✅ Profile picture updated!');
+        } else {
+          alert(data.error || '❌ Upload failed.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('❌ Upload error.');
+      }
+    });
+
+    // Load dashboard on start
+    loadUserData();
+  </script>
 </body>
 </html>

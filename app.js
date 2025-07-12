@@ -1,5 +1,24 @@
 const API_URL = 'https://bybit-backend-xeuv.onrender.com';
 
+// ✅ Utility: Add auth headers to fetch
+async function authFetch(url, options = {}) {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert('❌ Session expired. Please log in again.');
+    window.location.href = 'index.html';
+    return;
+  }
+
+  return fetch(url, {
+    ...options,
+    headers: {
+      ...options.headers,
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+}
+
 // ✅ Register Form
 const registerForm = document.querySelector('.register-form form');
 if (registerForm) {
