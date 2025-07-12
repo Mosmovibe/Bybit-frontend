@@ -1,4 +1,4 @@
-const API_URL = 'https://YOUR-BACKEND.onrender.com/api';
+const API_URL = 'https://bybit-backend-xeuv.onrender.com';
 
 // ✅ Register Form
 const registerForm = document.querySelector('.register-form form');

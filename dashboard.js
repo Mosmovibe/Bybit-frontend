@@ -1,4 +1,4 @@
-const API_URL = 'https://YOUR-BACKEND.onrender.com/api';
+const API_URL = 'https://bybit-backend-xeuv.onrender.com';
 
 const token = localStorage.getItem('token');
 if (!token) {
