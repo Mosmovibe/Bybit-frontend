@@ -13,14 +13,12 @@
     <img src="images/bybit-logo.png" alt="Logo">
   </div>
   <script>
-    window.addEventListener('load', function(){
+    window.addEventListener('load', function() {
       const preloader = document.getElementById('preloader');
       preloader.style.opacity = '0';
       preloader.style.visibility = 'hidden';
       preloader.style.transition = 'opacity 0.5s ease';
-      setTimeout(() => {
-        preloader.remove();
-      }, 500);
+      setTimeout(() => preloader.remove(), 500);
     });
   </script>
 
@@ -116,23 +114,15 @@
     </form>
   </section>
 
-  <!-- About Us -->
+  <!-- About & Contact -->
   <section class="about" id="about" style="display: none;">
     <h2>About Us</h2>
-    <p>At Bybit, our mission is to empower every investor with the best Web3 tools and insights.
-      We believe in secure, transparent, and innovative crypto investing for everyone, everywhere.
-      Join us to shape the future of finance together.</p>
+    <p>At Bybit, our mission is to empower every investor with the best Web3 tools and insights.</p>
   </section>
 
-  <!-- Contact -->
   <section class="contact" id="contact" style="display: none;">
     <h2>Contact Us</h2>
-    <p>Need help or have questions? Reach out to us anytime.</p>
-    <div class="contact-details">
-      <p><strong>📍 Address:</strong> 450 Market Street, Suite 900, San Francisco, CA</p>
-      <p><strong>📞 Phone:</strong> +1 (706) 990-0220</p>
-      <p><strong>✉️ Email:</strong> support@bybitglobal.com</p>
-    </div>
+    <p>Email us at: <strong>support@bybitglobal.com</strong></p>
   </section>
 
   <!-- Testimonials -->
@@ -140,7 +130,7 @@
     <h2>What Our Investors Say</h2>
     <div class="testimonial">
       <p>“Bybit helped me grow my crypto portfolio safely!”</p>
-      <strong>— Ann coopman</strong>
+      <strong>— Ann Coopman</strong>
     </div>
   </section>
 
@@ -151,25 +141,18 @@
         <h4>Quick Links</h4>
         <ul>
           <li><a href="#hero">Home</a></li>
-          <li><a href="#plans">Investment Plans</a></li>
+          <li><a href="#plans">Plans</a></li>
           <li><a href="#about">About Us</a></li>
           <li><a href="#contact">Contact</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <ul>
-          <li><a href="#">How It Works</a></li>
-          <li><a href="#">Security & Rent</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-bottom">
       <p>© 2025 Bybit Global Ltd. All rights reserved.</p>
-      <a href="#">Terms & Conditions</a>
     </div>
   </footer>
 
-  <!-- Toggle Scripts -->
+  <!-- Navigation & CTA Scroll -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       document.querySelector('a[href="#contact"]').addEventListener('click', function(e) {
@@ -191,19 +174,81 @@
     });
   </script>
 
-  <!-- App Logic -->
-  <script src="app.js"></script>
+  <!-- Login/Register Logic -->
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const investButtons = document.querySelectorAll('.plan button');
-      investButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-          e.preventDefault();
-          alert('Please register or login to continue.');
-          document.getElementById('register').scrollIntoView({ behavior: 'smooth' });
-        });
+    const API_URL = 'https://bybit-backend-xeuv.onrender.com';
+
+    // ✅ Register
+    const registerForm = document.querySelector('.register-form form');
+    if (registerForm) {
+      registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fullname = registerForm.querySelector('input[name="fullname"]').value.trim();
+        const email = registerForm.querySelector('input[name="email"]').value.trim();
+        const password = registerForm.querySelector('input[name="password"]').value.trim();
+
+        if (!fullname || !email || !password) {
+          alert('❌ Please fill in all fields.');
+          return;
+        }
+
+        try {
+          const res = await fetch(`${API_URL}/api/signup`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fullname, email, password })
+          });
+
+          const data = await res.json();
+          if (data.token) {
+            localStorage.setItem('token', data.token);
+            setTimeout(() => window.location.href = 'dashboard.html', 300);
+          } else if (data.message) {
+            alert('✅ Registered successfully. Now login.');
+            window.location.href = '#login';
+          } else {
+            alert(data.error || '❌ Registration failed.');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('❌ Something went wrong.');
+        }
       });
-    });
+    }
+
+    // ✅ Login
+    const loginForm = document.querySelector('.login-form form');
+    if (loginForm) {
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = loginForm.querySelector('input[name="email"]').value.trim();
+        const password = loginForm.querySelector('input[name="password"]').value.trim();
+
+        if (!email || !password) {
+          alert('❌ Please fill in all fields.');
+          return;
+        }
+
+        try {
+          const res = await fetch(`${API_URL}/api/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+
+          const data = await res.json();
+          if (data.token) {
+            localStorage.setItem('token', data.token);
+            setTimeout(() => window.location.href = 'dashboard.html', 300);
+          } else {
+            alert(data.error || '❌ Login failed.');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('❌ Something went wrong.');
+        }
+      });
+    }
   </script>
 
 </body>
