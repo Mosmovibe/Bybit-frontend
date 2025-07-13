@@ -1,6 +1,6 @@
 const API_URL = 'https://bybit-backend-xeuv.onrender.com';
 
-// ✅ Utility: Auth fetch wrapper
+// ✅ Auth fetch wrapper
 async function authFetch(url, options = {}) {
   const token = localStorage.getItem('token');
   if (!token) {
@@ -34,6 +34,7 @@ if (registerForm) {
       return;
     }
 
+    // ✅ Correct email regex (no double escaping)
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(email)) {
       alert('❌ Invalid email format.');
@@ -41,11 +42,13 @@ if (registerForm) {
     }
 
     if (password.length < 6) {
-      alert('❌ Password must be at least 6 characters long.');
+      alert('❌ Password must be at least 6 characters.');
       return;
     }
 
     try {
+      console.log('Sending:', { fullname, email, password });
+
       const res = await fetch(`${API_URL}/api/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -53,16 +56,17 @@ if (registerForm) {
       });
 
       const data = await res.json();
+      console.log('[Signup Response]', data);
 
       if (res.ok && data.message) {
         alert('✅ Registration successful! Please log in.');
         window.location.href = '#login';
       } else {
-        throw new Error(data.error || 'Signup failed.');
+        throw new Error(data.error || data.message || 'Signup failed.');
       }
     } catch (err) {
-      console.error('[Signup Error]', err);
-      alert('❌ Registration failed. Please try again.');
+      console.error('[Signup Error]', err.message);
+      alert(`❌ Registration failed: ${err.message}`);
     }
   });
 }
@@ -89,17 +93,18 @@ if (loginForm) {
       });
 
       const data = await res.json();
+      console.log('[Login Response]', data);
 
       if (res.ok && data.token) {
         localStorage.setItem('token', data.token);
         alert('✅ Login successful!');
         window.location.href = 'dashboard.html';
       } else {
-        throw new Error(data.error || 'Login failed.');
+        throw new Error(data.message || data.error || 'Login failed.');
       }
     } catch (err) {
-      console.error('[Login Error]', err);
-      alert('❌ Login failed. Please check your credentials.');
+      console.error('[Login Error]', err.message);
+      alert(`❌ Login failed: ${err.message}`);
     }
   });
 }
