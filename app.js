@@ -1,6 +1,6 @@
 const API_URL = 'https://bybit-backend-xeuv.onrender.com';
 
-// ✅ Utility: Add auth headers to fetch
+// ✅ Utility: Auth fetch wrapper
 async function authFetch(url, options = {}) {
   const token = localStorage.getItem('token');
   if (!token) {
@@ -29,8 +29,20 @@ if (registerForm) {
     const email = registerForm.querySelector('input[name="email"]').value.trim();
     const password = registerForm.querySelector('input[name="password"]').value.trim();
 
+    // Basic validation
     if (!fullname || !email || !password) {
       alert('❌ Please fill in all fields.');
+      return;
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+      alert('❌ Invalid email format.');
+      return;
+    }
+
+    if (password.length < 6) {
+      alert('❌ Password must be at least 6 characters long.');
       return;
     }
 
@@ -43,20 +55,19 @@ if (registerForm) {
 
       const data = await res.json();
 
-      if (data.token) {
-        // ✅ Automatically log in after successful signup
+      if (res.ok && data.token) {
         localStorage.setItem('token', data.token);
         alert('✅ Signup successful!');
         window.location.href = 'dashboard.html';
-      } else if (data.message) {
-        alert('✅ Registered successfully! Please login.');
+      } else if (res.ok && data.message) {
+        alert('✅ Registered successfully. Please login.');
         window.location.href = '#login';
       } else {
-        alert(data.error || '❌ Registration failed.');
+        throw new Error(data.error || 'Signup failed.');
       }
     } catch (err) {
-      console.error(err);
-      alert('❌ Something went wrong.');
+      console.error('[Signup Error]', err);
+      alert('❌ Registration failed. Please try again.');
     }
   });
 }
@@ -84,16 +95,16 @@ if (loginForm) {
 
       const data = await res.json();
 
-      if (data.token) {
+      if (res.ok && data.token) {
         localStorage.setItem('token', data.token);
         alert('✅ Login successful!');
         window.location.href = 'dashboard.html';
       } else {
-        alert(data.error || '❌ Login failed.');
+        throw new Error(data.error || 'Login failed.');
       }
     } catch (err) {
-      console.error(err);
-      alert('❌ Something went wrong.');
+      console.error('[Login Error]', err);
+      alert('❌ Login failed. Please check your credentials.');
     }
   });
 }

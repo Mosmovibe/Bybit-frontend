@@ -8,48 +8,42 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  // ✅ Fetch dashboard data
+  // Load dashboard data
   fetch(`${API_URL}/api/dashboard`, {
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
+    headers: { Authorization: `Bearer ${token}` }
   })
-    .then(res => {
-      if (!res.ok) throw new Error('Session expired');
-      return res.json();
-    })
+    .then(res => res.json())
     .then(data => {
-      const { fullname, balance, profilePic } = data;
-      if (!fullname || typeof balance !== 'number') {
-        throw new Error('Incomplete user data');
-      }
+      if (!data.fullname) throw new Error("Missing user data");
 
-      document.getElementById('greeting').textContent = `Hi, ${fullname}`;
-      document.getElementById('userBalance').textContent = `$${balance.toFixed(2)}`;
-      if (profilePic) {
-        document.getElementById('profilePic').src = profilePic;
+      document.getElementById('greeting').textContent = `Hi, ${data.fullname}`;
+      document.getElementById('userBalance').textContent = `$${data.balance.toFixed(2)}`;
+      document.getElementById('userEmail').textContent = data.email;
+
+      if (data.profilePic) {
+        document.getElementById('profileDisplay').src = data.profilePic;
       }
     })
     .catch(err => {
       console.error('[Dashboard Error]', err);
-      alert('❌ Session expired or unauthorized access. Please login again.');
+      alert('Session expired or error loading dashboard.');
       localStorage.removeItem('token');
       window.location.href = 'index.html';
     });
 
-  // ✅ Logout
-  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+  // Logout
+  document.getElementById('logoutBtn').addEventListener('click', () => {
     localStorage.removeItem('token');
     window.location.href = 'index.html';
   });
 
-  // ✅ Upload profile picture
-  document.getElementById('uploadForm')?.addEventListener('submit', async (e) => {
+  // Upload profile picture
+  document.getElementById('uploadForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const fileInput = document.querySelector('input[name="profilePic"]');
+    const fileInput = document.getElementById('profilePicInput');
     if (!fileInput.files.length) {
-      alert('❌ Please select an image to upload.');
+      alert('❌ Please select an image.');
       return;
     }
 
@@ -57,17 +51,16 @@ document.addEventListener('DOMContentLoaded', () => {
     formData.append('profilePic', fileInput.files[0]);
 
     try {
-      const res = await fetch(`${API_URL}/api/upload`, {
+      const res = await fetch(`${API_URL}/api/upload-profile`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData
       });
 
       const data = await res.json();
-      if (res.ok && data.profilePic) {
-        document.getElementById('profilePic').src = data.profilePic;
+
+      if (res.ok && data.profilePicUrl) {
+        document.getElementById('profileDisplay').src = data.profilePicUrl;
         alert('✅ Profile picture updated!');
       } else {
         throw new Error(data.error || 'Upload failed');
