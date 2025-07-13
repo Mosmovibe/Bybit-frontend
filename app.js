@@ -29,7 +29,6 @@ if (registerForm) {
     const email = registerForm.querySelector('input[name="email"]').value.trim();
     const password = registerForm.querySelector('input[name="password"]').value.trim();
 
-    // Basic validation
     if (!fullname || !email || !password) {
       alert('❌ Please fill in all fields.');
       return;
@@ -55,12 +54,8 @@ if (registerForm) {
 
       const data = await res.json();
 
-      if (res.ok && data.token) {
-        localStorage.setItem('token', data.token);
-        alert('✅ Signup successful!');
-        window.location.href = 'dashboard.html';
-      } else if (res.ok && data.message) {
-        alert('✅ Registered successfully. Please login.');
+      if (res.ok && data.message) {
+        alert('✅ Registration successful! Please log in.');
         window.location.href = '#login';
       } else {
         throw new Error(data.error || 'Signup failed.');
