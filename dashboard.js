@@ -108,3 +108,5 @@ function fetchCryptoPrices() {
 }
 setInterval(fetchCryptoPrices, 5000);
 fetchCryptoPrices();
+document.getElementById('userPackage').textContent = data.package;
+document.getElementById('userJoined').textContent = data.joinedAt;
