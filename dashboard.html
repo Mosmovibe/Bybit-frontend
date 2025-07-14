@@ -2,45 +2,74 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dashboard | Bybit Global</title>
   <link rel="stylesheet" href="dashboard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
-<body>
-
-  <div class="container">
-    <header>
+<body class="light-theme">
+  <div class="dashboard-wrapper">
+    <header class="dashboard-header">
       <div class="logo">
-        <img src="images/bybit-logo.png" alt="BYBIT Logo" />
-        <span>BYBIT</span>
+        <img src="images/bybit-logo.png" alt="Bybit Logo" />
+        <span>BYBIT GLOBAL</span>
       </div>
-      <button id="logoutBtn" class="logout">Logout</button>
+      <div class="theme-toggle">
+        <button id="themeToggleBtn">🌙 Toggle Theme</button>
+        <button id="logoutBtn">Logout</button>
+      </div>
     </header>
 
-    <main>
-      <!-- Greeting Placeholder -->
-      <h1 id="greeting">Loading your info...</h1>
+    <section class="dashboard-main">
+      <div class="left-panel">
+        <div class="profile-card">
+          <img id="profileDisplay" src="images/default-avatar.png" alt="Profile Picture" />
+          <h2 id="greeting">Hi, User</h2>
+          <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
+          <p><strong>Package:</strong> <span id="userPackage">Free</span></p>
+          <p><strong>Balance:</strong> <span id="userBalance">$0.00</span></p>
 
-      <!-- Profile Card -->
-      <div class="profile-card">
-        <img
-          id="profileDisplay"
-          src="images/default-avatar.png"
-          alt="Profile Picture"
-          onerror="this.onerror=null;this.src='https://via.placeholder.com/100';"
-        />
-        <form id="uploadForm" enctype="multipart/form-data">
-          <input type="file" id="profilePicInput" accept="image/*" required />
-          <button type="submit">Upload Picture</button>
-        </form>
+          <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" id="profilePicInput" accept="image/*" required />
+            <button type="submit">Upload Picture</button>
+          </form>
+        </div>
+
+        <div class="upgrade-card">
+          <h3>Upgrade Your Package</h3>
+          <button class="upgrade-btn">Upgrade to Pro 🚀</button>
+        </div>
       </div>
 
-      <!-- Account Info -->
-      <div class="details">
-        <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
-        <p><strong>Balance:</strong> <span id="userBalance">$0.00</span></p>
+      <div class="right-panel">
+        <div class="crypto-ticker">
+          <h3>📈 Live Crypto Prices</h3>
+          <ul id="cryptoPrices">
+            <li>BTC/USDT: <span>Loading...</span></li>
+            <li>ETH/USDT: <span>Loading...</span></li>
+            <li>SOL/USDT: <span>Loading...</span></li>
+          </ul>
+        </div>
+
+        <div class="history-section">
+          <h3>📋 Recent Transactions</h3>
+          <ul class="history-list">
+            <li>Deposit - ₦5000 - Completed</li>
+            <li>Withdrawal - ₦2500 - Pending</li>
+            <li>Trade - BTC/USDT - +₦310</li>
+          </ul>
+        </div>
+
+        <div class="log-section">
+          <h3>🧾 Activity Log</h3>
+          <ul class="log-list">
+            <li>Logged in successfully</li>
+            <li>Uploaded profile picture</li>
+            <li>Changed password</li>
+          </ul>
+        </div>
       </div>
-    </main>
+    </section>
   </div>
 
   <script src="dashboard.js"></script>

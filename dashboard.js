@@ -89,3 +89,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+document.getElementById('themeToggleBtn').addEventListener('click', () => {
+  document.body.classList.toggle('dark-theme');
+  document.body.classList.toggle('light-theme');
+});
+
+// Example ticker (you can replace with real API)
+function fetchCryptoPrices() {
+  const prices = {
+    BTC: (28000 + Math.random() * 1000).toFixed(2),
+    ETH: (1800 + Math.random() * 100).toFixed(2),
+    SOL: (23 + Math.random() * 2).toFixed(2),
+  };
+
+  document.querySelector('#cryptoPrices li:nth-child(1) span').textContent = `$${prices.BTC}`;
+  document.querySelector('#cryptoPrices li:nth-child(2) span').textContent = `$${prices.ETH}`;
+  document.querySelector('#cryptoPrices li:nth-child(3) span').textContent = `$${prices.SOL}`;
+}
+setInterval(fetchCryptoPrices, 5000);
+fetchCryptoPrices();
