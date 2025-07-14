@@ -1,6 +1,6 @@
 const API_URL = 'https://bybit-backend-xeuv.onrender.com';
 
-// ✅ Auth fetch wrapper
+// ✅ Utility: Authenticated fetch wrapper
 async function authFetch(url, options = {}) {
   const token = localStorage.getItem('token');
   if (!token) {
@@ -19,7 +19,7 @@ async function authFetch(url, options = {}) {
   });
 }
 
-// ✅ Register Form Logic
+// ✅ Register Logic
 const registerForm = document.querySelector('.register-form form');
 if (registerForm) {
   registerForm.addEventListener('submit', async (e) => {
@@ -30,25 +30,19 @@ if (registerForm) {
     const password = registerForm.querySelector('input[name="password"]').value.trim();
 
     if (!fullname || !email || !password) {
-      alert('❌ Please fill in all fields.');
-      return;
+      return alert('❌ Please fill in all fields.');
     }
 
-    // ✅ Correct email regex (no double escaping)
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(email)) {
-      alert('❌ Invalid email format.');
-      return;
+      return alert('❌ Invalid email format.');
     }
 
     if (password.length < 6) {
-      alert('❌ Password must be at least 6 characters.');
-      return;
+      return alert('❌ Password must be at least 6 characters.');
     }
 
     try {
-      console.log('Sending:', { fullname, email, password });
-
       const res = await fetch(`${API_URL}/api/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -58,12 +52,12 @@ if (registerForm) {
       const data = await res.json();
       console.log('[Signup Response]', data);
 
-      if (res.ok && data.message) {
-        alert('✅ Registration successful! Please log in.');
-        window.location.href = '#login';
-      } else {
-        throw new Error(data.error || data.message || 'Signup failed.');
+      if (!res.ok) {
+        throw new Error(data.error || 'Signup failed.');
       }
+
+      alert('✅ Registration successful! Please log in.');
+      window.location.href = '#login';
     } catch (err) {
       console.error('[Signup Error]', err.message);
       alert(`❌ Registration failed: ${err.message}`);
@@ -71,7 +65,7 @@ if (registerForm) {
   });
 }
 
-// ✅ Login Form Logic
+// ✅ Login Logic
 const loginForm = document.querySelector('.login-form form');
 if (loginForm) {
   loginForm.addEventListener('submit', async (e) => {
@@ -81,8 +75,7 @@ if (loginForm) {
     const password = loginForm.querySelector('input[name="password"]').value.trim();
 
     if (!email || !password) {
-      alert('❌ Please fill in all fields.');
-      return;
+      return alert('❌ Please fill in all fields.');
     }
 
     try {
@@ -95,13 +88,13 @@ if (loginForm) {
       const data = await res.json();
       console.log('[Login Response]', data);
 
-      if (res.ok && data.token) {
-        localStorage.setItem('token', data.token);
-        alert('✅ Login successful!');
-        window.location.href = 'dashboard.html';
-      } else {
+      if (!res.ok || !data.token) {
         throw new Error(data.message || data.error || 'Login failed.');
       }
+
+      localStorage.setItem('token', data.token);
+      alert('✅ Login successful!');
+      window.location.href = 'dashboard.html';
     } catch (err) {
       console.error('[Login Error]', err.message);
       alert(`❌ Login failed: ${err.message}`);
