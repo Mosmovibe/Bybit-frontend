@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (data.profilePic) {
         const profileImg = document.getElementById('profileDisplay');
-        profileImg.src = data.profilePic;
+        profileImg.src = `${data.profilePic}?t=${Date.now()}`; // 👈 prevent caching
         profileImg.onerror = () => {
           profileImg.src = 'https://via.placeholder.com/100';
         };
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await res.json();
 
         if (res.ok && data.profilePicUrl) {
-          document.getElementById('profileDisplay').src = data.profilePicUrl;
+          document.getElementById('profileDisplay').src = `${data.profilePicUrl}?t=${Date.now()}`; // 👈 refresh image
           alert('✅ Profile picture updated!');
         } else {
           throw new Error(data.error || 'Upload failed');
