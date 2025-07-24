@@ -101,3 +101,42 @@ if (loginForm) {
     }
   });
 }
+const profileImage = document.getElementById("profileDisplay");
+
+// Load profile data on dashboard
+async function loadProfile() {
+  try {
+    const res = await authFetch(`${API_URL}/api/profile`);
+    const data = await res.json();
+    
+    if (data.profilePicture) {
+      profileImage.src = data.profilePicture;
+    }
+
+    // Optional: show name, email, etc
+    document.querySelector(".details").innerHTML = `
+      <p><strong>Full Name:</strong> ${data.fullname}</p>
+      <p><strong>Email:</strong> ${data.email}</p>
+    `;
+  } catch (err) {
+    console.error("Error loading profile", err);
+  }
+}
+
+if (window.location.pathname.includes("dashboard.html")) {
+  loadProfile();
+}
+async function loadTicker() {
+  const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd");
+  const data = await res.json();
+
+  const ticker = document.getElementById("ticker");
+  ticker.innerHTML = `
+    <div>BTC: $${data.bitcoin.usd}</div>
+    <div>ETH: $${data.ethereum.usd}</div>
+  `;
+}
+
+if (window.location.pathname.includes("dashboard.html")) {
+  loadTicker();
+}
