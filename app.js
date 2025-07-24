@@ -50,16 +50,11 @@ if (registerForm) {
       });
 
       const data = await res.json();
-      console.log('[Signup Response]', data);
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Signup failed.');
-      }
+      if (!res.ok) throw new Error(data.error || 'Signup failed.');
 
       alert('✅ Registration successful! Please log in.');
       window.location.href = '#login';
     } catch (err) {
-      console.error('[Signup Error]', err.message);
       alert(`❌ Registration failed: ${err.message}`);
     }
   });
@@ -86,57 +81,63 @@ if (loginForm) {
       });
 
       const data = await res.json();
-      console.log('[Login Response]', data);
-
-      if (!res.ok || !data.token) {
-        throw new Error(data.message || data.error || 'Login failed.');
-      }
+      if (!res.ok || !data.token) throw new Error(data.message || data.error || 'Login failed.');
 
       localStorage.setItem('token', data.token);
       alert('✅ Login successful!');
       window.location.href = 'dashboard.html';
     } catch (err) {
-      console.error('[Login Error]', err.message);
       alert(`❌ Login failed: ${err.message}`);
     }
   });
 }
-const profileImage = document.getElementById("profileDisplay");
 
-// Load profile data on dashboard
+// ✅ Dashboard Data
 async function loadProfile() {
   try {
     const res = await authFetch(`${API_URL}/api/profile`);
     const data = await res.json();
-    
-    if (data.profilePicture) {
-      profileImage.src = data.profilePicture;
-    }
 
-    // Optional: show name, email, etc
-    document.querySelector(".details").innerHTML = `
-      <p><strong>Full Name:</strong> ${data.fullname}</p>
-      <p><strong>Email:</strong> ${data.email}</p>
-    `;
+    // Inject real profile data
+    document.getElementById("fullname").textContent = data.fullname;
+    document.getElementById("email").textContent = data.email;
+    document.getElementById("mainProfile").src = data.profilePicture || 'user-profile.jpg';
+    document.getElementById("profilePreview").src = data.profilePicture || 'user-profile.jpg';
+
+    // Optional extra details area (if present)
+    const details = document.querySelector(".details");
+    if (details) {
+      details.innerHTML = `
+        <p><strong>Full Name:</strong> ${data.fullname}</p>
+        <p><strong>Email:</strong> ${data.email}</p>
+      `;
+    }
   } catch (err) {
     console.error("Error loading profile", err);
   }
 }
 
-if (window.location.pathname.includes("dashboard.html")) {
-  loadProfile();
-}
 async function loadTicker() {
-  const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd");
-  const data = await res.json();
+  try {
+    const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd");
+    const data = await res.json();
 
-  const ticker = document.getElementById("ticker");
-  ticker.innerHTML = `
-    <div>BTC: $${data.bitcoin.usd}</div>
-    <div>ETH: $${data.ethereum.usd}</div>
-  `;
+    const ticker = document.getElementById("ticker");
+    if (ticker) {
+      ticker.innerHTML = `
+        <div>BTC: $${data.bitcoin.usd}</div>
+        <div>ETH: $${data.ethereum.usd}</div>
+      `;
+    }
+  } catch (err) {
+    console.error("Error loading ticker", err);
+  }
 }
 
+// ✅ Trigger on dashboard
 if (window.location.pathname.includes("dashboard.html")) {
-  loadTicker();
+  document.addEventListener("DOMContentLoaded", () => {
+    loadProfile();
+    loadTicker();
+  });
 }

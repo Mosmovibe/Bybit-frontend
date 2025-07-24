@@ -22,15 +22,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!data.fullname || !data.email) throw new Error("Missing user data");
 
-      document.getElementById('greeting').textContent = `Hi, ${data.fullname}`;
-      document.getElementById('userBalance').textContent = `$${data.balance}`;
-      document.getElementById('userEmail').textContent = data.email;
-      document.getElementById('userPackage').textContent = data.package;
-      document.getElementById('userJoined').textContent = data.joinedAt;
+      const greeting = document.getElementById('greeting');
+      const userBalance = document.getElementById('userBalance');
+      const userEmail = document.getElementById('userEmail');
+      const userPackage = document.getElementById('userPackage');
+      const userJoined = document.getElementById('userJoined');
+      const profileImg = document.getElementById('profileDisplay');
 
-      if (data.profilePic) {
-        const profileImg = document.getElementById('profileDisplay');
-        profileImg.src = `${data.profilePic}?t=${Date.now()}`; // 👈 prevent caching
+      if (greeting) greeting.textContent = `Hi, ${data.fullname}`;
+      if (userBalance) userBalance.textContent = `$${data.balance}`;
+      if (userEmail) userEmail.textContent = data.email;
+      if (userPackage) userPackage.textContent = data.package;
+      if (userJoined) userJoined.textContent = data.joinedAt;
+
+      if (profileImg && data.profilePic) {
+        profileImg.src = `${data.profilePic}?t=${Date.now()}`;
         profileImg.onerror = () => {
           profileImg.src = 'https://via.placeholder.com/100';
         };
@@ -79,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await res.json();
 
         if (res.ok && data.profilePicUrl) {
-          document.getElementById('profileDisplay').src = `${data.profilePicUrl}?t=${Date.now()}`; // 👈 refresh image
+          document.getElementById('profileDisplay').src = `${data.profilePicUrl}?t=${Date.now()}`;
           alert('✅ Profile picture updated!');
         } else {
           throw new Error(data.error || 'Upload failed');
@@ -108,9 +114,13 @@ document.addEventListener('DOMContentLoaded', () => {
       SOL: (23 + Math.random() * 2).toFixed(2),
     };
 
-    document.querySelector('#cryptoPrices li:nth-child(1) span').textContent = `$${prices.BTC}`;
-    document.querySelector('#cryptoPrices li:nth-child(2) span').textContent = `$${prices.ETH}`;
-    document.querySelector('#cryptoPrices li:nth-child(3) span').textContent = `$${prices.SOL}`;
+    const btc = document.querySelector('#cryptoPrices li:nth-child(1) span');
+    const eth = document.querySelector('#cryptoPrices li:nth-child(2) span');
+    const sol = document.querySelector('#cryptoPrices li:nth-child(3) span');
+
+    if (btc) btc.textContent = `$${prices.BTC}`;
+    if (eth) eth.textContent = `$${prices.ETH}`;
+    if (sol) sol.textContent = `$${prices.SOL}`;
   }
 
   setInterval(fetchCryptoPrices, 5000);

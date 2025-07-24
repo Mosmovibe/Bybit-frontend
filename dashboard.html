@@ -2,172 +2,225 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dashboard | Bybit Global</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BYBIT Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       margin: 0;
-      padding: 0;
-      background-color: #0f0f0f;
       font-family: 'Segoe UI', sans-serif;
-      color: #f2f2f2;
+      background-color: #0e0e1a;
+      color: #ffffff;
     }
-
-    header {
-      background-color: #161616;
+    .container {
       padding: 20px;
+    }
+    .navbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid #2e2e2e;
+      padding: 20px;
+      background-color: #151521;
     }
-
-    header h1 {
-      color: #f5c241;
-      margin: 0;
-      font-size: 24px;
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 30px;
     }
-
-    .dashboard-container {
-      max-width: 1000px;
-      margin: 30px auto;
-      background: #1c1c1c;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(255, 199, 0, 0.2);
+    .nav-links li {
+      cursor: pointer;
+      color: #ccc;
     }
-
-    .section {
-      margin-bottom: 30px;
+    .profile-thumbnail {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
     }
-
-    h2 {
-      color: #f5c241;
-      margin-bottom: 10px;
-    }
-
-    .user-info {
+    .dashboard-header {
       display: flex;
       align-items: center;
-      gap: 20px;
-    }
-
-    #profileDisplay {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid #f5c241;
-    }
-
-    .details {
-      font-size: 16px;
-    }
-
-    .details p {
-      margin: 6px 0;
-    }
-
-    .form-section input[type="file"] {
-      background-color: #0f0f0f;
-      color: #f2f2f2;
-      padding: 6px;
-      border: 1px solid #555;
-      margin-bottom: 10px;
-    }
-
-    button {
-      background-color: #f5c241;
-      color: #0f0f0f;
-      border: none;
-      padding: 10px 18px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    button:hover {
-      background-color: #e6b200;
-    }
-
-    .logout {
+      gap: 30px;
       margin-top: 30px;
-      text-align: right;
     }
-
-    .badge {
-      background-color: #f5c241;
-      color: #0f0f0f;
-      padding: 3px 10px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: bold;
-      margin-left: 10px;
+    .main-profile-img {
+      width: 100px;
+      border-radius: 50%;
+    }
+    .user-info span {
+      color: #FFD700;
+    }
+    .dashboard-content {
+      display: flex;
+      gap: 30px;
+      margin-top: 30px;
+    }
+    .left-panel, .right-panel {
+      flex: 1;
+    }
+    .portfolio-box, .transactions, .chart-box {
+      background-color: #1c1c2e;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      margin-top: 10px;
+      border-collapse: collapse;
+      color: #ccc;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #333;
+    }
+    .active {
+      color: #00FF99;
+    }
+    .pending {
+      color: orange;
+    }
+    .complete {
+      color: #FFD700;
+    }
+    .confirmed {
+      color: #00FF99;
+    }
+    .completed {
+      color: #1E90FF;
+    }
+    .action-buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .action-buttons button {
+      flex: 1;
+      padding: 10px;
+      background-color: #2c2c44;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <nav class="navbar">
+      <div class="logo">BY<span style="color:#FFD700;">BIT</span></div>
+      <ul class="nav-links">
+        <li>Dashboard</li>
+        <li>Investment Plans</li>
+        <li>Transactions</li>
+        <li>Referrals</li>
+        <li>Support</li>
+      </ul>
+      <img src="user-profile.jpg" id="profilePreview" class="profile-thumbnail"/>
+    </nav>
 
-  <header>
-    <h1>BYBIT DASHBOARD</h1>
-    <button id="logoutBtn">Logout</button>
-  </header>
-
-  <div class="dashboard-container">
-
-    <div class="section user-info">
-      <img id="profileDisplay" src="https://via.placeholder.com/100" alt="Profile Picture" />
-      <div class="details">
-        <h2 id="greeting">Hi, User</h2>
-        <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
-        <p><strong>Balance:</strong> <span id="userBalance">$0.00</span></p>
-        <p><strong>Package:</strong> <span id="userPackage">N/A</span> <span class="badge">ACTIVE</span></p>
-        <p><strong>Joined:</strong> <span id="userJoined">Loading...</span></p>
+    <section class="dashboard-header">
+      <img src="user-profile.jpg" id="mainProfile" class="main-profile-img"/>
+      <div class="user-info">
+        <h2 id="fullname">John Doe</h2>
+        <p id="email">john@example.com</p>
+        <p>Account Type: <span>Investor</span></p>
+        <p>Membership: <span>Gold Tier</span></p>
+        <p>Joined: <span>July 2025</span></p>
       </div>
-    </div>
+    </section>
 
-    <div class="section form-section">
-      <h2>Update Profile Picture</h2>
-      <form id="uploadForm">
-        <input type="file" name="profilePic" id="profilePicInput" accept="image/*" required />
-        <br />
-        <button type="submit">Upload</button>
-      </form>
-    </div>
+    <section class="dashboard-content">
+      <div class="left-panel">
+        <div class="portfolio-box">
+          <h3>Portfolio Overview</h3>
+          <table>
+            <tr><th>Asset</th><th>Balance</th><th>Range</th><th>Status</th></tr>
+            <tr><td>Ethereum</td><td>$12,500</td><td>5k–50k</td><td class="active">Active</td></tr>
+            <tr><td>Solana</td><td>$7,000</td><td>5k–50k</td><td class="active">Active</td></tr>
+            <tr><td>BTC</td><td>0.35 BTC</td><td>25k–</td><td class="pending">Pending</td></tr>
+            <tr><td>Trump</td><td>$8,500</td><td>25k</td><td class="complete">Complete</td></tr>
+          </table>
+        </div>
 
+        <div class="action-buttons">
+          <button>Deposit Funds</button>
+          <button>Withdraw</button>
+          <button>Switch Plan</button>
+        </div>
+
+        <div class="transactions">
+          <h3>Recent Transactions</h3>
+          <table>
+            <tr><th>Date</th><th>Action</th><th>Asset</th><th>Status</th></tr>
+            <tr><td>2025-07-22</td><td>Deposit</td><td>ETH</td><td class="confirmed">Confirmed</td></tr>
+            <tr><td>2025-07-20</td><td>Invested</td><td>SHIBA</td><td class="completed">Completed</td></tr>
+            <tr><td>2025-07-18</td><td>Withdraw</td><td>BTC</td><td class="pending">Pending</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="chart-box">
+          <h3>Investment Distribution</h3>
+          <canvas id="pieChart" width="400" height="400"></canvas>
+        </div>
+
+        <div class="chart-box">
+          <h3>Weekly Profit</h3>
+          <canvas id="lineChart" width="400" height="400"></canvas>
+        </div>
+      </div>
+    </section>
   </div>
 
-  <script src="dashboard.js"></script>
+  <script>
+    // PIE CHART
+    const pieCtx = document.getElementById('pieChart').getContext('2d');
+    new Chart(pieCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Ethereum', 'Solana', 'BTC', 'Trump'],
+        datasets: [{
+          label: 'Assets',
+          data: [45, 25, 15, 15],
+          backgroundColor: ['#3b82f6', '#9333ea', '#f59e0b', '#ef4444'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        cutout: '70%',
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#fff' } }
+        }
+      }
+    });
+
+    // LINE CHART
+    const lineCtx = document.getElementById('lineChart').getContext('2d');
+    new Chart(lineCtx, {
+      type: 'line',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+          label: 'Profit',
+          data: [10, 14, 12, 17, 16, 20, 25],
+          fill: false,
+          borderColor: '#FFD700',
+          tension: 0.4
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: { ticks: { color: '#ccc' }, grid: { color: '#333' }},
+          y: { ticks: { color: '#ccc' }, grid: { color: '#333' }}
+        }
+      }
+    });
+  </script>
 </body>
 </html>
-<div class="section">
-  <h2>📈 Market Overview</h2>
-  <div id="ticker" style="display: flex; gap: 20px;"></div>
-</div>
-
-<div class="section">
-  <h2>💰 Balance Summary</h2>
-  <p>USDT: <strong>$500</strong></p>
-  <p>BTC: <strong>0.0012 BTC</strong></p>
-</div>
-
-<div class="section">
-  <h2>📄 Recent Transactions</h2>
-  <ul id="transactions">
-    <li>Deposit - $100 - 12 July</li>
-    <li>Withdrawal - $50 - 10 July</li>
-  </ul>
-</div>
-
-<div class="section">
-  <h2>🛠 Activity Logs</h2>
-  <ul>
-    <li>Logged in - 2 hrs ago</li>
-    <li>Updated profile - 1 day ago</li>
-  </ul>
-</div>
-
-<div class="section">
-  <h2>🚀 Upgrade Your Plan</h2>
-  <button>Upgrade to Pro</button>
-</div>
