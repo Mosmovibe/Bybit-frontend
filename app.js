@@ -1,6 +1,6 @@
 const API_URL = 'https://bybit-backend-xeuv.onrender.com';
 
-// ✅ Utility: Authenticated fetch wrapper
+// ✅ Utility: Authenticated Fetch Wrapper
 async function authFetch(url, options = {}) {
   const token = localStorage.getItem('token');
   if (!token) {
@@ -14,12 +14,12 @@ async function authFetch(url, options = {}) {
     headers: {
       ...options.headers,
       'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     }
   });
 }
 
-// ✅ Register Logic
+// ✅ Registration Logic
 const registerForm = document.querySelector('.register-form form');
 if (registerForm) {
   registerForm.addEventListener('submit', async (e) => {
@@ -92,31 +92,46 @@ if (loginForm) {
   });
 }
 
-// ✅ Dashboard Data
+// ✅ Load Dashboard Profile Info
 async function loadProfile() {
   try {
-    const res = await authFetch(`${API_URL}/api/profile`);
+    const res = await authFetch(`${API_URL}/api/dashboard`);
     const data = await res.json();
 
-    // Inject real profile data
-    document.getElementById("fullname").textContent = data.fullname;
-    document.getElementById("email").textContent = data.email;
-    document.getElementById("mainProfile").src = data.profilePicture || 'user-profile.jpg';
-    document.getElementById("profilePreview").src = data.profilePicture || 'user-profile.jpg';
+    if (!data) throw new Error('Invalid profile data');
 
-    // Optional extra details area (if present)
+    // Set text content safely
+    document.getElementById("fullname")?.textContent = data.fullname || 'User';
+    document.getElementById("email")?.textContent = data.email || '';
+    document.getElementById("userEmail")?.textContent = data.email || '';
+    document.getElementById("userPackage")?.textContent = data.package || '';
+    document.getElementById("userJoined")?.textContent = data.joinedAt || '';
+    document.getElementById("greeting")?.textContent = `Hi, ${data.fullname || 'there'}!`;
+
+    // Profile images
+    const imageUrl = data.profilePic ? `${data.profilePic}?t=${Date.now()}` : 'https://via.placeholder.com/100';
+    ['mainProfile', 'profilePreview', 'profileDisplay'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.src = imageUrl;
+    });
+
+    // Optional extra info
     const details = document.querySelector(".details");
     if (details) {
       details.innerHTML = `
-        <p><strong>Full Name:</strong> ${data.fullname}</p>
-        <p><strong>Email:</strong> ${data.email}</p>
+        <p><strong>Full Name:</strong> ${data.fullname || ''}</p>
+        <p><strong>Email:</strong> ${data.email || ''}</p>
+        <p><strong>Package:</strong> ${data.package || 'N/A'}</p>
       `;
     }
+
   } catch (err) {
-    console.error("Error loading profile", err);
+    console.error("❌ Error loading profile", err);
+    window.location.href = 'index.html';
   }
 }
 
+// ✅ Load Crypto Ticker
 async function loadTicker() {
   try {
     const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd");
@@ -130,11 +145,11 @@ async function loadTicker() {
       `;
     }
   } catch (err) {
-    console.error("Error loading ticker", err);
+    console.error("❌ Error loading ticker", err);
   }
 }
 
-// ✅ Trigger on dashboard
+// ✅ If on dashboard, load profile and ticker
 if (window.location.pathname.includes("dashboard.html")) {
   document.addEventListener("DOMContentLoaded", () => {
     loadProfile();

@@ -2,72 +2,55 @@ const API_URL = 'https://bybit-backend-xeuv.onrender.com';
 
 document.addEventListener('DOMContentLoaded', () => {
   const token = localStorage.getItem('token');
-
-  // ✅ Check Token
   if (!token) {
     alert('❌ Session expired. Please login again.');
     window.location.href = 'index.html';
     return;
   }
 
-  // ✅ Load Dashboard Data
+  // ✅ Load Dashboard Info
   fetch(`${API_URL}/api/dashboard`, {
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
+    headers: { 'Authorization': `Bearer ${token}` }
   })
     .then(async res => {
       if (!res.ok) throw new Error('Failed to load dashboard');
       const data = await res.json();
 
-      if (!data.fullname || !data.email) throw new Error("Missing user data");
+      // ✅ Fill profile section
+      document.getElementById('fullname')?.textContent = data.fullname || 'User';
+      document.getElementById('userEmail')?.textContent = data.email || '';
+      document.getElementById('userBalance')?.textContent = `$${data.balance || 0}`;
+      document.getElementById('userPackage')?.textContent = data.package || '';
+      document.getElementById('userJoined')?.textContent = data.joinedAt || '';
+      document.getElementById('greeting')?.textContent = `Hi, ${data.fullname || 'there'}!`;
 
-      const greeting = document.getElementById('greeting');
-      const userBalance = document.getElementById('userBalance');
-      const userEmail = document.getElementById('userEmail');
-      const userPackage = document.getElementById('userPackage');
-      const userJoined = document.getElementById('userJoined');
-      const profileImg = document.getElementById('profileDisplay');
-
-      if (greeting) greeting.textContent = `Hi, ${data.fullname}`;
-      if (userBalance) userBalance.textContent = `$${data.balance}`;
-      if (userEmail) userEmail.textContent = data.email;
-      if (userPackage) userPackage.textContent = data.package;
-      if (userJoined) userJoined.textContent = data.joinedAt;
-
-      if (profileImg && data.profilePic) {
-        profileImg.src = `${data.profilePic}?t=${Date.now()}`;
-        profileImg.onerror = () => {
-          profileImg.src = 'https://via.placeholder.com/100';
-        };
+      // ✅ Profile Image
+      if (data.profilePic) {
+        const imgUrl = `${data.profilePic}?t=${Date.now()}`;
+        ['profileDisplay', 'mainProfile', 'profilePreview'].forEach(id => {
+          const img = document.getElementById(id);
+          if (img) {
+            img.src = imgUrl;
+            img.onerror = () => { img.src = 'https://via.placeholder.com/100'; };
+          }
+        });
       }
     })
     .catch(err => {
       console.error('[Dashboard Error]', err.message);
-      alert('❌ Session expired or failed to load dashboard.');
+      alert('❌ Failed to load dashboard.');
       localStorage.removeItem('token');
       window.location.href = 'index.html';
     });
 
-  // ✅ Logout Logic
-  const logoutBtn = document.getElementById('logoutBtn');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      localStorage.removeItem('token');
-      window.location.href = 'index.html';
-    });
-  }
-
-  // ✅ Profile Picture Upload Logic
+  // ✅ Upload Profile Picture
   const uploadForm = document.getElementById('uploadForm');
   if (uploadForm) {
     uploadForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-
       const fileInput = document.getElementById('profilePicInput');
       if (!fileInput || !fileInput.files.length) {
-        alert('❌ Please select an image.');
-        return;
+        return alert('❌ Please select a profile picture.');
       }
 
       const formData = new FormData();
@@ -76,24 +59,34 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const res = await fetch(`${API_URL}/api/upload-profile`, {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
+          headers: { 'Authorization': `Bearer ${token}` },
           body: formData
         });
 
         const data = await res.json();
-
         if (res.ok && data.profilePicUrl) {
-          document.getElementById('profileDisplay').src = `${data.profilePicUrl}?t=${Date.now()}`;
+          const imgUrl = `${data.profilePicUrl}?t=${Date.now()}`;
+          ['profileDisplay', 'mainProfile', 'profilePreview'].forEach(id => {
+            const img = document.getElementById(id);
+            if (img) img.src = imgUrl;
+          });
           alert('✅ Profile picture updated!');
         } else {
-          throw new Error(data.error || 'Upload failed');
+          throw new Error(data.error || 'Upload failed.');
         }
       } catch (err) {
         console.error('[Upload Error]', err.message);
         alert('❌ Error uploading profile picture.');
       }
+    });
+  }
+
+  // ✅ Logout
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('token');
+      window.location.href = 'index.html';
     });
   }
 
@@ -106,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ✅ Example Crypto Ticker
+  // ✅ Crypto Prices
   function fetchCryptoPrices() {
     const prices = {
       BTC: (28000 + Math.random() * 1000).toFixed(2),

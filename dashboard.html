@@ -45,7 +45,9 @@
     }
     .main-profile-img {
       width: 100px;
+      height: 100px;
       border-radius: 50%;
+      object-fit: cover;
     }
     .user-info span {
       color: #FFD700;
@@ -74,21 +76,11 @@
       padding: 10px;
       border-bottom: 1px solid #333;
     }
-    .active {
-      color: #00FF99;
-    }
-    .pending {
-      color: orange;
-    }
-    .complete {
-      color: #FFD700;
-    }
-    .confirmed {
-      color: #00FF99;
-    }
-    .completed {
-      color: #1E90FF;
-    }
+    .active { color: #00FF99; }
+    .pending { color: orange; }
+    .complete { color: #FFD700; }
+    .confirmed { color: #00FF99; }
+    .completed { color: #1E90FF; }
     .action-buttons {
       display: flex;
       justify-content: space-between;
@@ -104,6 +96,9 @@
       border-radius: 5px;
       cursor: pointer;
     }
+    #uploadForm {
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
@@ -117,19 +112,24 @@
         <li>Referrals</li>
         <li>Support</li>
       </ul>
-      <img src="user-profile.jpg" id="profilePreview" class="profile-thumbnail"/>
+      <img src="https://via.placeholder.com/100" id="profileDisplay" class="profile-thumbnail"/>
     </nav>
 
     <section class="dashboard-header">
-      <img src="user-profile.jpg" id="mainProfile" class="main-profile-img"/>
+      <img src="https://via.placeholder.com/100" id="mainProfile" class="main-profile-img"/>
       <div class="user-info">
-        <h2 id="fullname">John Doe</h2>
-        <p id="email">john@example.com</p>
+        <h2 id="fullname">Loading...</h2>
+        <p id="email">Loading...</p>
         <p>Account Type: <span>Investor</span></p>
         <p>Membership: <span>Gold Tier</span></p>
-        <p>Joined: <span>July 2025</span></p>
+        <p>Joined: <span id="joinedDate">Loading...</span></p>
       </div>
     </section>
+
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input type="file" id="profilePicInput" name="profilePic" accept="image/*" required />
+      <button type="submit">Upload Profile Picture</button>
+    </form>
 
     <section class="dashboard-content">
       <div class="left-panel">
@@ -176,51 +176,20 @@
   </div>
 
   <script>
-    // PIE CHART
-    const pieCtx = document.getElementById('pieChart').getContext('2d');
-    new Chart(pieCtx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Ethereum', 'Solana', 'BTC', 'Trump'],
-        datasets: [{
-          label: 'Assets',
-          data: [45, 25, 15, 15],
-          backgroundColor: ['#3b82f6', '#9333ea', '#f59e0b', '#ef4444'],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        cutout: '70%',
-        plugins: {
-          legend: { position: 'bottom', labels: { color: '#fff' } }
-        }
-      }
-    });
+    const API_URL = 'https://bybit-backend-xeuv.onrender.com';
+    const token = localStorage.getItem('token');
 
-    // LINE CHART
-    const lineCtx = document.getElementById('lineChart').getContext('2d');
-    new Chart(lineCtx, {
-      type: 'line',
-      data: {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        datasets: [{
-          label: 'Profit',
-          data: [10, 14, 12, 17, 16, 20, 25],
-          fill: false,
-          borderColor: '#FFD700',
-          tension: 0.4
-        }]
-      },
-      options: {
-        plugins: {
-          legend: { display: false }
-        },
-        scales: {
-          x: { ticks: { color: '#ccc' }, grid: { color: '#333' }},
-          y: { ticks: { color: '#ccc' }, grid: { color: '#333' }}
-        }
+    // Load user profile
+    async function loadDashboardData() {
+      if (!token) {
+        alert("Session expired");
+        return window.location.href = 'index.html';
       }
-    });
-  </script>
-</body>
-</html>
+
+      try {
+        const res = await fetch(`${API_URL}/api/dashboard`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        document.getElementById("fullname").textCo
