@@ -15,7 +15,7 @@ async function authFetch(url, options = {}) {
     headers: {
       ...options.headers,
       'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json'
     }
   });
 
@@ -60,7 +60,7 @@ if (registerForm) {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Signup failed.');
+      if (!res.ok) throw new Error(data.error || data.message || 'Signup failed.');
 
       alert('✅ Registration successful! Please log in.');
       window.location.href = 'index.html';
@@ -93,7 +93,7 @@ if (loginForm) {
       const data = await res.json();
       if (!res.ok || !data.token) throw new Error(data.message || data.error || 'Login failed.');
 
-      localStorage.setItem('token', data.token);
+      localStorage.setItem('token', data.token); // ✅ Store token
       alert('✅ Login successful!');
       window.location.href = 'dashboard.html';
     } catch (err) {
@@ -148,20 +148,4 @@ async function loadTicker() {
 
     const ticker = document.getElementById("ticker");
     if (ticker) {
-      ticker.innerHTML = `
-        <div>BTC: $${data.bitcoin.usd}</div>
-        <div>ETH: $${data.ethereum.usd}</div>
-      `;
-    }
-  } catch (err) {
-    console.error("❌ Error loading ticker", err);
-  }
-}
-
-// ✅ Load profile & ticker on dashboard
-if (window.location.pathname.includes("dashboard.html")) {
-  document.addEventListener("DOMContentLoaded", () => {
-    loadProfile();
-    loadTicker();
-  });
-}
+      ticker.innerHTML

@@ -161,45 +161,57 @@
     const API_URL = 'https://bybit-backend-xeuv.onrender.com';
     const token = localStorage.getItem('token');
 
-    if (!token) {
-      alert("Session expired. Please log in again.");
-      window.location.href = 'index.html';
-    }
-
     async function loadProfile() {
-      const res = await fetch(`${API_URL}/api/dashboard`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      if (!token) {
+        alert("❌ Session expired. Please log in again.");
+        localStorage.removeItem('token');
+        return window.location.href = 'index.html';
+      }
 
-      const data = await res.json();
+      try {
+        const res = await fetch(`${API_URL}/api/dashboard`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
 
-      document.getElementById('fullname').textContent = data.fullname;
-      document.getElementById('email').textContent = data.email;
-      document.getElementById('userPackage').textContent = data.package;
-      document.getElementById('joinedDate').textContent = data.joinedAt;
-      document.getElementById('mainProfile').src = data.profilePic || 'https://via.placeholder.com/100';
-      document.getElementById('profileDisplay').src = data.profilePic || 'https://via.placeholder.com/100';
+        if (!res.ok) throw new Error('Session expired');
+
+        const data = await res.json();
+
+        document.getElementById('fullname').textContent = data.fullname || 'User';
+        document.getElementById('email').textContent = data.email || '';
+        document.getElementById('userPackage').textContent = data.package || 'Free';
+        document.getElementById('joinedDate').textContent = data.joinedAt || '';
+        document.getElementById('mainProfile').src = data.profilePic || 'https://via.placeholder.com/100';
+        document.getElementById('profileDisplay').src = data.profilePic || 'https://via.placeholder.com/100';
+      } catch (err) {
+        alert("❌ Session expired or failed to load. Please login again.");
+        localStorage.removeItem('token');
+        window.location.href = 'index.html';
+      }
     }
 
     async function uploadProfilePic(e) {
       e.preventDefault();
-      const form = document.getElementById('uploadForm');
-      const formData = new FormData(form);
+      const fileInput = document.getElementById('profilePicInput');
+      if (!fileInput.files.length) return alert('❌ No image selected');
 
-      const res = await fetch(`${API_URL}/api/upload-profile`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      });
+      const formData = new FormData();
+      formData.append('profilePic', fileInput.files[0]);
 
-      const data = await res.json();
-      alert('✅ Profile picture uploaded!');
-      document.getElementById('mainProfile').src = data.profilePicUrl;
-      document.getElementById('profileDisplay').src = data.profilePicUrl;
+      try {
+        const res = await fetch(`${API_URL}/api/upload-profile`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formData
+        });
+
+        const data = await res.json();
+        document.getElementById('mainProfile').src = data.profilePicUrl;
+        document.getElementById('profileDisplay').src = data.profilePicUrl;
+        alert('✅ Profile picture updated!');
+      } catch (err) {
+        alert('❌ Upload failed. Try again.');
+      }
     }
 
     function loadChart() {
