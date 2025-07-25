@@ -5,11 +5,12 @@ async function authFetch(url, options = {}) {
   const token = localStorage.getItem('token');
   if (!token) {
     alert('❌ Session expired. Please log in again.');
+    localStorage.removeItem('token');
     window.location.href = 'index.html';
-    return;
+    return null;
   }
 
-  return fetch(url, {
+  const res = await fetch(url, {
     ...options,
     headers: {
       ...options.headers,
@@ -17,6 +18,15 @@ async function authFetch(url, options = {}) {
       'Content-Type': 'application/json',
     }
   });
+
+  if (res.status === 401 || res.status === 403) {
+    alert('❌ Session expired or unauthorized. Please log in again.');
+    localStorage.removeItem('token');
+    window.location.href = 'index.html';
+    return null;
+  }
+
+  return res;
 }
 
 // ✅ Registration Logic
@@ -53,7 +63,7 @@ if (registerForm) {
       if (!res.ok) throw new Error(data.error || 'Signup failed.');
 
       alert('✅ Registration successful! Please log in.');
-      window.location.href = '#login';
+      window.location.href = 'index.html';
     } catch (err) {
       alert(`❌ Registration failed: ${err.message}`);
     }
@@ -96,11 +106,10 @@ if (loginForm) {
 async function loadProfile() {
   try {
     const res = await authFetch(`${API_URL}/api/dashboard`);
+    if (!res) return;
+
     const data = await res.json();
 
-    if (!data) throw new Error('Invalid profile data');
-
-    // Set text content safely
     document.getElementById("fullname")?.textContent = data.fullname || 'User';
     document.getElementById("email")?.textContent = data.email || '';
     document.getElementById("userEmail")?.textContent = data.email || '';
@@ -108,14 +117,12 @@ async function loadProfile() {
     document.getElementById("userJoined")?.textContent = data.joinedAt || '';
     document.getElementById("greeting")?.textContent = `Hi, ${data.fullname || 'there'}!`;
 
-    // Profile images
     const imageUrl = data.profilePic ? `${data.profilePic}?t=${Date.now()}` : 'https://via.placeholder.com/100';
     ['mainProfile', 'profilePreview', 'profileDisplay'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.src = imageUrl;
     });
 
-    // Optional extra info
     const details = document.querySelector(".details");
     if (details) {
       details.innerHTML = `
@@ -127,6 +134,8 @@ async function loadProfile() {
 
   } catch (err) {
     console.error("❌ Error loading profile", err);
+    alert('❌ Failed to load dashboard. Logging out...');
+    localStorage.removeItem('token');
     window.location.href = 'index.html';
   }
 }
@@ -149,7 +158,7 @@ async function loadTicker() {
   }
 }
 
-// ✅ If on dashboard, load profile and ticker
+// ✅ Load profile & ticker on dashboard
 if (window.location.pathname.includes("dashboard.html")) {
   document.addEventListener("DOMContentLoaded", () => {
     loadProfile();

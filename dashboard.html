@@ -120,8 +120,7 @@
       <div class="user-info">
         <h2 id="fullname">Loading...</h2>
         <p id="email">Loading...</p>
-        <p>Account Type: <span>Investor</span></p>
-        <p>Membership: <span>Gold Tier</span></p>
+        <p>Membership: <span id="userPackage">N/A</span></p>
         <p>Joined: <span id="joinedDate">Loading...</span></p>
       </div>
     </section>
@@ -139,8 +138,6 @@
             <tr><th>Asset</th><th>Balance</th><th>Range</th><th>Status</th></tr>
             <tr><td>Ethereum</td><td>$12,500</td><td>5k–50k</td><td class="active">Active</td></tr>
             <tr><td>Solana</td><td>$7,000</td><td>5k–50k</td><td class="active">Active</td></tr>
-            <tr><td>BTC</td><td>0.35 BTC</td><td>25k–</td><td class="pending">Pending</td></tr>
-            <tr><td>Trump</td><td>$8,500</td><td>25k</td><td class="complete">Complete</td></tr>
           </table>
         </div>
 
@@ -149,24 +146,9 @@
           <button>Withdraw</button>
           <button>Switch Plan</button>
         </div>
-
-        <div class="transactions">
-          <h3>Recent Transactions</h3>
-          <table>
-            <tr><th>Date</th><th>Action</th><th>Asset</th><th>Status</th></tr>
-            <tr><td>2025-07-22</td><td>Deposit</td><td>ETH</td><td class="confirmed">Confirmed</td></tr>
-            <tr><td>2025-07-20</td><td>Invested</td><td>SHIBA</td><td class="completed">Completed</td></tr>
-            <tr><td>2025-07-18</td><td>Withdraw</td><td>BTC</td><td class="pending">Pending</td></tr>
-          </table>
-        </div>
       </div>
 
       <div class="right-panel">
-        <div class="chart-box">
-          <h3>Investment Distribution</h3>
-          <canvas id="pieChart" width="400" height="400"></canvas>
-        </div>
-
         <div class="chart-box">
           <h3>Weekly Profit</h3>
           <canvas id="lineChart" width="400" height="400"></canvas>
@@ -179,17 +161,77 @@
     const API_URL = 'https://bybit-backend-xeuv.onrender.com';
     const token = localStorage.getItem('token');
 
-    // Load user profile
-    async function loadDashboardData() {
-      if (!token) {
-        alert("Session expired");
-        return window.location.href = 'index.html';
-      }
+    if (!token) {
+      alert("Session expired. Please log in again.");
+      window.location.href = 'index.html';
+    }
 
-      try {
-        const res = await fetch(`${API_URL}/api/dashboard`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await res.json();
+    async function loadProfile() {
+      const res = await fetch(`${API_URL}/api/dashboard`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
-        document.getElementById("fullname").textCo
+      const data = await res.json();
+
+      document.getElementById('fullname').textContent = data.fullname;
+      document.getElementById('email').textContent = data.email;
+      document.getElementById('userPackage').textContent = data.package;
+      document.getElementById('joinedDate').textContent = data.joinedAt;
+      document.getElementById('mainProfile').src = data.profilePic || 'https://via.placeholder.com/100';
+      document.getElementById('profileDisplay').src = data.profilePic || 'https://via.placeholder.com/100';
+    }
+
+    async function uploadProfilePic(e) {
+      e.preventDefault();
+      const form = document.getElementById('uploadForm');
+      const formData = new FormData(form);
+
+      const res = await fetch(`${API_URL}/api/upload-profile`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      const data = await res.json();
+      alert('✅ Profile picture uploaded!');
+      document.getElementById('mainProfile').src = data.profilePicUrl;
+      document.getElementById('profileDisplay').src = data.profilePicUrl;
+    }
+
+    function loadChart() {
+      const ctx = document.getElementById('lineChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+          datasets: [{
+            label: 'Profit ($)',
+            data: [120, 200, 150, 300, 250],
+            borderColor: 'gold',
+            backgroundColor: 'rgba(255, 215, 0, 0.2)',
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: 'white' } } },
+          scales: {
+            x: { ticks: { color: 'white' } },
+            y: { ticks: { color: 'white' } }
+          }
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProfile();
+      loadChart();
+      document.getElementById('uploadForm').addEventListener('submit', uploadProfilePic);
+    });
+  </script>
+</body>
+</html>
