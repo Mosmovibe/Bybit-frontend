@@ -1,151 +1,137 @@
-const API_URL = 'https://bybit-backend-xeuv.onrender.com';
+// app.js (with login, signup, dashboard, profile upload, logout, and admin balance editor)
 
-// ✅ Utility: Authenticated Fetch Wrapper
-async function authFetch(url, options = {}) {
+document.addEventListener('DOMContentLoaded', () => {
   const token = localStorage.getItem('token');
-  if (!token) {
-    alert('❌ Session expired. Please log in again.');
-    localStorage.removeItem('token');
-    window.location.href = 'index.html';
-    return null;
-  }
 
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      ...options.headers,
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    }
-  });
+  // Signup
+  const signupForm = document.getElementById('signup-form');
+  if (signupForm) {
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fullname = document.getElementById('signup-name').value;
+      const email = document.getElementById('signup-email').value;
+      const password = document.getElementById('signup-password').value;
 
-  if (res.status === 401 || res.status === 403) {
-    alert('❌ Session expired or unauthorized. Please log in again.');
-    localStorage.removeItem('token');
-    window.location.href = 'index.html';
-    return null;
-  }
-
-  return res;
-}
-
-// ✅ Registration Logic
-const registerForm = document.querySelector('.register-form form');
-if (registerForm) {
-  registerForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const fullname = registerForm.querySelector('input[name="fullname"]').value.trim();
-    const email = registerForm.querySelector('input[name="email"]').value.trim();
-    const password = registerForm.querySelector('input[name="password"]').value.trim();
-
-    if (!fullname || !email || !password) {
-      return alert('❌ Please fill in all fields.');
-    }
-
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(email)) {
-      return alert('❌ Invalid email format.');
-    }
-
-    if (password.length < 6) {
-      return alert('❌ Password must be at least 6 characters.');
-    }
-
-    try {
-      const res = await fetch(`${API_URL}/api/signup`, {
+      const res = await fetch('https://bybit-backend-xeuv.onrender.com/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fullname, email, password })
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || data.message || 'Signup failed.');
+      if (res.ok) {
+        alert('Signup successful! Please log in.');
+        window.location.href = 'index.html';
+      } else {
+        alert(data.error || 'Signup failed.');
+      }
+    });
+  }
 
-      alert('✅ Registration successful! Please log in.');
-      window.location.href = 'index.html';
-    } catch (err) {
-      alert(`❌ Registration failed: ${err.message}`);
-    }
-  });
-}
+  // Login
+  const loginForm = document.getElementById('login-form');
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
 
-// ✅ Login Logic
-const loginForm = document.querySelector('.login-form form');
-if (loginForm) {
-  loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const email = loginForm.querySelector('input[name="email"]').value.trim();
-    const password = loginForm.querySelector('input[name="password"]').value.trim();
-
-    if (!email || !password) {
-      return alert('❌ Please fill in all fields.');
-    }
-
-    try {
-      const res = await fetch(`${API_URL}/api/login`, {
+      const res = await fetch('https://bybit-backend-xeuv.onrender.com/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
 
       const data = await res.json();
-      if (!res.ok || !data.token) throw new Error(data.message || data.error || 'Login failed.');
-
-      localStorage.setItem('token', data.token); // ✅ Store token
-      alert('✅ Login successful!');
-      window.location.href = 'dashboard.html';
-    } catch (err) {
-      alert(`❌ Login failed: ${err.message}`);
-    }
-  });
-}
-
-// ✅ Load Dashboard Profile Info
-async function loadProfile() {
-  try {
-    const res = await authFetch(`${API_URL}/api/dashboard`);
-    if (!res) return;
-
-    const data = await res.json();
-
-    document.getElementById("fullname")?.textContent = data.fullname || 'User';
-    document.getElementById("email")?.textContent = data.email || '';
-    document.getElementById("userEmail")?.textContent = data.email || '';
-    document.getElementById("userPackage")?.textContent = data.package || '';
-    document.getElementById("userJoined")?.textContent = data.joinedAt || '';
-    document.getElementById("greeting")?.textContent = `Hi, ${data.fullname || 'there'}!`;
-
-    const imageUrl = data.profilePic ? `${data.profilePic}?t=${Date.now()}` : 'https://via.placeholder.com/100';
-    ['mainProfile', 'profilePreview', 'profileDisplay'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.src = imageUrl;
+      if (res.ok && data.token) {
+        localStorage.setItem('token', data.token);
+        window.location.href = 'dashboard.html';
+      } else {
+        alert(data.error || 'Login failed.');
+      }
     });
-
-    const details = document.querySelector(".details");
-    if (details) {
-      details.innerHTML = `
-        <p><strong>Full Name:</strong> ${data.fullname || ''}</p>
-        <p><strong>Email:</strong> ${data.email || ''}</p>
-        <p><strong>Package:</strong> ${data.package || 'N/A'}</p>
-      `;
-    }
-
-  } catch (err) {
-    console.error("❌ Error loading profile", err);
-    alert('❌ Failed to load dashboard. Logging out...');
-    localStorage.removeItem('token');
-    window.location.href = 'index.html';
   }
-}
 
-// ✅ Load Crypto Ticker
-async function loadTicker() {
-  try {
-    const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd");
+  // Logout
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('token');
+      window.location.href = 'index.html';
+    });
+  }
+
+  // Upload Profile Pic
+  const profilePicInput = document.getElementById('profilePic');
+  const uploadBtn = document.getElementById('uploadBtn');
+  if (uploadBtn && profilePicInput) {
+    uploadBtn.addEventListener('click', async () => {
+      const file = profilePicInput.files[0];
+      if (!file) return alert('No file selected');
+
+      const formData = new FormData();
+      formData.append('profilePic', file);
+
+      const res = await fetch('https://bybit-backend-xeuv.onrender.com/api/upload-profile', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+
+      const data = await res.json();
+      if (data.profilePicUrl) {
+        document.getElementById('user-image').src = data.profilePicUrl;
+        alert('Profile picture updated!');
+      } else {
+        alert(data.error || 'Upload failed');
+      }
+    });
+  }
+
+  // Load Dashboard
+  async function fetchDashboard() {
+    if (!token) return;
+    const res = await fetch('https://bybit-backend-xeuv.onrender.com/api/dashboard', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
     const data = await res.json();
+    if (data.fullname) {
+      document.getElementById('username').textContent = data.fullname;
+      document.getElementById('email').textContent = data.email;
+      document.getElementById('balance').textContent = `$${data.balance}`;
+      document.getElementById('joined').textContent = data.joinedAt;
+      document.getElementById('package').textContent = data.package;
+      if (data.profilePic) {
+        document.getElementById('user-image').src = data.profilePic;
+      }
+    }
+  }
 
-    const ticker = document.getElementById("ticker");
-    if (ticker) {
-      ticker.innerHTML
+  fetchDashboard();
+
+  // Admin: Edit User Balance
+  const editBalanceForm = document.getElementById('edit-balance-form');
+  if (editBalanceForm) {
+    editBalanceForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('edit-email').value;
+      const newBalance = document.getElementById('edit-balance').value;
+
+      const res = await fetch('https://bybit-backend-xeuv.onrender.com/api/admin/edit-balance', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ email, newBalance })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert(`Balance updated to $${data.balance}`);
+      } else {
+        alert(data.error || 'Balance update failed.');
+      }
+    });
+  }
+});

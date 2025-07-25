@@ -6,100 +6,6 @@
   <title>BYBIT Dashboard</title>
   <link rel="stylesheet" href="dashboard.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #0e0e1a;
-      color: #ffffff;
-    }
-    .container {
-      padding: 20px;
-    }
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px;
-      background-color: #151521;
-    }
-    .nav-links {
-      list-style: none;
-      display: flex;
-      gap: 30px;
-    }
-    .nav-links li {
-      cursor: pointer;
-      color: #ccc;
-    }
-    .profile-thumbnail {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-    }
-    .dashboard-header {
-      display: flex;
-      align-items: center;
-      gap: 30px;
-      margin-top: 30px;
-    }
-    .main-profile-img {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-    .user-info span {
-      color: #FFD700;
-    }
-    .dashboard-content {
-      display: flex;
-      gap: 30px;
-      margin-top: 30px;
-    }
-    .left-panel, .right-panel {
-      flex: 1;
-    }
-    .portfolio-box, .transactions, .chart-box {
-      background-color: #1c1c2e;
-      padding: 20px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-    }
-    table {
-      width: 100%;
-      margin-top: 10px;
-      border-collapse: collapse;
-      color: #ccc;
-    }
-    th, td {
-      padding: 10px;
-      border-bottom: 1px solid #333;
-    }
-    .active { color: #00FF99; }
-    .pending { color: orange; }
-    .complete { color: #FFD700; }
-    .confirmed { color: #00FF99; }
-    .completed { color: #1E90FF; }
-    .action-buttons {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .action-buttons button {
-      flex: 1;
-      padding: 10px;
-      background-color: #2c2c44;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    #uploadForm {
-      margin-top: 20px;
-    }
-  </style>
 </head>
 <body>
   <div class="container">
@@ -112,22 +18,23 @@
         <li>Referrals</li>
         <li>Support</li>
       </ul>
-      <img src="https://via.placeholder.com/100" id="profileDisplay" class="profile-thumbnail"/>
+      <button id="logoutBtn">Logout</button>
+      <img src="https://via.placeholder.com/100" id="user-image" class="profile-thumbnail"/>
     </nav>
 
     <section class="dashboard-header">
-      <img src="https://via.placeholder.com/100" id="mainProfile" class="main-profile-img"/>
+      <img src="https://via.placeholder.com/100" id="user-image" class="main-profile-img"/>
       <div class="user-info">
-        <h2 id="fullname">Loading...</h2>
+        <h2 id="username">Loading...</h2>
         <p id="email">Loading...</p>
-        <p>Membership: <span id="userPackage">N/A</span></p>
-        <p>Joined: <span id="joinedDate">Loading...</span></p>
+        <p>Membership: <span id="package">N/A</span></p>
+        <p>Joined: <span id="joined">Loading...</span></p>
       </div>
     </section>
 
-    <form id="uploadForm" enctype="multipart/form-data">
-      <input type="file" id="profilePicInput" name="profilePic" accept="image/*" required />
-      <button type="submit">Upload Profile Picture</button>
+    <form id="uploadForm">
+      <input type="file" id="profilePic" name="profilePic" accept="image/*" required />
+      <button type="button" id="uploadBtn">Upload Profile Picture</button>
     </form>
 
     <section class="dashboard-content">
@@ -140,14 +47,12 @@
             <tr><td>Solana</td><td>$7,000</td><td>5k–50k</td><td class="active">Active</td></tr>
           </table>
         </div>
-
         <div class="action-buttons">
           <button>Deposit Funds</button>
           <button>Withdraw</button>
           <button>Switch Plan</button>
         </div>
       </div>
-
       <div class="right-panel">
         <div class="chart-box">
           <h3>Weekly Profit</h3>
@@ -157,93 +62,6 @@
     </section>
   </div>
 
-  <script>
-    const API_URL = 'https://bybit-backend-xeuv.onrender.com';
-    const token = localStorage.getItem('token');
-
-    async function loadProfile() {
-      if (!token) {
-        alert("❌ Session expired. Please log in again.");
-        localStorage.removeItem('token');
-        return window.location.href = 'index.html';
-      }
-
-      try {
-        const res = await fetch(`${API_URL}/api/dashboard`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (!res.ok) throw new Error('Session expired');
-
-        const data = await res.json();
-
-        document.getElementById('fullname').textContent = data.fullname || 'User';
-        document.getElementById('email').textContent = data.email || '';
-        document.getElementById('userPackage').textContent = data.package || 'Free';
-        document.getElementById('joinedDate').textContent = data.joinedAt || '';
-        document.getElementById('mainProfile').src = data.profilePic || 'https://via.placeholder.com/100';
-        document.getElementById('profileDisplay').src = data.profilePic || 'https://via.placeholder.com/100';
-      } catch (err) {
-        alert("❌ Session expired or failed to load. Please login again.");
-        localStorage.removeItem('token');
-        window.location.href = 'index.html';
-      }
-    }
-
-    async function uploadProfilePic(e) {
-      e.preventDefault();
-      const fileInput = document.getElementById('profilePicInput');
-      if (!fileInput.files.length) return alert('❌ No image selected');
-
-      const formData = new FormData();
-      formData.append('profilePic', fileInput.files[0]);
-
-      try {
-        const res = await fetch(`${API_URL}/api/upload-profile`, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` },
-          body: formData
-        });
-
-        const data = await res.json();
-        document.getElementById('mainProfile').src = data.profilePicUrl;
-        document.getElementById('profileDisplay').src = data.profilePicUrl;
-        alert('✅ Profile picture updated!');
-      } catch (err) {
-        alert('❌ Upload failed. Try again.');
-      }
-    }
-
-    function loadChart() {
-      const ctx = document.getElementById('lineChart').getContext('2d');
-      new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-          datasets: [{
-            label: 'Profit ($)',
-            data: [120, 200, 150, 300, 250],
-            borderColor: 'gold',
-            backgroundColor: 'rgba(255, 215, 0, 0.2)',
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { labels: { color: 'white' } } },
-          scales: {
-            x: { ticks: { color: 'white' } },
-            y: { ticks: { color: 'white' } }
-          }
-        }
-      });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      loadProfile();
-      loadChart();
-      document.getElementById('uploadForm').addEventListener('submit', uploadProfilePic);
-    });
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>

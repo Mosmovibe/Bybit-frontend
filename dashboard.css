@@ -1,96 +1,88 @@
 body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
-  transition: background-color 0.3s, color 0.3s;
+  background-color: #0e0e1a;
+  color: #ffffff;
 }
-
-.light-theme {
-  background: #f4f6f8;
-  color: #222;
-}
-
-.dark-theme {
-  background: #111;
-  color: #eee;
-}
-
-.dashboard-wrapper {
+.container {
   padding: 20px;
 }
-
-.dashboard-header {
+.navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #007bff;
-  color: white;
-  padding: 15px 30px;
-  border-radius: 10px;
+  padding: 20px;
+  background-color: #151521;
 }
-
-.logo {
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 30px;
+}
+.nav-links li {
+  cursor: pointer;
+  color: #ccc;
+}
+.profile-thumbnail {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+.dashboard-header {
   display: flex;
   align-items: center;
-}
-
-.logo img {
-  height: 40px;
-  margin-right: 10px;
-}
-
-.theme-toggle button {
-  background: white;
-  color: #007bff;
-  border: none;
-  margin-left: 10px;
-  padding: 8px 12px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.dashboard-main {
-  display: flex;
+  gap: 30px;
   margin-top: 30px;
-  gap: 20px;
 }
-
-.left-panel, .right-panel {
-  flex: 1;
-}
-
-.profile-card, .upgrade-card, .crypto-ticker, .history-section, .log-section {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
-
-.profile-card img {
+.main-profile-img {
   width: 100px;
   height: 100px;
   border-radius: 50%;
   object-fit: cover;
-  display: block;
-  margin-bottom: 10px;
-  border: 2px solid #ddd;
 }
-
-.upgrade-btn {
-  background: orange;
+.user-info span {
+  color: #FFD700;
+}
+.dashboard-content {
+  display: flex;
+  gap: 30px;
+  margin-top: 30px;
+}
+.left-panel, .right-panel {
+  flex: 1;
+}
+.portfolio-box, .chart-box {
+  background-color: #1c1c2e;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+table {
+  width: 100%;
+  margin-top: 10px;
+  border-collapse: collapse;
+  color: #ccc;
+}
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #333;
+}
+.active { color: #00FF99; }
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.action-buttons button {
+  flex: 1;
+  padding: 10px;
+  background-color: #2c2c44;
   color: white;
   border: none;
-  padding: 10px;
-  border-radius: 8px;
+  border-radius: 5px;
   cursor: pointer;
 }
-
-.history-list, .log-list, #cryptoPrices {
-  list-style: none;
-  padding: 0;
-}
-
-.history-list li, .log-list li {
-  padding: 5px 0;
-  border-bottom: 1px solid #eee;
+#uploadForm {
+  margin-top: 20px;
 }
