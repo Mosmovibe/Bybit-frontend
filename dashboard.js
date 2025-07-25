@@ -42,6 +42,8 @@ async function loadProfile() {
     alert('❌ Session expired or failed. Please login again.');
     localStorage.removeItem('token');
     window.location.href = 'index.html';
+    document.getElementById('balanceDisplay').textContent = `$${parseFloat(data.balance).toFixed(2)}`;
+
   }
 }
 
@@ -125,4 +127,26 @@ function loadChart() {
       }
     }
   });
+}
+async function editUserBalance() {
+  const email = document.getElementById('adminEmailInput').value;
+  const newBalance = document.getElementById('adminNewBalance').value;
+
+  const token = localStorage.getItem('token');
+
+  const res = await fetch(`${API_URL}/api/admin/edit-balance`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ email, newBalance })
+  });
+
+  const data = await res.json();
+  if (res.ok) {
+    alert('✅ Balance updated');
+  } else {
+    alert('❌ ' + data.error);
+  }
 }

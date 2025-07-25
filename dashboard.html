@@ -29,6 +29,9 @@
         <p id="email">Loading...</p>
         <p>Membership: <span id="package">N/A</span></p>
         <p>Joined: <span id="joined">Loading...</span></p>
+        <div class="balance-box">
+  <h3>Account Balance</h3>
+  <p id="balanceDisplay">$0.00</p>
       </div>
     </section>
 
@@ -140,3 +143,9 @@
   </script>
 </body>
 </html>
+<div class="admin-balance-editor">
+  <h4>Edit User Balance</h4>
+  <input type="email" id="adminEmailInput" placeholder="User Email" />
+  <input type="number" id="adminNewBalance" placeholder="New Balance" />
+  <button onclick="editUserBalance()">Update Balance</button>
+</div>

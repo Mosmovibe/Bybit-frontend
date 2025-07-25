@@ -104,6 +104,9 @@
       <input type="password" id="signup-password" name="password" placeholder="Create Password" required />
       <button type="submit" class="primary">Register</button>
     </form>
+    <div id="registerLoader" style="display: none; color: #fff; margin-top: 10px;">
+      ⏳ Processing...
+    </div>
   </section>
 
   <!-- Login Form -->
@@ -114,6 +117,9 @@
       <input type="password" id="login-password" name="password" placeholder="Password" required />
       <button type="submit" class="primary">Login</button>
     </form>
+    <div id="loginLoader" style="display: none; color: #fff; margin-top: 10px;">
+      ⏳ Processing...
+    </div>
   </section>
 
   <!-- About Us -->
@@ -140,7 +146,7 @@
     <h2>What Our Investors Say</h2>
     <div class="testimonial">
       <p>“Bybit helped me grow my crypto portfolio safely!”</p>
-      <strong>— Ann coopman</strong>
+      <strong>— Ann Coopman</strong>
     </div>
   </section>
 
@@ -169,7 +175,7 @@
     </div>
   </footer>
 
-  <!-- Toggle Scripts -->
+  <!-- Section Toggle Script -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       document.querySelector('a[href="#contact"]').addEventListener('click', function(e) {
