@@ -86,3 +86,38 @@ th, td {
 #uploadForm {
   margin-top: 20px;
 }
+.crypto-ticker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+.ticker-card {
+  background: #111;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+  color: #f0f0f0;
+}
+
+.activity-log, .transaction-box, .referral-box, .progress-box {
+  margin: 2rem 0;
+  padding: 1rem;
+  background: #1a1a1a;
+  color: white;
+  border-radius: 8px;
+}
+
+.progress-bar {
+  width: 100%;
+  background: #333;
+  height: 12px;
+  border-radius: 8px;
+  margin-top: 8px;
+}
+.progress-bar .filled {
+  height: 100%;
+  background: #FFD700;
+  border-radius: 8px;
+}

@@ -19,11 +19,11 @@
         <li>Support</li>
       </ul>
       <button id="logoutBtn">Logout</button>
-      <img src="https://via.placeholder.com/100" id="user-image" class="profile-thumbnail"/>
+      <img src="https://via.placeholder.com/100" id="user-image" class="profile-thumbnail" />
     </nav>
 
     <section class="dashboard-header">
-      <img src="https://via.placeholder.com/100" id="user-image" class="main-profile-img"/>
+      <img src="https://via.placeholder.com/100" id="user-image" class="main-profile-img" />
       <div class="user-info">
         <h2 id="username">Loading...</h2>
         <p id="email">Loading...</p>
@@ -38,6 +38,8 @@
     </form>
 
     <section class="dashboard-content">
+
+      <!-- Portfolio -->
       <div class="left-panel">
         <div class="portfolio-box">
           <h3>Portfolio Overview</h3>
@@ -53,12 +55,64 @@
           <button>Switch Plan</button>
         </div>
       </div>
+
+      <!-- Right Panel Charts -->
       <div class="right-panel">
         <div class="chart-box">
           <h3>Weekly Profit</h3>
           <canvas id="lineChart" width="400" height="400"></canvas>
         </div>
       </div>
+
+      <!-- NEW STATIC SECTIONS -->
+
+      <!-- Crypto Ticker -->
+      <div class="crypto-ticker-grid">
+        <div class="ticker-card">BTC/USD: <strong>$65,210</strong></div>
+        <div class="ticker-card">ETH/USD: <strong>$3,420</strong></div>
+        <div class="ticker-card">SOL/USD: <strong>$146.12</strong></div>
+        <div class="ticker-card">DOGE/USD: <strong>$0.087</strong></div>
+      </div>
+
+      <!-- Activity Log -->
+      <div class="activity-log">
+        <h3>Recent Activity</h3>
+        <ul>
+          <li>✅ Login from Chrome - Lagos, Nigeria</li>
+          <li>✅ Deposit of $500 - Ethereum</li>
+          <li>⚠️ Password changed</li>
+          <li>✅ Referral bonus credited: $20</li>
+        </ul>
+      </div>
+
+      <!-- Transactions -->
+      <div class="transaction-box">
+        <h3>Recent Transactions</h3>
+        <table>
+          <tr><th>Date</th><th>Asset</th><th>Type</th><th>Amount</th><th>Status</th></tr>
+          <tr><td>July 24</td><td>BTC</td><td>Deposit</td><td>$1,000</td><td>✅ Completed</td></tr>
+          <tr><td>July 22</td><td>SOL</td><td>Withdraw</td><td>$400</td><td>⏳ Pending</td></tr>
+          <tr><td>July 20</td><td>ETH</td><td>Deposit</td><td>$750</td><td>✅ Completed</td></tr>
+        </table>
+      </div>
+
+      <!-- Referral Box -->
+      <div class="referral-box">
+        <h3>Referral Program</h3>
+        <p>Total Referrals: <strong>12</strong></p>
+        <p>Total Earnings: <strong>$120</strong></p>
+        <button>Copy Your Referral Link</button>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="progress-box">
+        <h3>Investment Target</h3>
+        <p>$6,000 of $10,000 Goal</p>
+        <div class="progress-bar">
+          <div class="filled" style="width: 60%;"></div>
+        </div>
+      </div>
+
     </section>
   </div>
 

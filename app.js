@@ -1,7 +1,10 @@
-// app.js (with login, signup, dashboard, profile upload, logout, and admin balance editor)
-
 document.addEventListener('DOMContentLoaded', () => {
   const token = localStorage.getItem('token');
+
+  // Redirect if not logged in and you're on the dashboard
+  if (window.location.pathname.includes('dashboard.html') && !token) {
+    window.location.href = 'index.html';
+  }
 
   // Signup
   const signupForm = document.getElementById('signup-form');
@@ -61,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Upload Profile Pic
+  // Upload Profile Picture
   const profilePicInput = document.getElementById('profilePic');
   const uploadBtn = document.getElementById('uploadBtn');
   if (uploadBtn && profilePicInput) {
@@ -80,7 +83,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const data = await res.json();
       if (data.profilePicUrl) {
-        document.getElementById('user-image').src = data.profilePicUrl;
+        document.querySelectorAll('#user-image').forEach(img => {
+          img.src = `${data.profilePicUrl}?t=${Date.now()}`; // refresh bust cache
+        });
         alert('Profile picture updated!');
       } else {
         alert(data.error || 'Upload failed');
@@ -88,28 +93,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Load Dashboard
+  // Load Dashboard Data
   async function fetchDashboard() {
     if (!token) return;
+
     const res = await fetch('https://bybit-backend-xeuv.onrender.com/api/dashboard', {
       headers: { Authorization: `Bearer ${token}` }
     });
+
     const data = await res.json();
+
     if (data.fullname) {
       document.getElementById('username').textContent = data.fullname;
       document.getElementById('email').textContent = data.email;
-      document.getElementById('balance').textContent = `$${data.balance}`;
+      if (document.getElementById('balance')) {
+        document.getElementById('balance').textContent = `$${data.balance}`;
+      }
       document.getElementById('joined').textContent = data.joinedAt;
       document.getElementById('package').textContent = data.package;
       if (data.profilePic) {
-        document.getElementById('user-image').src = data.profilePic;
+        document.querySelectorAll('#user-image').forEach(img => {
+          img.src = `${data.profilePic}?t=${Date.now()}`;
+        });
       }
     }
   }
 
   fetchDashboard();
 
-  // Admin: Edit User Balance
+  // Admin Edit Balance
   const editBalanceForm = document.getElementById('edit-balance-form');
   if (editBalanceForm) {
     editBalanceForm.addEventListener('submit', async (e) => {
