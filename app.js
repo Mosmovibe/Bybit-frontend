@@ -2,19 +2,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const API_URL = 'https://bybit-backend-xeuv.onrender.com';
   const token = localStorage.getItem('token');
 
-  // Redirect if not logged in and you're on the dashboard
+  // Redirect to login if not authenticated on dashboard
   if (window.location.pathname.includes('dashboard.html') && !token) {
     window.location.href = 'index.html';
+    return;
   }
 
-  // Signup
+  // === SIGNUP ===
   const signupForm = document.getElementById('signup-form');
   const registerLoader = document.getElementById('registerLoader');
 
   if (signupForm) {
     signupForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      registerLoader.style.display = 'block';
+      if (registerLoader) registerLoader.style.display = 'block';
 
       const fullname = document.getElementById('signup-name').value;
       const email = document.getElementById('signup-email').value;
@@ -28,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         const data = await res.json();
-        registerLoader.style.display = 'none';
+        if (registerLoader) registerLoader.style.display = 'none';
 
         if (res.ok) {
           alert('✅ Signup successful! Please log in.');
@@ -37,20 +38,20 @@ document.addEventListener('DOMContentLoaded', () => {
           alert(data.error || 'Signup failed.');
         }
       } catch (err) {
-        registerLoader.style.display = 'none';
+        if (registerLoader) registerLoader.style.display = 'none';
         alert('❌ Signup error. Try again.');
       }
     });
   }
 
-  // Login
+  // === LOGIN ===
   const loginForm = document.getElementById('login-form');
   const loginLoader = document.getElementById('loginLoader');
 
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      loginLoader.style.display = 'block';
+      if (loginLoader) loginLoader.style.display = 'block';
 
       const email = document.getElementById('login-email').value;
       const password = document.getElementById('login-password').value;
@@ -63,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         const data = await res.json();
-        loginLoader.style.display = 'none';
+        if (loginLoader) loginLoader.style.display = 'none';
 
         if (res.ok && data.token) {
           localStorage.setItem('token', data.token);
@@ -72,13 +73,13 @@ document.addEventListener('DOMContentLoaded', () => {
           alert(data.error || 'Login failed.');
         }
       } catch (err) {
-        loginLoader.style.display = 'none';
+        if (loginLoader) loginLoader.style.display = 'none';
         alert('❌ Login failed. Try again.');
       }
     });
   }
 
-  // Logout
+  // === LOGOUT ===
   const logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
@@ -87,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Upload Profile Picture
+  // === UPLOAD PROFILE PICTURE ===
   const profilePicInput = document.getElementById('profilePic');
   const uploadBtn = document.getElementById('uploadBtn');
   if (uploadBtn && profilePicInput) {
@@ -107,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
       if (data.profilePicUrl) {
         document.querySelectorAll('#user-image').forEach(img => {
-          img.src = `${data.profilePicUrl}?t=${Date.now()}`; // bust cache
+          img.src = `${data.profilePicUrl}?t=${Date.now()}`; // cache-busting
         });
         alert('✅ Profile picture updated!');
       } else {
@@ -116,35 +117,41 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Load Dashboard Data
+  // === FETCH DASHBOARD DATA ===
   async function fetchDashboard() {
     if (!token) return;
 
-    const res = await fetch(`${API_URL}/api/dashboard`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    try {
+      const res = await fetch(`${API_URL}/api/dashboard`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (data.fullname) {
-      document.getElementById('username').textContent = data.fullname;
-      document.getElementById('email').textContent = data.email;
-      document.getElementById('joined').textContent = data.joinedAt;
-      document.getElementById('package').textContent = data.package;
-      if (document.getElementById('balance')) {
-        document.getElementById('balance').textContent = `$${data.balance}`;
+      if (data.fullname) {
+        document.getElementById('username').textContent = data.fullname;
+        document.getElementById('email').textContent = data.email;
+        document.getElementById('joined').textContent = data.joinedAt;
+        document.getElementById('package').textContent = data.package;
+
+        if (document.getElementById('balance')) {
+          document.getElementById('balance').textContent = `$${data.balance}`;
+        }
+
+        if (data.profilePic) {
+          document.querySelectorAll('#user-image').forEach(img => {
+            img.src = `${data.profilePic}?t=${Date.now()}`;
+          });
+        }
       }
-      if (data.profilePic) {
-        document.querySelectorAll('#user-image').forEach(img => {
-          img.src = `${data.profilePic}?t=${Date.now()}`;
-        });
-      }
+    } catch (err) {
+      console.error('Dashboard load failed:', err);
     }
   }
 
   fetchDashboard();
 
-  // Admin Edit Balance
+  // === ADMIN MANUAL BALANCE EDIT (optional, can delete block if unused) ===
   const editBalanceForm = document.getElementById('edit-balance-form');
   if (editBalanceForm) {
     editBalanceForm.addEventListener('submit', async (e) => {
