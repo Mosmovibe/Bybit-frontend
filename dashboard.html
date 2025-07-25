@@ -60,11 +60,13 @@
       <div class="right-panel">
         <div class="chart-box">
           <h3>Weekly Profit</h3>
-          <canvas id="lineChart" width="400" height="400"></canvas>
+          <canvas id="lineChart" width="400" height="200"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3>Crypto Distribution</h3>
+          <canvas id="barChart" width="400" height="200"></canvas>
         </div>
       </div>
-
-      <!-- NEW STATIC SECTIONS -->
 
       <!-- Crypto Ticker -->
       <div class="crypto-ticker-grid">
@@ -106,5 +108,35 @@
   </div>
 
   <script src="app.js"></script>
+  <script>
+    const barChart = new Chart(document.getElementById('barChart'), {
+      type: 'bar',
+      data: {
+        labels: ['BTC', 'ETH', 'SOL', 'DOGE'],
+        datasets: [{
+          label: 'Holdings ($)',
+          data: [1000, 3420, 146, 87],
+          backgroundColor: ['#f2a900', '#3c3c3d', '#00ffa3', '#c2a633']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: false
+          },
+          title: {
+            display: true,
+            text: 'Your Crypto Portfolio Breakdown'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  </script>
 </body>
 </html>
