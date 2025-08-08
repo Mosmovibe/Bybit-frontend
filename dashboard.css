@@ -18,58 +18,67 @@ body {
    Header
 ===================== */
 header {
-  background-color: #0a0f2c;
+  background: #0d0d0d;
+  padding: 10px 0;
   color: white;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 15px 30px;
   position: sticky;
   top: 0;
   z-index: 1000;
 }
 
-header .logo {
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: auto;
+  padding: 0 20px;
+}
+
+.logo {
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: white;
+  color: #fff;
+  font-size: 1.4rem;
   font-weight: bold;
-  font-size: 1.2rem;
 }
 
-header .logo img {
-  height: 35px;
-  margin-right: 10px;
+.logo img {
+  height: 40px;
+  margin-right: 8px;
 }
 
-header nav a {
-  color: white;
-  margin-left: 20px;
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav a {
+  color: #fff;
   text-decoration: none;
+  font-weight: 500;
   font-size: 0.95rem;
   transition: color 0.3s ease;
 }
 
-header nav a:hover {
-  color: #f5b400;
+.nav a:hover {
+  color: #f0b90b;
 }
 
-.register-button {
-  background-color: #f5b400;
+.logout-btn {
+  background: #f0b90b;
+  color: #000;
+  border: none;
   padding: 8px 15px;
+  cursor: pointer;
   border-radius: 4px;
+  font-weight: bold;
 }
 
-.login-button {
-  background-color: #1a73e8;
-  padding: 8px 15px;
-  border-radius: 4px;
-}
-
-.register-button:hover,
-.login-button:hover {
-  opacity: 0.9;
+.logout-btn:hover {
+  background: #d4a108;
 }
 
 /* =====================
@@ -102,20 +111,6 @@ header nav a:hover {
 
 .profile-info h2 {
   margin-bottom: 5px;
-}
-
-.logout-btn {
-  margin-left: auto;
-  padding: 8px 14px;
-  background-color: #e63946;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.logout-btn:hover {
-  background-color: #d62839;
 }
 
 /* =====================
@@ -291,89 +286,15 @@ footer {
    Responsive
 ===================== */
 @media (max-width: 768px) {
-  header nav {
-    display: flex;
+  .nav {
     flex-wrap: wrap;
-  }
-  header nav a {
-    margin: 8px 10px;
+    gap: 10px;
   }
   .profile-card {
     flex-direction: column;
     text-align: center;
   }
   .logout-btn {
-    margin: 15px 0 0 0;
+    margin-top: 10px;
   }
 }
-
-    </a>
-    <nav class="nav">
-      <a href="#hero">Home</a>
-      <a href="#plans">Investment Plans</a>
-      <a href="#about">About Us</a>
-      <a href="#contact">Contact</a>
-      <button id="logoutBtn" class="logout-btn">Logout</button>
-    </nav>
-  </div>
-</header>
-
-<style>
-  .header {
-    background: #0d0d0d;
-    padding: 10px 0;
-  }
-
-  .header-container {
-    display: flex;
-    justify-content: space-between; /* Logo left, nav right */
-    align-items: center;
-    max-width: 1200px;
-    margin: auto;
-    padding: 0 20px;
-  }
-
-  .logo {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    color: #fff;
-    font-size: 1.4rem;
-    font-weight: bold;
-  }
-
-  .logo img {
-    height: 40px;
-    margin-right: 8px;
-  }
-
-  .nav {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-
-  .nav a {
-    color: #fff;
-    text-decoration: none;
-    font-weight: 500;
-  }
-
-  .nav a:hover {
-    color: #f0b90b;
-  }
-
-  .logout-btn {
-    background: #f0b90b;
-    color: #000;
-    border: none;
-    padding: 8px 15px;
-    cursor: pointer;
-    border-radius: 4px;
-    font-weight: bold;
-  }
-
-  .logout-btn:hover {
-    background: #d4a108;
-  }
-</style>

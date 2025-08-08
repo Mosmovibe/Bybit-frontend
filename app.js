@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const API_URL = 'https://bybit-backend-xeuv.onrender.com';
   const token = localStorage.getItem('token');
-
   const isDashboard = window.location.pathname.includes('dashboard.html');
 
   // Redirect to login if not authenticated on dashboard
@@ -16,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   signupForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    registerLoader?.style && (registerLoader.style.display = 'block');
+    if (registerLoader) registerLoader.style.display = 'block';
 
     const fullname = document.getElementById('signup-name')?.value;
     const email = document.getElementById('signup-email')?.value;
@@ -30,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       const data = await res.json();
-      registerLoader?.style && (registerLoader.style.display = 'none');
+      if (registerLoader) registerLoader.style.display = 'none';
 
       if (res.ok) {
         alert('✅ Signup successful! Please log in.');
@@ -39,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
         alert(data.error || 'Signup failed.');
       }
     } catch (err) {
-      registerLoader?.style && (registerLoader.style.display = 'none');
+      if (registerLoader) registerLoader.style.display = 'none';
       alert('❌ Signup error. Try again.');
     }
   });
@@ -50,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   loginForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    loginLoader?.style && (loginLoader.style.display = 'block');
+    if (loginLoader) loginLoader.style.display = 'block';
 
     const email = document.getElementById('login-email')?.value;
     const password = document.getElementById('login-password')?.value;
@@ -63,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       const data = await res.json();
-      loginLoader?.style && (loginLoader.style.display = 'none');
+      if (loginLoader) loginLoader.style.display = 'none';
 
       if (res.ok && data.token) {
         localStorage.setItem('token', data.token);
@@ -72,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         alert(data.error || 'Login failed.');
       }
     } catch (err) {
-      loginLoader?.style && (loginLoader.style.display = 'none');
+      if (loginLoader) loginLoader.style.display = 'none';
       alert('❌ Login failed. Try again.');
     }
   });
@@ -127,16 +126,18 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       const data = await res.json();
-
       if (res.ok && data.fullname) {
-        document.getElementById('username')!.textContent = data.fullname;
-        document.getElementById('email')!.textContent = data.email;
-        document.getElementById('joined')!.textContent = data.joinedAt;
-        document.getElementById('package')!.textContent = data.package;
+        const usernameEl = document.getElementById('username');
+        const emailEl = document.getElementById('email');
+        const joinedEl = document.getElementById('joined');
+        const packageEl = document.getElementById('package');
+        const balanceEl = document.getElementById('balance');
 
-        if (document.getElementById('balance')) {
-          document.getElementById('balance')!.textContent = `$${data.balance}`;
-        }
+        if (usernameEl) usernameEl.textContent = data.fullname;
+        if (emailEl) emailEl.textContent = data.email;
+        if (joinedEl) joinedEl.textContent = data.joinedAt;
+        if (packageEl) packageEl.textContent = data.package;
+        if (balanceEl) balanceEl.textContent = `$${data.balance}`;
 
         if (data.profilePic) {
           document.querySelectorAll('#user-image').forEach(img => {
