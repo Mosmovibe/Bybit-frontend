@@ -1,23 +1,31 @@
 const API_URL = 'https://bybit-backend-xeuv.onrender.com';
 
-// ✅ Check Session & Load Profile
+// ✅ Initialize on DOM Load
 document.addEventListener('DOMContentLoaded', () => {
   const token = localStorage.getItem('token');
-  if (!token) {
-    alert("❌ Session expired. Please login again.");
-    localStorage.removeItem('token');
-    window.location.href = 'index.html';
-    return;
-  }
+  if (!token) return handleSessionExpired();
 
   loadProfile();
   loadChart();
+  loadCryptoPrices();
+  setInterval(loadCryptoPrices, 5000);
+
+  // Event Listeners
   document.getElementById('uploadForm')?.addEventListener('submit', uploadProfilePic);
   document.getElementById('logoutBtn')?.addEventListener('click', logout);
   document.getElementById('themeToggleBtn')?.addEventListener('click', toggleTheme);
-  setInterval(loadCryptoPrices, 5000);
-  loadCryptoPrices();
+  document.getElementById('editBalanceForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    editUserBalance();
+  });
 });
+
+// ✅ Session Expired Handler
+function handleSessionExpired() {
+  alert("❌ Session expired. Please login again.");
+  localStorage.removeItem('token');
+  window.location.href = 'index.html';
+}
 
 // ✅ Load Profile Info
 async function loadProfile() {
@@ -26,30 +34,37 @@ async function loadProfile() {
     const res = await fetch(`${API_URL}/api/dashboard`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
+
     if (!res.ok) throw new Error('Failed to load profile');
     const data = await res.json();
 
+    // Profile Details
     document.getElementById('fullname').textContent = data.fullname || 'User';
     document.getElementById('email').textContent = data.email || '';
     document.getElementById('userPackage').textContent = data.package || 'Free';
     document.getElementById('joinedDate').textContent = data.joinedAt || '';
+    document.getElementById('balanceDisplay').textContent = `$${parseFloat(data.balance).toFixed(2)}`;
 
+    // Profile Picture
     const imageUrl = data.profilePic || 'https://via.placeholder.com/100';
     document.getElementById('mainProfile').src = imageUrl;
     document.getElementById('profileDisplay').src = imageUrl;
+
+    // Full Name + Plan
+    const profileNameEl = document.getElementById('profileNameDisplay');
+    if (profileNameEl) {
+      profileNameEl.textContent = `${data.fullname || 'User'} (${data.package || 'Free'})`;
+    }
   } catch (err) {
     console.error('[Profile Load Error]', err);
-    alert('❌ Session expired or failed. Please login again.');
-    localStorage.removeItem('token');
-    window.location.href = 'index.html';
-    document.getElementById('balanceDisplay').textContent = `$${parseFloat(data.balance).toFixed(2)}`;
-
+    handleSessionExpired();
   }
 }
 
 // ✅ Upload Profile Picture
 async function uploadProfilePic(e) {
   e.preventDefault();
+
   const fileInput = document.getElementById('profilePicInput');
   if (!fileInput?.files.length) return alert('❌ No file selected.');
 
@@ -90,7 +105,7 @@ function toggleTheme() {
   document.body.classList.toggle('light-theme');
 }
 
-// ✅ Load Crypto Prices (Dummy for now)
+// ✅ Dummy Crypto Prices Loader
 function loadCryptoPrices() {
   const btc = (28000 + Math.random() * 1000).toFixed(2);
   const eth = (1800 + Math.random() * 100).toFixed(2);
@@ -101,7 +116,7 @@ function loadCryptoPrices() {
   document.querySelector('#cryptoPrices li:nth-child(3) span').textContent = `$${sol}`;
 }
 
-// ✅ Load Chart
+// ✅ Chart Loader
 function loadChart() {
   const ctx = document.getElementById('lineChart')?.getContext('2d');
   if (!ctx) return;
@@ -120,7 +135,9 @@ function loadChart() {
     },
     options: {
       responsive: true,
-      plugins: { legend: { labels: { color: 'white' } } },
+      plugins: {
+        legend: { labels: { color: 'white' } }
+      },
       scales: {
         x: { ticks: { color: 'white' } },
         y: { ticks: { color: 'white' } }
@@ -128,25 +145,30 @@ function loadChart() {
     }
   });
 }
-async function editUserBalance() {
-  const email = document.getElementById('adminEmailInput').value;
-  const newBalance = document.getElementById('adminNewBalance').value;
 
+// ✅ Admin Balance Editor
+async function editUserBalance() {
+  const email = document.getElementById('adminEmailInput')?.value;
+  const newBalance = document.getElementById('adminNewBalance')?.value;
   const token = localStorage.getItem('token');
 
-  const res = await fetch(`${API_URL}/api/admin/edit-balance`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify({ email, newBalance })
-  });
+  try {
+    const res = await fetch(`${API_URL}/api/admin/edit-balance`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ email, newBalance })
+    });
 
-  const data = await res.json();
-  if (res.ok) {
-    alert('✅ Balance updated');
-  } else {
-    alert('❌ ' + data.error);
+    const data = await res.json();
+    if (res.ok) {
+      alert('✅ Balance updated');
+    } else {
+      throw new Error(data.error);
+    }
+  } catch (err) {
+    alert('❌ ' + err.message);
   }
 }

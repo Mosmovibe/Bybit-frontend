@@ -1,205 +1,379 @@
-/* dashboard.css */
-
-/* === GLOBAL === */
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #0f1629; /* Bybit Blue */
+/* =====================
+   Global Styles
+===================== */
+* {
   margin: 0;
   padding: 0;
-  color: #ffffff;
+  box-sizing: border-box;
 }
 
-.container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f6f8;
+  color: #333;
+  line-height: 1.6;
 }
 
-/* === NAVBAR === */
-.navbar {
+/* =====================
+   Header
+===================== */
+header {
+  background-color: #0a0f2c;
+  color: white;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background-color: #1e1e2f;
+  justify-content: space-between;
   padding: 15px 30px;
-  border-radius: 12px;
-  color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
-.logo {
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.nav-links {
+header .logo {
   display: flex;
-  list-style: none;
-  gap: 20px;
+  align-items: center;
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+  font-size: 1.2rem;
 }
 
-.nav-links li {
-  cursor: pointer;
+header .logo img {
+  height: 35px;
+  margin-right: 10px;
+}
+
+header nav a {
+  color: white;
+  margin-left: 20px;
+  text-decoration: none;
+  font-size: 0.95rem;
   transition: color 0.3s ease;
 }
 
-.nav-links li:hover {
-  color: #FFD700;
+header nav a:hover {
+  color: #f5b400;
 }
 
-#logoutBtn {
-  padding: 8px 16px;
-  background-color: #FFD700;
-  color: #000;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background 0.3s;
+.register-button {
+  background-color: #f5b400;
+  padding: 8px 15px;
+  border-radius: 4px;
 }
 
-#logoutBtn:hover {
-  background-color: #e6c200;
+.login-button {
+  background-color: #1a73e8;
+  padding: 8px 15px;
+  border-radius: 4px;
 }
 
-/* === PROFILE IMAGE === */
-.profile-thumbnail,
-.main-profile-img,
-#mainProfile,
-#profileDisplay {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  object-fit: cover;
+.register-button:hover,
+.login-button:hover {
+  opacity: 0.9;
 }
 
-/* === HEADER === */
-.dashboard-header {
+/* =====================
+   Profile Section
+===================== */
+.profile {
   display: flex;
-  align-items: center;
-  background-color: #141e34;
-  margin-top: 20px;
+  justify-content: center;
+  margin: 20px;
+}
+
+.profile-card {
+  background: white;
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-}
-
-.user-info {
-  margin-left: 20px;
-}
-
-/* === FORM === */
-form#uploadForm {
-  margin: 20px 0;
   display: flex;
   align-items: center;
-  gap: 15px;
-}
-
-/* === DASHBOARD CONTENT === */
-.dashboard-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
-  margin-top: 20px;
-}
-
-.left-panel,
-.right-panel,
-.transaction-box,
-.referral-box,
-.progress-box {
-  background-color: #141e34;
-  color: #ffffff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-}
-
-/* === BOX HEADERS === */
-.portfolio-box h3,
-.chart-box h3,
-.transaction-box h3,
-.referral-box h3,
-.progress-box h3 {
-  margin-bottom: 10px;
-  font-size: 18px;
-  border-bottom: 2px solid #1e2a40;
-  padding-bottom: 5px;
-}
-
-/* === TABLES === */
-.portfolio-box table,
-.transaction-box table {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
   width: 100%;
-  border-collapse: collapse;
 }
 
-.portfolio-box table th,
-.portfolio-box table td,
-.transaction-box table th,
-.transaction-box table td {
+.profile-pic {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  margin-right: 15px;
+  border: 2px solid #ddd;
+}
+
+.profile-info h2 {
+  margin-bottom: 5px;
+}
+
+.logout-btn {
+  margin-left: auto;
+  padding: 8px 14px;
+  background-color: #e63946;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background-color: #d62839;
+}
+
+/* =====================
+   Hero Section
+===================== */
+.hero {
+  text-align: center;
+  padding: 50px 20px;
+  background: linear-gradient(135deg, #0a0f2c, #1a73e8);
+  color: white;
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+}
+
+.hero p {
+  max-width: 600px;
+  margin: 0 auto 25px auto;
+}
+
+.cta-buttons a {
+  display: inline-block;
+  padding: 12px 25px;
+  border-radius: 4px;
+  margin: 0 10px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.primary {
+  background-color: #f5b400;
+  color: #0a0f2c;
+}
+
+.secondary {
+  background-color: white;
+  color: #0a0f2c;
+}
+
+.primary:hover,
+.secondary:hover {
+  opacity: 0.9;
+}
+
+/* =====================
+   Crypto Banner
+===================== */
+.crypto-banner {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  background: white;
+  gap: 20px;
+}
+
+.crypto-banner img {
+  height: 40px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* =====================
+   Forex Ticker
+===================== */
+.forex-ticker {
+  background-color: #0a0f2c;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.forex-track {
+  display: inline-block;
   padding: 10px;
-  border: 1px solid #2c3e60;
+  animation: scroll-left 20s linear infinite;
+  color: white;
+  font-size: 0.95rem;
+}
+
+.forex-track span {
+  margin: 0 30px;
+}
+
+@keyframes scroll-left {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* =====================
+   About & Contact
+===================== */
+.about,
+.contact {
+  background: white;
+  margin: 20px;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.contact-details p {
+  margin: 8px 0;
+}
+
+/* =====================
+   Testimonials
+===================== */
+.testimonials {
+  background: #f5f7fa;
+  padding: 40px 20px;
   text-align: center;
 }
 
-/* === BUTTONS === */
-button,
-input,
-select {
-  background-color: #1e2a40;
-  color: #fff;
-  border: 1px solid #2c3e60;
-  padding: 10px;
-  border-radius: 5px;
+.testimonial {
+  max-width: 500px;
+  margin: 0 auto;
+  font-style: italic;
+  color: #555;
 }
 
-button:hover {
-  background-color: #2c3e60;
-  cursor: pointer;
+/* =====================
+   Footer
+===================== */
+footer {
+  background-color: #0a0f2c;
+  color: white;
+  padding: 30px 20px;
 }
 
-.action-buttons button {
-  margin: 5px;
-  padding: 10px 20px;
-}
-
-/* === STATUS === */
-.active {
-  color: limegreen;
-  font-weight: bold;
-}
-
-/* === TICKER === */
-.crypto-ticker-grid {
+.footer-container {
   display: flex;
-  gap: 10px;
-  margin-top: 20px;
+  justify-content: space-between;
   flex-wrap: wrap;
 }
 
-.ticker-card {
-  background: #1e2a40;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.2);
-  min-width: 150px;
+.footer-col h4 {
+  margin-bottom: 10px;
+}
+
+.footer-col ul {
+  list-style: none;
+}
+
+.footer-col ul li {
+  margin: 6px 0;
+}
+
+.footer-col ul li a {
+  color: white;
+  text-decoration: none;
+}
+
+.footer-col ul li a:hover {
+  color: #f5b400;
+}
+
+.footer-bottom {
   text-align: center;
-  font-weight: bold;
+  margin-top: 20px;
+  font-size: 0.9rem;
 }
 
-/* === PROGRESS BAR === */
-.progress-bar {
-  width: 100%;
-  background: #2c3e60;
-  height: 15px;
-  border-radius: 10px;
-  overflow: hidden;
+.footer-bottom a {
+  color: #f5b400;
+  text-decoration: none;
 }
 
-.progress-bar .filled {
-  background-color: #FFD700;
-  height: 100%;
-  transition: width 0.3s ease;
+.footer-bottom a:hover {
+  text-decoration: underline;
 }
+
+/* =====================
+   Responsive
+===================== */
+@media (max-width: 768px) {
+  header nav {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  header nav a {
+    margin: 8px 10px;
+  }
+  .profile-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  .logout-btn {
+    margin: 15px 0 0 0;
+  }
+}
+
+    </a>
+    <nav class="nav">
+      <a href="#hero">Home</a>
+      <a href="#plans">Investment Plans</a>
+      <a href="#about">About Us</a>
+      <a href="#contact">Contact</a>
+      <button id="logoutBtn" class="logout-btn">Logout</button>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .header {
+    background: #0d0d0d;
+    padding: 10px 0;
+  }
+
+  .header-container {
+    display: flex;
+    justify-content: space-between; /* Logo left, nav right */
+    align-items: center;
+    max-width: 1200px;
+    margin: auto;
+    padding: 0 20px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #fff;
+    font-size: 1.4rem;
+    font-weight: bold;
+  }
+
+  .logo img {
+    height: 40px;
+    margin-right: 8px;
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .nav a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .nav a:hover {
+    color: #f0b90b;
+  }
+
+  .logout-btn {
+    background: #f0b90b;
+    color: #000;
+    border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+
+  .logout-btn:hover {
+    background: #d4a108;
+  }
+</style>
