@@ -28,7 +28,6 @@
 <!-- ===== PROFILE SECTION ===== -->
 <section class="profile">
   <div class="container profile-card">
-    
     <!-- Profile Picture -->
     <div class="profile-pic-container">
       <img src="images/profile.png" alt="Profile Picture" class="profile-pic" id="profilePic" />
@@ -43,15 +42,27 @@
       <p id="investmentPlan">Investment Plan: <span class="plan-value">...</span></p>
       <p id="amountInvested">Amount Invested: $<span class="amount-value">...</span></p>
     </div>
-
   </div>
 </section>
 
+<!-- ===== ADMIN UPDATE SECTION ===== -->
+<section id="updateSection" class="card" style="display:none; max-width:900px; margin:16px auto; background:#0e2a66; padding:16px; border-radius:12px;">
+  <h3 style="color:#ffcc00;margin:0 0 12px;">Update Plan & Amount</h3>
+
+  <label for="planInput">Plan</label>
+  <input id="planInput" type="text" placeholder="e.g., WEB3" style="width:100%;padding:8px;margin:6px 0 12px;border-radius:6px;border:1px solid #234;" />
+
+  <label for="amountInput">Amount Invested</label>
+  <input id="amountInput" type="number" step="0.01" min="0" placeholder="e.g., 7777" style="width:100%;padding:8px;margin:6px 0 12px;border-radius:6px;border:1px solid #234;" />
+
+  <button id="savePlanBtn" class="upload-btn">Save</button>
+  <small id="updateMsg" style="display:block;opacity:.9;margin-top:.5rem;"></small>
+</section>
+
 <style>
-  /* Your existing styles here */
   .profile {
     padding: 20px 0;
-    background: #071d49; /* Bybit deep blue */
+    background: #071d49;
     color: #fff;
   }
   .profile-card {
@@ -60,7 +71,7 @@
     gap: 20px;
     max-width: 900px;
     margin: auto;
-    background: #0e2a66; /* darker card */
+    background: #0e2a66;
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.4);
@@ -75,7 +86,7 @@
     height: 140px;
     border-radius: 50%;
     object-fit: cover;
-    border: 4px solid #ffcc00; /* Bybit gold accent */
+    border: 4px solid #ffcc00;
   }
   .edit-pic-btn, .upload-btn {
     margin-top: 8px;
@@ -121,45 +132,6 @@
   </div>
 </section>
 
-<!-- ===== CRYPTO BANNER ===== -->
-<div class="crypto-banner container">
-  <img src="images/bitcoin.png" alt="BTC" />
-  <img src="images/ethereum.png" alt="ETH" />
-  <img src="images/tether.png" alt="USDT" />
-  <img src="images/solana.png" alt="SOL" />
-</div>
-
-<!-- ===== FOREX TICKER ===== -->
-<div class="forex-ticker">
-  <div class="forex-track">
-    <span>EUR/USD 🔼 Buy @ 1.0880</span>
-    <span>GBP/USD 🔽 Sell @ 1.2750</span>
-    <span>USD/JPY 🔼 Buy @ 143.20</span>
-    <span>AUD/USD 🔽 Sell @ 0.6680</span>
-  </div>
-</div>
-
-<!-- ===== ABOUT US ===== -->
-<section class="about container" id="about" style="display: none;">
-  <h2>About Us</h2>
-  <p>At Bybit, our mission is to empower every investor with the best Web3 tools and insights.</p>
-</section>
-
-<!-- ===== CONTACT ===== -->
-<section class="contact container" id="contact" style="display: none;">
-  <h2>Contact Us</h2>
-  <p>Need help or have questions? Reach out to us anytime.</p>
-</section>
-
-<!-- ===== TESTIMONIALS ===== -->
-<section class="testimonials container">
-  <h2>What Our Investors Say</h2>
-  <div class="testimonial">
-    <p>“Bybit helped me grow my crypto portfolio safely!”</p>
-    <strong>— Ann Coopman</strong>
-  </div>
-</section>
-
 <!-- ===== FOOTER ===== -->
 <footer class="footer">
   <div class="container footer-container">
@@ -172,12 +144,6 @@
         <li><a href="#contact">Contact</a></li>
       </ul>
     </div>
-    <div class="footer-col">
-      <ul>
-        <li><a href="#">How It Works</a></li>
-        <li><a href="#">Security & Rent</a></li>
-      </ul>
-    </div>
   </div>
   <div class="footer-bottom">
     <p>© 2025 Bybit Global Ltd. All rights reserved.</p>
@@ -188,9 +154,7 @@
 <!-- ===== SCRIPTS ===== -->
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
-  const API_URL = 'https://bybit-backend-xeuv.onrender.com'; // Your backend URL
-
-  // Get token and validate it
+  const API_URL = 'https://bybit-backend-xeuv.onrender.com';
   const token = localStorage.getItem('token');
   if (!token || token.trim() === '') {
     alert('Session expired. Please login again.');
@@ -199,72 +163,65 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  // Fetch user profile data
+  const $ = (sel) => document.querySelector(sel);
+  const setText = (sel, v) => { const el = $(sel); if (el) el.textContent = v ?? ''; };
+
+  let CURRENT_USER_ID = null;
+  let IS_ADMIN = false;
+
   try {
     const res = await fetch(`${API_URL}/api/dashboard`, {
       headers: { Authorization: `Bearer ${token}` }
     });
-
     if (res.status === 401) {
-      // Unauthorized - token invalid or expired
       alert('Session expired. Please login again.');
       localStorage.removeItem('token');
       window.location.href = 'index.html';
       return;
     }
-
     if (!res.ok) throw new Error('Failed to fetch user data');
-
     const user = await res.json();
 
-    // Update UI with user info
-    document.getElementById('fullName').textContent = user.fullname || 'User';
-    document.querySelector('.plan-value').textContent = user.investmentPlan || user.package || 'Free';
-    document.querySelector('.amount-value').textContent = Number(user.amountInvested || 0).toLocaleString();
-    if (user.profilePic) {
-      document.getElementById('profilePic').src = user.profilePic;
-    }
+    CURRENT_USER_ID = user._id || null;
+    IS_ADMIN = !!user.isAdmin;
+
+    setText('#fullName', user.fullname || 'User');
+    setText('.plan-value', user.investmentPlan || user.package || 'Free');
+    setText('.amount-value', Number(user.amountInvested || 0).toLocaleString());
+    if (user.profilePic) $('#profilePic').src = user.profilePic;
+
+    if ($('#planInput')) $('#planInput').value = user.investmentPlan || 'Free';
+    if ($('#amountInput')) $('#amountInput').value = Number(user.amountInvested || 0);
+
+    if (IS_ADMIN && $('#updateSection')) $('#updateSection').style.display = 'block';
   } catch (err) {
     console.error('Failed to load user data:', err);
     alert('Session expired or server error. Please login again.');
     localStorage.removeItem('token');
     window.location.href = 'index.html';
+    return;
   }
 
-  // Profile pic upload logic
-  let selectedFile = null;
-  const uploadInput = document.getElementById('uploadProfilePic');
-  const uploadBtn = document.getElementById('uploadBtn');
-  const profilePic = document.getElementById('profilePic');
-
-  uploadInput.addEventListener('change', () => {
-    selectedFile = uploadInput.files[0];
+  $('#uploadProfilePic').addEventListener('change', (e) => {
+    window.selectedFile = e.target.files[0];
   });
 
-  uploadBtn.addEventListener('click', async () => {
-    if (!selectedFile) {
+  $('#uploadBtn').addEventListener('click', async () => {
+    if (!window.selectedFile) {
       alert('Please choose a picture first.');
       return;
     }
-
     const formData = new FormData();
-    formData.append('profilePic', selectedFile);
-
+    formData.append('profilePic', window.selectedFile);
     try {
-      const token = localStorage.getItem('token');
       const res = await fetch(`${API_URL}/api/upload-profile`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData
       });
-
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Upload failed');
-
-      profilePic.src = data.profilePicUrl;
-
+      $('#profilePic').src = data.profilePicUrl;
       alert('Profile picture updated successfully!');
     } catch (err) {
       console.error('Upload failed:', err);
@@ -272,28 +229,58 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Navigation toggles
-  document.querySelector('a[href="#contact"]').addEventListener('click', (e) => {
-    e.preventDefault();
-    document.querySelectorAll('section').forEach(s => s.style.display = 'none');
-    document.querySelector('.contact').style.display = 'block';
+  $('#savePlanBtn').addEventListener('click', async () => {
+    const updateMsg = $('#updateMsg');
+    if (!IS_ADMIN) {
+      updateMsg.textContent = 'Admin only.';
+      updateMsg.style.color = 'red';
+      return;
+    }
+    if (!CURRENT_USER_ID) {
+      updateMsg.textContent = 'No user id found.';
+      updateMsg.style.color = 'red';
+      return;
+    }
+    const plan = ($('#planInput')?.value || '').trim();
+    const amount = Number($('#amountInput')?.value);
+    if (!plan) {
+      updateMsg.textContent = 'Please enter a plan.';
+      updateMsg.style.color = 'red';
+      return;
+    }
+    if (!Number.isFinite(amount)) {
+      updateMsg.textContent = 'Amount must be a number.';
+      updateMsg.style.color = 'red';
+      return;
+    }
+    updateMsg.textContent = 'Saving…';
+    try {
+      const res = await fetch(`${API_URL}/api/admin/update-user`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userId: CURRENT_USER_ID,
+          investmentPlan: plan,
+          amountInvested: amount
+        })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Update failed');
+      setText('.plan-value', data.user?.investmentPlan ?? plan);
+      setText('.amount-value', Number(data.user?.amountInvested ?? amount).toLocaleString());
+      updateMsg.textContent = 'Updated!';
+      updateMsg.style.color = 'green';
+    } catch (e) {
+      console.error('Admin update failed:', e);
+      updateMsg.textContent = e.message || 'Update failed.';
+      updateMsg.style.color = 'red';
+    }
   });
 
-  document.querySelector('a[href="#about"]').addEventListener('click', (e) => {
-    e.preventDefault();
-    document.querySelectorAll('section').forEach(s => s.style.display = 'none');
-    document.querySelector('.about').style.display = 'block';
-  });
-
-  document.querySelector('a[href="#hero"]').addEventListener('click', (e) => {
-    e.preventDefault();
-    document.querySelectorAll('section').forEach(s => s.style.display = 'block');
-    document.querySelector('.about').style.display = 'none';
-    document.querySelector('.contact').style.display = 'none';
-  });
-
-  // Logout button clears token and redirects
-  document.getElementById('logoutBtn').addEventListener('click', () => {
+  $('#logoutBtn').addEventListener('click', () => {
     localStorage.removeItem('token');
     window.location.href = 'index.html';
   });

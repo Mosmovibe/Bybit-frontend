@@ -1,202 +1,298 @@
-const API_URL = 'https://bybit-backend-xeuv.onrender.com';
+const API_URL =
+  (window.APP_CONFIG && window.APP_CONFIG.API_URL) ||
+  "https://bybit-backend-xeuv.onrender.com";
 
-// ✅ Initialize on DOM Load
-document.addEventListener('DOMContentLoaded', () => {
-  const token = localStorage.getItem('token');
-  if (!token) return handleSessionExpired();
+/* ---------------- Utilities ---------------- */
 
-  loadProfile();
-  loadChart();
-  loadCryptoPrices();
-  setInterval(loadCryptoPrices, 5000);
-
-  // Event Listeners
-  document.getElementById('uploadForm')?.addEventListener('submit', uploadProfilePic);
-  document.getElementById('logoutBtn')?.addEventListener('click', logout);
-  document.getElementById('themeToggleBtn')?.addEventListener('click', toggleTheme);
-  document.getElementById('editBalanceForm')?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    editUserBalance();
-  });
-});
-
-// ✅ Session Expired Handler
-function handleSessionExpired() {
-  alert("❌ Session expired. Please login again.");
-  localStorage.removeItem('token');
-  window.location.href = 'index.html';
+function getToken() {
+  return localStorage.getItem("token");
 }
 
-// ✅ Load Profile Info
+function handleSessionExpired() {
+  alert("Your session has expired. Please log in again.");
+  localStorage.removeItem("token");
+  window.location.href = "/login.html";
+}
+
+function setText(selectorOrEl, value) {
+  const el =
+    typeof selectorOrEl === "string"
+      ? document.querySelector(selectorOrEl)
+      : selectorOrEl;
+  if (el) el.textContent = value ?? "";
+}
+
+function setValue(selector, value) {
+  const el = document.querySelector(selector);
+  if (el) el.value = value ?? "";
+}
+
+function setImgSrc(selectorOrEl, src, fallback) {
+  const el =
+    typeof selectorOrEl === "string"
+      ? document.querySelector(selectorOrEl)
+      : selectorOrEl;
+  if (el) el.src = src || fallback || el.src || "";
+}
+
+function toNumber(n, def = 0) {
+  const v = typeof n === "number" ? n : Number(n);
+  return Number.isFinite(v) ? v : def;
+}
+
+function money(n) {
+  return toNumber(n).toFixed(2);
+}
+
+async function apiGet(path) {
+  const token = getToken();
+  if (!token) return handleSessionExpired();
+
+  const res = await fetch(`${API_URL}${path}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (res.status === 401) return handleSessionExpired();
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `GET ${path} failed`);
+  return data;
+}
+
+async function apiPostForm(path, formData) {
+  const token = getToken();
+  if (!token) return handleSessionExpired();
+
+  const res = await fetch(`${API_URL}${path}`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  });
+
+  if (res.status === 401) return handleSessionExpired();
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `POST ${path} failed`);
+  return data;
+}
+
+async function apiPostJSON(path, body) {
+  const token = getToken();
+  if (!token) return handleSessionExpired();
+
+  const res = await fetch(`${API_URL}${path}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body || {}),
+  });
+
+  if (res.status === 401) return handleSessionExpired();
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `POST ${path} failed`);
+  return data;
+}
+
+/* ---------------- State ---------------- */
+
+let CURRENT_USER = null; // {_id, email, investmentPlan, amountInvested, isAdmin, ...}
+let IS_ADMIN = false;
+
+/* --------------- Page wiring --------------- */
+
 async function loadProfile() {
   try {
-    const token = localStorage.getItem('token');
-    if (!token) return handleSessionExpired();
+    // Backend should return flat fields incl. _id and isAdmin
+    const data = await apiGet("/api/dashboard");
+    if (!data) return;
 
-    const res = await fetch(`${API_URL}/api/dashboard`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
+    CURRENT_USER = data;
+    IS_ADMIN = !!data.isAdmin;
 
-    if (!res.ok) {
-      if (res.status === 401) return handleSessionExpired();
-      throw new Error('Failed to load profile');
-    }
+    // Basic identity
+    setText("#fullName", data.fullname || data.name || "");
+    setText("#email", data.email || "");
 
-    const data = await res.json();
+    // Plan & investment
+    const plan = data.investmentPlan ?? "Free";
+    const amount = data.amountInvested ?? 0;
 
-    // Defensive: check each element before updating
-    const fullnameEl = document.getElementById('fullname');
-    const emailEl = document.getElementById('email');
-    const packageEl = document.getElementById('userPackage');
-    const joinedDateEl = document.getElementById('joinedDate');
-    const balanceEl = document.getElementById('balanceDisplay');
-    const mainProfileEl = document.getElementById('mainProfile');
-    const profileDisplayEl = document.getElementById('profileDisplay');
-    const profileNameEl = document.getElementById('profileNameDisplay');
+    setText("#investmentPlan .plan-value", plan);
+    setText("#amountInvested .amount-value", money(amount));
 
-    if (fullnameEl) fullnameEl.textContent = data.fullname || 'User';
-    if (emailEl) emailEl.textContent = data.email || '';
-    if (packageEl) packageEl.textContent = data.package || 'Free';
-    if (joinedDateEl) joinedDateEl.textContent = data.joinedAt ? new Date(data.joinedAt).toLocaleDateString() : '';
-    if (balanceEl) balanceEl.textContent = data.balance !== undefined
-      ? `$${parseFloat(data.balance).toFixed(2)}`
-      : '$0.00';
+    // Prefill inputs (if present on page)
+    setValue("#planInput", plan);
+    setValue("#amountInput", toNumber(amount));
 
-    const imageUrl = data.profilePic || 'https://via.placeholder.com/100';
-    if (mainProfileEl) mainProfileEl.src = imageUrl;
-    if (profileDisplayEl) profileDisplayEl.src = imageUrl;
+    // Balances
+    setText("#balance", money(data.balance || data.totalBalance || 0));
+    setText("#availableBalance", money(data.availableBalance || 0));
+    setText("#profit", money(data.profit || 0));
 
-    if (profileNameEl) {
-      profileNameEl.textContent = `${data.fullname || 'User'} (${data.package || 'Free'})`;
-    }
+    // Package (fallbacks)
+    setText("#package", data.package || data.investmentPlan || "Free");
+
+    // Profile picture
+    const imgUrl =
+      data.profilePic ||
+      data.profileImage ||
+      "images/profile.png";
+    setImgSrc("#profilePic", imgUrl, "images/profile.png");
+
+    // Show admin-only update section if present
+    const updateSection = document.getElementById("updateSection");
+    if (updateSection) updateSection.style.display = IS_ADMIN ? "block" : "none";
   } catch (err) {
-    console.error('[Profile Load Error]', err);
-    handleSessionExpired();
+    console.error("[loadProfile]", err);
+    alert("Failed to load profile. Please refresh.");
   }
 }
 
-// ✅ Upload Profile Picture
-async function uploadProfilePic(e) {
-  e.preventDefault();
+/**
+ * ADMIN-ONLY: update plan/amount via /api/admin/update-user
+ */
+async function updatePlanAndAmount() {
+  const msgEl = document.getElementById("updateMsg");
+  const plan = (document.getElementById("planInput")?.value || "").trim();
+  const amountRaw = document.getElementById("amountInput")?.value;
+  const amount = toNumber(amountRaw, NaN);
 
-  const fileInput = document.getElementById('profilePicInput');
-  if (!fileInput?.files.length) return alert('❌ No file selected.');
-
-  const formData = new FormData();
-  formData.append('profilePic', fileInput.files[0]);
-
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) return handleSessionExpired();
-
-    const res = await fetch(`${API_URL}/api/upload-profile`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` },
-      body: formData
-    });
-
-    const data = await res.json();
-    if (res.ok && data.profilePicUrl) {
-      document.getElementById('mainProfile').src = data.profilePicUrl;
-      document.getElementById('profileDisplay').src = data.profilePicUrl;
-      alert('✅ Profile picture updated!');
-    } else {
-      throw new Error(data.error || 'Upload failed.');
+  if (!IS_ADMIN) {
+    if (msgEl) {
+      msgEl.textContent = "Admin only.";
+      msgEl.style.color = "red";
     }
-  } catch (err) {
-    console.error('[Upload Error]', err);
-    alert('❌ Upload failed. Try again.');
-  }
-}
-
-// ✅ Logout
-function logout() {
-  localStorage.removeItem('token');
-  window.location.href = 'index.html';
-}
-
-// ✅ Theme Toggle
-function toggleTheme() {
-  document.body.classList.toggle('dark-theme');
-  document.body.classList.toggle('light-theme');
-}
-
-// ✅ Dummy Crypto Prices Loader
-function loadCryptoPrices() {
-  const btc = (28000 + Math.random() * 1000).toFixed(2);
-  const eth = (1800 + Math.random() * 100).toFixed(2);
-  const sol = (23 + Math.random() * 2).toFixed(2);
-
-  const btcEl = document.querySelector('#cryptoPrices li:nth-child(1) span');
-  const ethEl = document.querySelector('#cryptoPrices li:nth-child(2) span');
-  const solEl = document.querySelector('#cryptoPrices li:nth-child(3) span');
-
-  if (btcEl) btcEl.textContent = `$${btc}`;
-  if (ethEl) ethEl.textContent = `$${eth}`;
-  if (solEl) solEl.textContent = `$${sol}`;
-}
-
-// ✅ Chart Loader
-function loadChart() {
-  const ctx = document.getElementById('lineChart')?.getContext('2d');
-  if (!ctx) return;
-
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-      datasets: [{
-        label: 'Profit ($)',
-        data: [120, 200, 150, 300, 250],
-        borderColor: 'gold',
-        backgroundColor: 'rgba(255, 215, 0, 0.2)',
-        fill: true
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { labels: { color: 'white' } }
-      },
-      scales: {
-        x: { ticks: { color: 'white' } },
-        y: { ticks: { color: 'white' } }
-      }
-    }
-  });
-}
-
-// ✅ Admin Balance Editor
-async function editUserBalance() {
-  const email = document.getElementById('adminEmailInput')?.value.trim();
-  const newBalance = document.getElementById('adminNewBalance')?.value;
-  const token = localStorage.getItem('token');
-
-  if (!token) return handleSessionExpired();
-
-  if (!email || !newBalance) {
-    alert('Please enter both email and new balance.');
     return;
   }
 
+  if (!plan) {
+    if (msgEl) {
+      msgEl.textContent = "Please enter a plan name.";
+      msgEl.style.color = "red";
+    }
+    return;
+  }
+  if (!Number.isFinite(amount)) {
+    if (msgEl) {
+      msgEl.textContent = "Please enter a valid number for Amount Invested.";
+      msgEl.style.color = "red";
+    }
+    return;
+  }
+
+  const userId =
+    CURRENT_USER?._id ||
+    CURRENT_USER?.id ||
+    CURRENT_USER?.userId;
+
+  if (!userId) {
+    if (msgEl) {
+      msgEl.textContent = "Could not find current user id for admin update.";
+      msgEl.style.color = "red";
+    }
+    return;
+  }
+
+  if (msgEl) {
+    msgEl.textContent = "Saving…";
+    msgEl.style.color = "";
+  }
+
   try {
-    const res = await fetch(`${API_URL}/api/admin/edit-balance`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ email, newBalance })
+    const res = await apiPostJSON("/api/admin/update-user", {
+      userId,
+      investmentPlan: plan,
+      amountInvested: amount,
     });
 
-    const data = await res.json();
-    if (res.ok) {
-      alert('✅ Balance updated');
-      loadProfile();
-    } else {
-      throw new Error(data.error || 'Failed to update balance.');
+    // Reflect immediately
+    const newPlan = res.user?.investmentPlan ?? plan;
+    const newAmt = res.user?.amountInvested ?? amount;
+
+    setText("#investmentPlan .plan-value", newPlan);
+    setText("#amountInvested .amount-value", money(newAmt));
+    setValue("#planInput", newPlan);
+    setValue("#amountInput", toNumber(newAmt));
+
+    if (msgEl) {
+      msgEl.textContent = "Updated!";
+      msgEl.style.color = "green";
     }
-  } catch (err) {
-    alert('❌ ' + err.message);
+  } catch (e) {
+    console.error("Admin update failed:", e);
+    if (msgEl) {
+      msgEl.textContent = e.message || "Update failed.";
+      msgEl.style.color = "red";
+    }
   }
 }
+
+async function uploadProfilePic(e) {
+  e?.preventDefault?.();
+
+  const fileInput = document.getElementById("uploadProfilePic");
+  if (!fileInput || !fileInput.files || !fileInput.files.length) {
+    alert("Please choose an image first.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("profilePic", fileInput.files[0]);
+
+  try {
+    const data = await apiPostForm("/api/upload-profile", formData);
+    if (!data) return;
+
+    const newUrl =
+      data.profilePicUrl ||
+      data.url ||
+      data.profilePic ||
+      data.profileImage;
+
+    if (!newUrl) {
+      alert("Upload reported success but returned no image URL.");
+      return;
+    }
+
+    setImgSrc("#profilePic", newUrl, "images/profile.png");
+    alert("Profile picture updated!");
+  } catch (err) {
+    console.error("[uploadProfilePic]", err);
+    alert(err.message || "Upload failed. Please try again.");
+  }
+}
+
+/* --------------- Event listeners --------------- */
+
+function wireEvents() {
+  // Upload button
+  const uploadBtn = document.getElementById("uploadBtn");
+  if (uploadBtn) uploadBtn.addEventListener("click", uploadProfilePic);
+
+  // Admin: Update plan/amount
+  const savePlanBtn = document.getElementById("savePlanBtn");
+  if (savePlanBtn) savePlanBtn.addEventListener("click", updatePlanAndAmount);
+
+  // Optional: auto-upload when a file is chosen
+  const fileInput = document.getElementById("uploadProfilePic");
+  if (fileInput) {
+    fileInput.addEventListener("change", () => {
+      // uncomment to auto-upload on select:
+      // uploadProfilePic();
+    });
+  }
+
+  // Logout
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("token");
+      window.location.href = "/login.html";
+    });
+  }
+}
+
+
