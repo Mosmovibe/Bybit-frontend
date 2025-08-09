@@ -15,11 +15,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
   signupForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (registerLoader) registerLoader.style.display = 'block';
 
-    const fullname = document.getElementById('signup-name')?.value.trim();
-    const email = document.getElementById('signup-email')?.value.trim();
-    const password = document.getElementById('signup-password')?.value;
+    const fullname = registerForm.querySelector('input[name="fullname"]').value.trim();
+    const email = registerForm.querySelector('input[name="email"]').value.trim();
+    const password = registerForm.querySelector('input[name="password"]').value.trim();
+
+    // Basic validation
+    if (!fullname || !email || !password) {
+      alert('❌ Please fill in all fields.');
+      return;
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+      alert('❌ Invalid email format.');
+      return;
+    }
+
+    if (password.length < 6) {
+      alert('❌ Password must be at least 6 characters long.');
+      return;
+    }
 
     try {
       const res = await fetch(`${API_URL}/api/signup`, {
@@ -29,11 +45,14 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       const data = await res.json();
-      if (registerLoader) registerLoader.style.display = 'none';
 
-      if (res.ok) {
-        alert('✅ Signup successful! Please log in.');
-        window.location.href = 'index.html';
+      if (res.ok && data.token) {
+        localStorage.setItem('token', data.token);
+        alert('✅ Signup successful!');
+        window.location.href = 'dashboard.html';
+      } else if (res.ok && data.message) {
+        alert('✅ Registered successfully. Please login.');
+        window.location.href = '#login';
       } else {
         alert(data.error || 'Signup failed.');
       }
