@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   signupForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    registerLoader?.style.display = 'block';
+    if (registerLoader) registerLoader.style.display = 'block';
 
     const fullname = document.getElementById('signup-name')?.value.trim();
     const email = document.getElementById('signup-email')?.value.trim();
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       const data = await res.json();
-      registerLoader.style.display = 'none';
+      if (registerLoader) registerLoader.style.display = 'none';
 
       if (res.ok) {
         alert('✅ Signup successful! Please log in.');
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
         alert(data.error || 'Signup failed.');
       }
     } catch (err) {
-      registerLoader.style.display = 'none';
+      if (registerLoader) registerLoader.style.display = 'none';
       alert('❌ Signup error. Try again.');
       console.error(err);
     }
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   loginForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    loginLoader.style.display = 'block';
+    if (loginLoader) loginLoader.style.display = 'block';
 
     const email = document.getElementById('login-email')?.value.trim();
     const password = document.getElementById('login-password')?.value;
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       const data = await res.json();
-      loginLoader.style.display = 'none';
+      if (loginLoader) loginLoader.style.display = 'none';
 
       if (res.ok && data.token) {
         localStorage.setItem('token', data.token);
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
         alert(data.error || 'Login failed.');
       }
     } catch (err) {
-      loginLoader.style.display = 'none';
+      if (loginLoader) loginLoader.style.display = 'none';
       alert('❌ Login failed. Try again.');
       console.error(err);
     }
@@ -101,14 +101,14 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const res = await fetch(`${API_URL}/api/upload-profile`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` }, // no Content-Type header for FormData
         body: formData,
       });
 
       const data = await res.json();
 
       if (res.ok && data.profilePicUrl) {
-        // IMPORTANT: Use class selector for multiple images, IDs must be unique
+        // Update all images with class .user-image (ensure your img elements use that class)
         document.querySelectorAll('.user-image').forEach(img => {
           img.src = `${data.profilePicUrl}?t=${Date.now()}`;
         });
@@ -140,8 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const profilePicEl = document.getElementById('profilePic');
 
         if (fullNameEl) fullNameEl.textContent = data.fullname || 'N/A';
-        if (planValueEl) planValueEl.textContent = data.package || 'N/A';
-        if (amountValueEl) amountValueEl.textContent = data.balance ? Number(data.balance).toLocaleString() : '0';
+        if (planValueEl) planValueEl.textContent = data.investmentPlan || data.package || 'N/A';
+        if (amountValueEl) amountValueEl.textContent = data.amountInvested ? Number(data.amountInvested).toLocaleString() : '0';
         if (profilePicEl && data.profilePic) profilePicEl.src = `${data.profilePic}?t=${Date.now()}`;
       } else {
         console.error(data.error || 'Failed to fetch dashboard data');

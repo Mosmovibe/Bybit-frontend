@@ -188,6 +188,8 @@
 <!-- ===== SCRIPTS ===== -->
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
+  const API_URL = 'https://bybit-backend-xeuv.onrender.com'; // Your backend URL here!
+
   const token = localStorage.getItem('token');
   if (!token) {
     alert('Session expired. Please login again.');
@@ -195,9 +197,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  // Load user profile from server
+  // Load user profile from backend
   try {
-    const res = await fetch('/api/dashboard', {
+    const res = await fetch(`${API_URL}/api/dashboard`, {
       headers: { Authorization: `Bearer ${token}` }
     });
 
@@ -239,7 +241,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/upload-profile', {
+      const res = await fetch(`${API_URL}/api/upload-profile`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`
