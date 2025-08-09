@@ -18,7 +18,6 @@
     </a>
     <nav class="nav">
       <a href="#hero">Home</a>
-      <a href="#plans">Investment Plans</a>
       <a href="#about">About Us</a>
       <a href="#contact">Contact</a>
       <button id="logoutBtn" class="logout-btn">Logout</button>
@@ -34,14 +33,15 @@
     <div class="profile-pic-container">
       <img src="images/profile.png" alt="Profile Picture" class="profile-pic" id="profilePic" />
       <input type="file" id="uploadProfilePic" accept="image/*" style="display: none;" />
-      <button onclick="document.getElementById('uploadProfilePic').click()" class="edit-pic-btn">Change Picture</button>
+      <button onclick="document.getElementById('uploadProfilePic').click()" class="edit-pic-btn">Choose Picture</button>
+      <button id="uploadBtn" class="upload-btn">Upload </button>
     </div>
 
     <!-- Profile Info -->
     <div class="profile-info">
-      <h2 id="fullName">John Doe</h2>
-      <p id="investmentPlan">Investment Plan: <span class="plan-value">Premium</span></p>
-      <p id="amountInvested">Amount Invested: $<span class="amount-value">10,000</span></p>
+      <h2 id="fullName">Loading...</h2>
+      <p id="investmentPlan">Investment Plan: <span class="plan-value">...</span></p>
+      <p id="amountInvested">Amount Invested: $<span class="amount-value">...</span></p>
     </div>
 
   </div>
@@ -50,222 +50,227 @@
 <style>
   .profile {
     padding: 20px 0;
-    background: #f4f6f8; /* Soft grey background */
-    color: #333;
+    background: #071d49; /* Bybit deep blue */
+    color: #fff;
   }
-
   .profile-card {
     display: flex;
     align-items: center;
     gap: 20px;
     max-width: 900px;
     margin: auto;
-    background: #fff; /* White card */
+    background: #0e2a66; /* darker card */
     padding: 20px;
     border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
   }
-
   .profile-pic-container {
     display: flex;
     flex-direction: column;
     align-items: center;
   }
-
   .profile-pic {
-    width: 120px;
-    height: 120px;
+    width: 140px;
+    height: 140px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid #007bff; /* Professional blue border */
+    border: 4px solid #ffcc00; /* Bybit gold accent */
   }
-
-  .edit-pic-btn {
+  .edit-pic-btn, .upload-btn {
     margin-top: 8px;
-    padding: 6px 14px;
-    background: #007bff;
-    color: #fff;
+    padding: 8px 16px;
+    background: #ffcc00;
+    color: #000;
+    font-weight: bold;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 0.9rem;
-    transition: background 0.3s ease;
+    font-size: 0.95rem;
+    transition: background 0.3s ease, transform 0.2s ease;
   }
-
-  .edit-pic-btn:hover {
-    background: #0056b3;
+  .edit-pic-btn:hover, .upload-btn:hover {
+    background: #e6b800;
+    transform: translateY(-2px);
   }
-
   .profile-info {
     flex: 1;
   }
-
   .profile-info h2 {
     margin: 0;
     font-size: 1.8rem;
     font-weight: bold;
-    color: #222;
+    color: #ffcc00;
   }
-
   .profile-info p {
     margin: 6px 0;
     font-size: 1rem;
-    color: #555;
+    color: #fff;
   }
-
   .plan-value, .amount-value {
     font-weight: bold;
-    color: #007bff; /* Matches button and border */
+    color: #ffcc00;
   }
 </style>
 
+<!-- ===== HERO ===== -->
+<section class="hero" id="hero">
+  <div class="container hero-content">
+    <h1>Welcome to Your Dashboard</h1>
+    <p>Track your investments, manage your plans, and grow your portfolio.</p>
+  </div>
+</section>
+
+<!-- ===== CRYPTO BANNER ===== -->
+<div class="crypto-banner container">
+  <img src="images/bitcoin.png" alt="BTC">
+  <img src="images/ethereum.png" alt="ETH">
+  <img src="images/tether.png" alt="USDT">
+  <img src="images/solana.png" alt="SOL">
+</div>
+
+<!-- ===== FOREX TICKER ===== -->
+<div class="forex-ticker">
+  <div class="forex-track">
+    <span>EUR/USD 🔼 Buy @ 1.0880</span>
+    <span>GBP/USD 🔽 Sell @ 1.2750</span>
+    <span>USD/JPY 🔼 Buy @ 143.20</span>
+    <span>AUD/USD 🔽 Sell @ 0.6680</span>
+  </div>
+</div>
+
+<!-- ===== ABOUT US ===== -->
+<section class="about container" id="about" style="display: none;">
+  <h2>About Us</h2>
+  <p>At Bybit, our mission is to empower every investor with the best Web3 tools and insights.</p>
+</section>
+
+<!-- ===== CONTACT ===== -->
+<section class="contact container" id="contact" style="display: none;">
+  <h2>Contact Us</h2>
+  <p>Need help or have questions? Reach out to us anytime.</p>
+</section>
+
+<!-- ===== TESTIMONIALS ===== -->
+<section class="testimonials container">
+  <h2>What Our Investors Say</h2>
+  <div class="testimonial">
+    <p>“Bybit helped me grow my crypto portfolio safely!”</p>
+    <strong>— Ann Coopman</strong>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container footer-container">
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="#hero">Home</a></li>
+        <li><a href="#plans">Investment Plans</a></li>
+        <li><a href="#about">About Us</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <ul>
+        <li><a href="#">How It Works</a></li>
+        <li><a href="#">Security & Rent</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Bybit Global Ltd. All rights reserved.</p>
+    <a href="#">Terms & Conditions</a>
+  </div>
+</footer>
+
+<!-- ===== SCRIPTS ===== -->
 <script>
-  // Example backend data injection
-  document.getElementById('fullName').textContent = "Michael Johnson"; 
-  document.querySelector('.plan-value').textContent = "Gold"; 
-  document.querySelector('.amount-value').textContent = "15,500";
+document.addEventListener('DOMContentLoaded', async function() {
+  try {
+    const res = await fetch('/api/user', { credentials: 'include' });
+    const user = await res.json();
 
-  // Profile picture change
+    document.getElementById('fullName').textContent = user.fullName;
+    document.querySelector('.plan-value').textContent = user.investmentPlan;
+    document.querySelector('.amount-value').textContent = user.amountInvested.toLocaleString();
+    if (user.profilePic) {
+      document.getElementById('profilePic').src = user.profilePic;
+    }
+  } catch (err) {
+    console.error('Failed to load user data', err);
+  }
+
+  let selectedFile = null;
+  const uploadInput = document.getElementById('uploadProfilePic');
+  const uploadBtn = document.getElementById('uploadBtn');
   const profilePic = document.getElementById('profilePic');
-  const uploadProfilePic = document.getElementById('uploadProfilePic');
 
-  uploadProfilePic.addEventListener('change', function () {
-    const file = this.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        profilePic.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+  uploadInput.addEventListener('change', function() {
+    selectedFile = this.files[0];
+  });
+
+  uploadBtn.addEventListener('click', async function() {
+    if (!selectedFile) {
+      alert('Please choose a picture first.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('upload_preset', 'YOUR_UPLOAD_PRESET');
+
+    try {
+      const res = await fetch('https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      profilePic.src = data.secure_url;
+
+      await fetch('/api/update-profile-pic', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profilePic: data.secure_url })
+      });
+
+      alert('Profile picture updated successfully!');
+    } catch (err) {
+      console.error('Upload failed', err);
+      alert('Upload failed, please try again.');
     }
   });
-</script>
 
+  // Navigation toggles
+  document.querySelector('a[href="#contact"]').addEventListener('click', function(e) {
+    e.preventDefault();
+    document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+    document.querySelector('.contact').style.display = 'block';
+  });
 
-  <!-- ===== HERO ===== -->
-  <section class="hero" id="hero">
-    <div class="container hero-content">
-      <h1>Welcome to Your Dashboard</h1>
-      <p>Track your investments, manage your plans, and grow your portfolio.</p>
-    </div>
-  </section>
+  document.querySelector('a[href="#about"]').addEventListener('click', function(e) {
+    e.preventDefault();
+    document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+    document.querySelector('.about').style.display = 'block';
+  });
 
-  <!-- ===== CRYPTO BANNER ===== -->
-  <div class="crypto-banner container">
-    <img src="images/bitcoin.png" alt="BTC">
-    <img src="images/ethereum.png" alt="ETH">
-    <img src="images/tether.png" alt="USDT">
-    <img src="images/solana.png" alt="SOL">
-  </div>
+  document.querySelector('a[href="#hero"]').addEventListener('click', function(e) {
+    e.preventDefault();
+    document.querySelectorAll('section').forEach(s => s.style.display = 'block');
+    document.querySelector('.about').style.display = 'none';
+    document.querySelector('.contact').style.display = 'none';
+  });
 
-  <!-- ===== FOREX TICKER ===== -->
-  <div class="forex-ticker">
-    <div class="forex-track">
-      <span>EUR/USD 🔼 Buy @ 1.0880</span>
-      <span>GBP/USD 🔽 Sell @ 1.2750</span>
-      <span>USD/JPY 🔼 Buy @ 143.20</span>
-      <span>AUD/USD 🔽 Sell @ 0.6680</span>
-    </div>
-  </div>
-
-  <!-- ===== ABOUT US ===== -->
-  <section class="about container" id="about" style="display: none;">
-    <h2>About Us</h2>
-    <p>At Bybit, our mission is to empower every investor with the best Web3 tools and insights.
-      We believe in secure, transparent, and innovative crypto investing for everyone, everywhere.
-      Join us to shape the future of finance together.</p>
-  </section>
-
-  <!-- ===== CONTACT ===== -->
-  <section class="contact container" id="contact" style="display: none;">
-    <h2>Contact Us</h2>
-    <p>Need help or have questions? Reach out to us anytime.</p>
-    <div class="contact-details">
-      <p><strong>📍 Address:</strong> 450 Market Street, Suite 900, San Francisco, CA</p>
-      <p><strong>📞 Phone:</strong> +1 (706) 990-0220</p>
-      <p><strong>✉️ Email:</strong> support@bybitglobal.com</p>
-    </div>
-  </section>
-
-  <!-- ===== TESTIMONIALS ===== -->
-  <section class="testimonials container">
-    <h2>What Our Investors Say</h2>
-    <div class="testimonial">
-      <p>“Bybit helped me grow my crypto portfolio safely!”</p>
-      <strong>— Ann Coopman</strong>
-    </div>
-  </section>
-
-  <!-- ===== FOOTER ===== -->
-  <footer class="footer">
-    <div class="container footer-container">
-      <div class="footer-col">
-        <h4>Quick Links</h4>
-        <ul>
-          <li><a href="#hero">Home</a></li>
-          <li><a href="#plans">Investment Plans</a></li>
-          <li><a href="#about">About Us</a></li>
-          <li><a href="#contact">Contact</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <ul>
-          <li><a href="#">How It Works</a></li>
-          <li><a href="#">Security & Rent</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>© 2025 Bybit Global Ltd. All rights reserved.</p>
-      <a href="#">Terms & Conditions</a>
-    </div>
-  </footer>
-
-  <!-- ===== SCRIPTS ===== -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Navigation Toggle Sections
-      document.querySelector('a[href="#contact"]').addEventListener('click', function(e) {
-        e.preventDefault();
-        document.querySelectorAll('section').forEach(s => s.style.display = 'none');
-        document.querySelector('.contact').style.display = 'block';
-      });
-
-      document.querySelector('a[href="#about"]').addEventListener('click', function(e) {
-        e.preventDefault();
-        document.querySelectorAll('section').forEach(s => s.style.display = 'none');
-        document.querySelector('.about').style.display = 'block';
-      });
-
-      document.querySelector('a[href="#hero"]').addEventListener('click', function(e) {
-        e.preventDefault();
-        document.querySelectorAll('section').forEach(s => s.style.display = 'block');
-        document.querySelector('.about').style.display = 'none';
-        document.querySelector('.contact').style.display = 'none';
-      });
-
-      // Profile Picture Upload
-      const uploadInput = document.getElementById('uploadProfilePic');
-      const profilePic = document.getElementById('profilePic');
-
-      uploadInput.addEventListener('change', function() {
-        const file = this.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            profilePic.src = e.target.result;
-          };
-          reader.readAsDataURL(file);
-        }
-      });
-
-      // Logout Function
-      document.getElementById('logoutBtn').addEventListener('click', function() {
-        alert('You have been logged out.');
+  // Logout
+  document.getElementById('logoutBtn').addEventListener('click', function() {
+    fetch('/api/logout', { method: 'POST', credentials: 'include' })
+      .finally(() => {
+        localStorage.clear();
         window.location.href = 'login.html';
       });
-    });
-  </script>
+  });
+});
+</script>
 
 </body>
 </html>
