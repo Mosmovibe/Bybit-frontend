@@ -31,27 +31,41 @@ function handleSessionExpired() {
 async function loadProfile() {
   try {
     const token = localStorage.getItem('token');
+    if (!token) return handleSessionExpired();
+
     const res = await fetch(`${API_URL}/api/dashboard`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
 
-    if (!res.ok) throw new Error('Failed to load profile');
+    if (!res.ok) {
+      if (res.status === 401) return handleSessionExpired();
+      throw new Error('Failed to load profile');
+    }
+
     const data = await res.json();
 
-    // Profile Details
-    document.getElementById('fullname').textContent = data.fullname || 'User';
-    document.getElementById('email').textContent = data.email || '';
-    document.getElementById('userPackage').textContent = data.package || 'Free';
-    document.getElementById('joinedDate').textContent = data.joinedAt || '';
-    document.getElementById('balanceDisplay').textContent = `$${parseFloat(data.balance).toFixed(2)}`;
-
-    // Profile Picture
-    const imageUrl = data.profilePic || 'https://via.placeholder.com/100';
-    document.getElementById('mainProfile').src = imageUrl;
-    document.getElementById('profileDisplay').src = imageUrl;
-
-    // Full Name + Plan
+    // Defensive: check each element before updating
+    const fullnameEl = document.getElementById('fullname');
+    const emailEl = document.getElementById('email');
+    const packageEl = document.getElementById('userPackage');
+    const joinedDateEl = document.getElementById('joinedDate');
+    const balanceEl = document.getElementById('balanceDisplay');
+    const mainProfileEl = document.getElementById('mainProfile');
+    const profileDisplayEl = document.getElementById('profileDisplay');
     const profileNameEl = document.getElementById('profileNameDisplay');
+
+    if (fullnameEl) fullnameEl.textContent = data.fullname || 'User';
+    if (emailEl) emailEl.textContent = data.email || '';
+    if (packageEl) packageEl.textContent = data.package || 'Free';
+    if (joinedDateEl) joinedDateEl.textContent = data.joinedAt ? new Date(data.joinedAt).toLocaleDateString() : '';
+    if (balanceEl) balanceEl.textContent = data.balance !== undefined
+      ? `$${parseFloat(data.balance).toFixed(2)}`
+      : '$0.00';
+
+    const imageUrl = data.profilePic || 'https://via.placeholder.com/100';
+    if (mainProfileEl) mainProfileEl.src = imageUrl;
+    if (profileDisplayEl) profileDisplayEl.src = imageUrl;
+
     if (profileNameEl) {
       profileNameEl.textContent = `${data.fullname || 'User'} (${data.package || 'Free'})`;
     }
@@ -73,6 +87,8 @@ async function uploadProfilePic(e) {
 
   try {
     const token = localStorage.getItem('token');
+    if (!token) return handleSessionExpired();
+
     const res = await fetch(`${API_URL}/api/upload-profile`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${token}` },
@@ -111,9 +127,13 @@ function loadCryptoPrices() {
   const eth = (1800 + Math.random() * 100).toFixed(2);
   const sol = (23 + Math.random() * 2).toFixed(2);
 
-  document.querySelector('#cryptoPrices li:nth-child(1) span').textContent = `$${btc}`;
-  document.querySelector('#cryptoPrices li:nth-child(2) span').textContent = `$${eth}`;
-  document.querySelector('#cryptoPrices li:nth-child(3) span').textContent = `$${sol}`;
+  const btcEl = document.querySelector('#cryptoPrices li:nth-child(1) span');
+  const ethEl = document.querySelector('#cryptoPrices li:nth-child(2) span');
+  const solEl = document.querySelector('#cryptoPrices li:nth-child(3) span');
+
+  if (btcEl) btcEl.textContent = `$${btc}`;
+  if (ethEl) ethEl.textContent = `$${eth}`;
+  if (solEl) solEl.textContent = `$${sol}`;
 }
 
 // ✅ Chart Loader
@@ -148,9 +168,16 @@ function loadChart() {
 
 // ✅ Admin Balance Editor
 async function editUserBalance() {
-  const email = document.getElementById('adminEmailInput')?.value;
+  const email = document.getElementById('adminEmailInput')?.value.trim();
   const newBalance = document.getElementById('adminNewBalance')?.value;
   const token = localStorage.getItem('token');
+
+  if (!token) return handleSessionExpired();
+
+  if (!email || !newBalance) {
+    alert('Please enter both email and new balance.');
+    return;
+  }
 
   try {
     const res = await fetch(`${API_URL}/api/admin/edit-balance`, {
@@ -165,8 +192,9 @@ async function editUserBalance() {
     const data = await res.json();
     if (res.ok) {
       alert('✅ Balance updated');
+      loadProfile();
     } else {
-      throw new Error(data.error);
+      throw new Error(data.error || 'Failed to update balance.');
     }
   } catch (err) {
     alert('❌ ' + err.message);

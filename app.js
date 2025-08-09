@@ -15,21 +15,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   signupForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (registerLoader) registerLoader.style.display = 'block';
+    registerLoader?.style.display = 'block';
 
-    const fullname = document.getElementById('signup-name')?.value;
-    const email = document.getElementById('signup-email')?.value;
+    const fullname = document.getElementById('signup-name')?.value.trim();
+    const email = document.getElementById('signup-email')?.value.trim();
     const password = document.getElementById('signup-password')?.value;
 
     try {
       const res = await fetch(`${API_URL}/api/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullname, email, password })
+        body: JSON.stringify({ fullname, email, password }),
       });
 
       const data = await res.json();
-      if (registerLoader) registerLoader.style.display = 'none';
+      registerLoader.style.display = 'none';
 
       if (res.ok) {
         alert('✅ Signup successful! Please log in.');
@@ -38,8 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
         alert(data.error || 'Signup failed.');
       }
     } catch (err) {
-      if (registerLoader) registerLoader.style.display = 'none';
+      registerLoader.style.display = 'none';
       alert('❌ Signup error. Try again.');
+      console.error(err);
     }
   });
 
@@ -49,20 +50,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   loginForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (loginLoader) loginLoader.style.display = 'block';
+    loginLoader.style.display = 'block';
 
-    const email = document.getElementById('login-email')?.value;
+    const email = document.getElementById('login-email')?.value.trim();
     const password = document.getElementById('login-password')?.value;
 
     try {
       const res = await fetch(`${API_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
-      if (loginLoader) loginLoader.style.display = 'none';
+      loginLoader.style.display = 'none';
 
       if (res.ok && data.token) {
         localStorage.setItem('token', data.token);
@@ -71,8 +72,9 @@ document.addEventListener('DOMContentLoaded', () => {
         alert(data.error || 'Login failed.');
       }
     } catch (err) {
-      if (loginLoader) loginLoader.style.display = 'none';
+      loginLoader.style.display = 'none';
       alert('❌ Login failed. Try again.');
+      console.error(err);
     }
   });
 
@@ -85,12 +87,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // === UPLOAD PROFILE PICTURE ===
-  const profilePicInput = document.getElementById('profilePic');
+  const profilePicInput = document.getElementById('uploadProfilePic');
   const uploadBtn = document.getElementById('uploadBtn');
 
   uploadBtn?.addEventListener('click', async () => {
-    const file = profilePicInput?.files?.[0];
-    if (!file) return alert('No file selected');
+    if (!profilePicInput) return alert('Profile picture input not found.');
+    const file = profilePicInput.files?.[0];
+    if (!file) return alert('Please choose a picture first.');
 
     const formData = new FormData();
     formData.append('profilePic', file);
@@ -99,12 +102,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const res = await fetch(`${API_URL}/api/upload-profile`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
-        body: formData
+        body: formData,
       });
 
       const data = await res.json();
+
       if (res.ok && data.profilePicUrl) {
-        document.querySelectorAll('#user-image').forEach(img => {
+        // IMPORTANT: Use class selector for multiple images, IDs must be unique
+        document.querySelectorAll('.user-image').forEach(img => {
           img.src = `${data.profilePicUrl}?t=${Date.now()}`;
         });
         alert('✅ Profile picture updated!');
@@ -113,6 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch (err) {
       alert('❌ Upload error. Try again.');
+      console.error(err);
     }
   });
 
@@ -122,36 +128,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const res = await fetch(`${API_URL}/api/dashboard`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       const data = await res.json();
+
       if (res.ok && data.fullname) {
-        const usernameEl = document.getElementById('username');
-        const emailEl = document.getElementById('email');
-        const joinedEl = document.getElementById('joined');
-        const packageEl = document.getElementById('package');
-        const balanceEl = document.getElementById('balance');
+        const fullNameEl = document.getElementById('fullName');
+        const planValueEl = document.querySelector('.plan-value');
+        const amountValueEl = document.querySelector('.amount-value');
+        const profilePicEl = document.getElementById('profilePic');
 
-        if (usernameEl) usernameEl.textContent = data.fullname;
-        if (emailEl) emailEl.textContent = data.email;
-        if (joinedEl) joinedEl.textContent = data.joinedAt;
-        if (packageEl) packageEl.textContent = data.package;
-        if (balanceEl) balanceEl.textContent = `$${data.balance}`;
-
-        if (data.profilePic) {
-          document.querySelectorAll('#user-image').forEach(img => {
-            img.src = `${data.profilePic}?t=${Date.now()}`;
-          });
-        }
+        if (fullNameEl) fullNameEl.textContent = data.fullname || 'N/A';
+        if (planValueEl) planValueEl.textContent = data.package || 'N/A';
+        if (amountValueEl) amountValueEl.textContent = data.balance ? Number(data.balance).toLocaleString() : '0';
+        if (profilePicEl && data.profilePic) profilePicEl.src = `${data.profilePic}?t=${Date.now()}`;
       } else {
         console.error(data.error || 'Failed to fetch dashboard data');
+        if (res.status === 401) {
+          alert('Session expired. Please log in again.');
+          localStorage.removeItem('token');
+          window.location.href = 'index.html';
+        }
       }
     } catch (err) {
       console.error('Dashboard load failed:', err);
     }
   }
-
   fetchDashboard();
 
   // === ADMIN: EDIT BALANCE ===
@@ -159,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
   editBalanceForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const email = document.getElementById('edit-email')?.value;
+    const email = document.getElementById('edit-email')?.value.trim();
     const newBalance = document.getElementById('edit-balance')?.value;
 
     try {
@@ -167,9 +170,9 @@ document.addEventListener('DOMContentLoaded', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ email, newBalance })
+        body: JSON.stringify({ email, newBalance }),
       });
 
       const data = await res.json();
@@ -180,6 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch (err) {
       alert('❌ Error updating balance.');
+      console.error(err);
     }
   });
 });
