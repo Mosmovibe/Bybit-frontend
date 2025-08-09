@@ -119,7 +119,7 @@ header {
 .hero {
   text-align: center;
   padding: 50px 20px;
-  background: linear-gradient(135deg, #0a0f2c, #1a73e8);
+  background: linear-gradient(135deg, #0a0f2c, #0a0c1b);
   color: white;
 }
 
@@ -144,12 +144,12 @@ header {
 
 .primary {
   background-color: #f5b400;
-  color: #0a0f2c;
+  color: #0a0c1b;
 }
 
 .secondary {
   background-color: white;
-  color: #0a0f2c;
+  color: #0a0c1b;
 }
 
 .primary:hover,
