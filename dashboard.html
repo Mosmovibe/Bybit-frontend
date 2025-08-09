@@ -261,12 +261,13 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.querySelector('.contact').style.display = 'none';
   });
 
-  // Logout
+  // Logout FIX: redirect to index page
   document.getElementById('logoutBtn').addEventListener('click', function() {
     fetch('/api/logout', { method: 'POST', credentials: 'include' })
       .finally(() => {
         localStorage.clear();
-        window.location.href = 'login.html';
+        sessionStorage.clear();
+        window.location.href = 'index.html';
       });
   });
 });
