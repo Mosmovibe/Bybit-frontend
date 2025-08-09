@@ -25,16 +25,119 @@
   </div>
 </header>
 
-    <main>
-      <h1 id="greeting">Hi, User</h1>
+<!-- ===== PROFILE SECTION ===== -->
+<section class="profile">
+  <div class="container profile-card">
+    
+    <!-- Profile Picture -->
+    <div class="profile-pic-container">
+      <img src="images/profile.png" alt="Profile Picture" class="profile-pic" id="profilePic" />
+      <input type="file" id="uploadProfilePic" accept="image/*" style="display: none;" />
+      <button onclick="document.getElementById('uploadProfilePic').click()" class="edit-pic-btn">Choose Picture</button>
+      <button id="uploadBtn" class="upload-btn">Upload</button>
+    </div>
 
-      <div class="profile-card">
-        <img id="profileDisplay" src="images/default-avatar.png" alt="Profile Picture">
-        <form id="uploadForm" enctype="multipart/form-data">
-          <input type="file" id="profilePicInput" accept="image/*" required />
-          <button type="submit">Upload Picture</button>
-        </form>
-      </div>
+    <!-- Profile Info -->
+    <div class="profile-info">
+      <h2 id="fullName">Loading...</h2>
+      <p id="investmentPlan">Investment Plan: <span class="plan-value">...</span></p>
+      <p id="amountInvested">Amount Invested: $<span class="amount-value">...</span></p>
+    </div>
+
+  </div>
+</section>
+
+<style>
+  /* Your existing styles here */
+  .profile {
+    padding: 20px 0;
+    background: #071d49; /* Bybit deep blue */
+    color: #fff;
+  }
+  .profile-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    max-width: 900px;
+    margin: auto;
+    background: #0e2a66; /* darker card */
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  }
+  .profile-pic-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .profile-pic {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #ffcc00; /* Bybit gold accent */
+  }
+  .edit-pic-btn, .upload-btn {
+    margin-top: 8px;
+    padding: 8px 16px;
+    background: #ffcc00;
+    color: #000;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background 0.3s ease, transform 0.2s ease;
+  }
+  .edit-pic-btn:hover, .upload-btn:hover {
+    background: #e6b800;
+    transform: translateY(-2px);
+  }
+  .profile-info {
+    flex: 1;
+  }
+  .profile-info h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #ffcc00;
+  }
+  .profile-info p {
+    margin: 6px 0;
+    font-size: 1rem;
+    color: #fff;
+  }
+  .plan-value, .amount-value {
+    font-weight: bold;
+    color: #ffcc00;
+  }
+</style>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="hero">
+  <div class="container hero-content">
+    <h1>Welcome to Your Dashboard</h1>
+    <p>Track your investments, manage your plans, and grow your portfolio.</p>
+  </div>
+</section>
+
+<!-- ===== CRYPTO BANNER ===== -->
+<div class="crypto-banner container">
+  <img src="images/bitcoin.png" alt="BTC" />
+  <img src="images/ethereum.png" alt="ETH" />
+  <img src="images/tether.png" alt="USDT" />
+  <img src="images/solana.png" alt="SOL" />
+</div>
+
+<!-- ===== FOREX TICKER ===== -->
+<div class="forex-ticker">
+  <div class="forex-track">
+    <span>EUR/USD 🔼 Buy @ 1.0880</span>
+    <span>GBP/USD 🔽 Sell @ 1.2750</span>
+    <span>USD/JPY 🔼 Buy @ 143.20</span>
+    <span>AUD/USD 🔽 Sell @ 0.6680</span>
+  </div>
+</div>
 
 <!-- ===== ABOUT US ===== -->
 <section class="about container" id="about" style="display: none;">
@@ -80,7 +183,122 @@
     <p>© 2025 Bybit Global Ltd. All rights reserved.</p>
     <a href="#">Terms & Conditions</a>
   </div>
+</footer>
 
-  <script src="dashboard.js"></script>
+<!-- ===== SCRIPTS ===== -->
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const API_URL = 'https://bybit-backend-xeuv.onrender.com'; // Your backend URL
+
+  // Get token and validate it
+  const token = localStorage.getItem('token');
+  if (!token || token.trim() === '') {
+    alert('Session expired. Please login again.');
+    localStorage.removeItem('token');
+    window.location.href = 'index.html';
+    return;
+  }
+
+  // Fetch user profile data
+  try {
+    const res = await fetch(`${API_URL}/api/dashboard`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (res.status === 401) {
+      // Unauthorized - token invalid or expired
+      alert('Session expired. Please login again.');
+      localStorage.removeItem('token');
+      window.location.href = 'index.html';
+      return;
+    }
+
+    if (!res.ok) throw new Error('Failed to fetch user data');
+
+    const user = await res.json();
+
+    // Update UI with user info
+    document.getElementById('fullName').textContent = user.fullname || 'User';
+    document.querySelector('.plan-value').textContent = user.investmentPlan || user.package || 'Free';
+    document.querySelector('.amount-value').textContent = Number(user.amountInvested || 0).toLocaleString();
+    if (user.profilePic) {
+      document.getElementById('profilePic').src = user.profilePic;
+    }
+  } catch (err) {
+    console.error('Failed to load user data:', err);
+    alert('Session expired or server error. Please login again.');
+    localStorage.removeItem('token');
+    window.location.href = 'index.html';
+  }
+
+  // Profile pic upload logic
+  let selectedFile = null;
+  const uploadInput = document.getElementById('uploadProfilePic');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const profilePic = document.getElementById('profilePic');
+
+  uploadInput.addEventListener('change', () => {
+    selectedFile = uploadInput.files[0];
+  });
+
+  uploadBtn.addEventListener('click', async () => {
+    if (!selectedFile) {
+      alert('Please choose a picture first.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('profilePic', selectedFile);
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/upload-profile`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Upload failed');
+
+      profilePic.src = data.profilePicUrl;
+
+      alert('Profile picture updated successfully!');
+    } catch (err) {
+      console.error('Upload failed:', err);
+      alert('Upload failed, please try again.');
+    }
+  });
+
+  // Navigation toggles
+  document.querySelector('a[href="#contact"]').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+    document.querySelector('.contact').style.display = 'block';
+  });
+
+  document.querySelector('a[href="#about"]').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+    document.querySelector('.about').style.display = 'block';
+  });
+
+  document.querySelector('a[href="#hero"]').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.querySelectorAll('section').forEach(s => s.style.display = 'block');
+    document.querySelector('.about').style.display = 'none';
+    document.querySelector('.contact').style.display = 'none';
+  });
+
+  // Logout button clears token and redirects
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('token');
+    window.location.href = 'index.html';
+  });
+});
+</script>
+
 </body>
 </html>
