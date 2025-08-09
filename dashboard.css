@@ -75,6 +75,7 @@ header {
   cursor: pointer;
   border-radius: 4px;
   font-weight: bold;
+  transition: background-color 0.3s ease;
 }
 
 .logout-btn:hover {
@@ -91,7 +92,7 @@ header {
 }
 
 .profile-card {
-  background: white;
+  background: #fff;
   padding: 20px;
   border-radius: 12px;
   display: flex;
@@ -107,10 +108,13 @@ header {
   border-radius: 50%;
   margin-right: 15px;
   border: 2px solid #ddd;
+  object-fit: cover;
 }
 
 .profile-info h2 {
   margin-bottom: 5px;
+  font-size: 1.25rem;
+  color: #111;
 }
 
 /* =====================
@@ -126,11 +130,14 @@ header {
 .hero h1 {
   font-size: 2.5rem;
   margin-bottom: 15px;
+  font-weight: 700;
 }
 
 .hero p {
   max-width: 600px;
   margin: 0 auto 25px auto;
+  font-size: 1.1rem;
+  line-height: 1.4;
 }
 
 .cta-buttons a {
@@ -139,7 +146,8 @@ header {
   border-radius: 4px;
   margin: 0 10px;
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 700;
+  transition: opacity 0.3s ease;
 }
 
 .primary {
@@ -148,7 +156,7 @@ header {
 }
 
 .secondary {
-  background-color: white;
+  background-color: #fff;
   color: #0a0c1b;
 }
 
@@ -164,8 +172,9 @@ header {
   display: flex;
   justify-content: center;
   padding: 20px;
-  background: white;
+  background: #fff;
   gap: 20px;
+  flex-wrap: wrap;
 }
 
 .crypto-banner img {
@@ -195,8 +204,12 @@ header {
 }
 
 @keyframes scroll-left {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
 /* =====================
@@ -204,7 +217,7 @@ header {
 ===================== */
 .about,
 .contact {
-  background: white;
+  background: #fff;
   margin: 20px;
   padding: 20px;
   border-radius: 12px;
@@ -213,6 +226,8 @@ header {
 
 .contact-details p {
   margin: 8px 0;
+  color: #444;
+  font-size: 1rem;
 }
 
 /* =====================
@@ -229,6 +244,8 @@ header {
   margin: 0 auto;
   font-style: italic;
   color: #555;
+  font-size: 1.1rem;
+  line-height: 1.5;
 }
 
 /* =====================
@@ -244,14 +261,23 @@ footer {
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.footer-col {
+  flex: 1 1 200px;
+  margin: 10px;
 }
 
 .footer-col h4 {
   margin-bottom: 10px;
+  font-weight: 700;
 }
 
 .footer-col ul {
   list-style: none;
+  padding-left: 0;
 }
 
 .footer-col ul li {
@@ -261,6 +287,7 @@ footer {
 .footer-col ul li a {
   color: white;
   text-decoration: none;
+  transition: color 0.3s ease;
 }
 
 .footer-col ul li a:hover {
@@ -276,6 +303,7 @@ footer {
 .footer-bottom a {
   color: #f5b400;
   text-decoration: none;
+  transition: text-decoration 0.3s ease;
 }
 
 .footer-bottom a:hover {
@@ -290,10 +318,12 @@ footer {
     flex-wrap: wrap;
     gap: 10px;
   }
+
   .profile-card {
     flex-direction: column;
     text-align: center;
   }
+
   .logout-btn {
     margin-top: 10px;
   }
