@@ -16,9 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
   signupForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const fullname = registerForm.querySelector('input[name="fullname"]').value.trim();
-    const email = registerForm.querySelector('input[name="email"]').value.trim();
-    const password = registerForm.querySelector('input[name="password"]').value.trim();
+    // FIX: use signupForm instead of registerForm
+    const fullname = signupForm.querySelector('input[name="fullname"]')?.value.trim();
+    const email = signupForm.querySelector('input[name="email"]')?.value.trim();
+    const password = signupForm.querySelector('input[name="password"]')?.value.trim();
 
     // Basic validation
     if (!fullname || !email || !password) {
@@ -38,6 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
+      if (registerLoader) registerLoader.style.display = 'block';
+
       const res = await fetch(`${API_URL}/api/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -52,14 +55,15 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'dashboard.html';
       } else if (res.ok && data.message) {
         alert('✅ Registered successfully. Please login.');
-        window.location.href = '#login';
+        window.location.hash = '#login';
       } else {
         alert(data.error || 'Signup failed.');
       }
     } catch (err) {
-      if (registerLoader) registerLoader.style.display = 'none';
-      alert('❌ Signup error. Try again.');
       console.error(err);
+      alert('❌ Signup error. Try again.');
+    } finally {
+      if (registerLoader) registerLoader.style.display = 'none';
     }
   });
 
@@ -82,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       const data = await res.json();
-      if (loginLoader) loginLoader.style.display = 'none';
 
       if (res.ok && data.token) {
         localStorage.setItem('token', data.token);
@@ -91,9 +94,10 @@ document.addEventListener('DOMContentLoaded', () => {
         alert(data.error || 'Login failed.');
       }
     } catch (err) {
-      if (loginLoader) loginLoader.style.display = 'none';
-      alert('❌ Login failed. Try again.');
       console.error(err);
+      alert('❌ Login failed. Try again.');
+    } finally {
+      if (loginLoader) loginLoader.style.display = 'none';
     }
   });
 
@@ -120,14 +124,13 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const res = await fetch(`${API_URL}/api/upload-profile`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` }, // no Content-Type header for FormData
+        headers: { Authorization: `Bearer ${token}` }, // no Content-Type for FormData
         body: formData,
       });
 
       const data = await res.json();
 
       if (res.ok && data.profilePicUrl) {
-        // Update all images with class .user-image (ensure your img elements use that class)
         document.querySelectorAll('.user-image').forEach(img => {
           img.src = `${data.profilePicUrl}?t=${Date.now()}`;
         });
@@ -136,8 +139,8 @@ document.addEventListener('DOMContentLoaded', () => {
         alert(data.error || '❌ Upload failed');
       }
     } catch (err) {
-      alert('❌ Upload error. Try again.');
       console.error(err);
+      alert('❌ Upload error. Try again.');
     }
   });
 
@@ -201,8 +204,8 @@ document.addEventListener('DOMContentLoaded', () => {
         alert(data.error || '❌ Balance update failed.');
       }
     } catch (err) {
-      alert('❌ Error updating balance.');
       console.error(err);
+      alert('❌ Error updating balance.');
     }
   });
 });
