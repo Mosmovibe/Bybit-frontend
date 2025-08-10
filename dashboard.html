@@ -7,93 +7,68 @@
   <link rel="stylesheet" href="dashboard.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body {
-      background:#0a0c1b;
-      color:#e5e7eb;
-    }
-    .profile {
-      padding:20px 0;
-      background:#0a0c1b;
-      color:#fff;
-    }
+    body { background:#0a0c1b; color:#e5e7eb; }
+
+    .profile { padding:20px 0; background:#0a0c1b; color:#fff; }
     .profile-card {
-      display:flex;
-      align-items:center;
-      gap:20px;
-      max-width:900px;
-      margin:auto;
-      background:transparent !important;
-      padding:20px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,0.08);
-      box-shadow:0 4px 15px rgba(0,0,0,0.4);
+      display:flex; align-items:center; gap:20px; max-width:900px; margin:auto;
+      background:transparent !important; padding:20px; border-radius:12px;
+      border:1px solid rgba(255,255,255,0.08); box-shadow:0 4px 15px rgba(0,0,0,0.4);
     }
-    .profile-pic-container {
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-    }
+
+    .profile-pic-container { display:flex; flex-direction:column; align-items:center; }
     .profile-pic {
-      width:90px;
-      height:90px;
-      border-radius:50%;
-      object-fit:cover;
-      border:2.5px solid #ffcc00;
-      box-shadow:0 0 8px #ffcc0055;
-      transition:box-shadow 0.3s ease;
+      width:90px; height:90px; border-radius:50%; object-fit:cover;
+      border:2.5px solid #ffcc00; box-shadow:0 0 8px #ffcc0055; transition:box-shadow .3s;
     }
-    .profile-pic:hover {
-      box-shadow:0 0 14px #ffcc00cc;
-    }
-    .upload-btn {
-      margin-top:12px;
-      padding:4px 10px;
-      background:#ffcc00dd;
-      color:#000;
-      font-weight:bold;
-      border:none;
-      border-radius:6px;
-      cursor:pointer;
-      font-size:0.75rem;
-      transition:background 0.3s ease, transform 0.2s ease;
-    }
-    .upload-btn:hover {
-      background:#e6b800ee;
-      transform:translateY(-2px);
-    }
+    .profile-pic:hover { box-shadow:0 0 14px #ffcc00cc; }
+
     .profile-info { flex:1; }
+
+    /* name row + sizing */
+    .name-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .profile-info h2 {
-      margin:0;
-      font-size:1.8rem;
-      font-weight:bold;
-      color:#ffcc00;
+      margin:0; font-size:1.2rem; font-weight:700; color:#fff;   /* smaller name, white */
     }
-    .profile-info p {
-      margin:6px 0;
-      font-size:1rem;
-      color:#fff;
+
+    /* shared badge base */
+    .badge {
+      display:inline-flex; align-items:center; gap:8px;
+      font-size:.85rem; font-weight:600; line-height:1;
+      padding:8px 12px; border-radius:999px; width:fit-content;
     }
-    .plan-value, .amount-value {
-      font-weight:bold;
-      color:#ffcc00;
+    .badge .i { width:16px; height:16px; display:block; }
+
+    /* gold badge to the right of the name */
+    .badge-gold {
+      color:#ffcc00; background:rgba(255,204,0,.12);
+      border:1px solid rgba(255,204,0,.45);
     }
-    .crypto-banner {
-      background:transparent !important;
+    .badge-gold .i circle { fill:#ffcc00; }
+    .badge-gold .i path   { stroke:#0a0c1b; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; fill:none; }
+
+    /* dark verified pill under the name */
+    .badge-dark {
+      margin-top:8px; background:#1b1f33; color:#e8edf7;
+      border:1px solid rgba(255,255,255,.08);
     }
+    .badge-dark .i path { stroke:#e8edf7; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; fill:none; }
+
+    /* plan/amount white */
+    .profile-info p,
+    .profile-info .plan-value,
+    .profile-info .amount-value { color:#fff; }
+
+    .profile-info p { margin:6px 0; font-size:1rem; }
+    .plan-value, .amount-value { font-weight:bold; color:#ffcc00; }
+
+    .crypto-banner { background:transparent !important; }
     .about, .contact {
-      background:rgba(255,255,255,0.04) !important;
-      color:#e5e7eb;
-      border-radius:12px;
-      box-shadow:0 4px 12px rgba(0,0,0,0.25);
+      background:rgba(255,255,255,0.04) !important; color:#e5e7eb;
+      border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.25);
     }
-    .testimonials {
-      background:#0f1326 !important;
-      color:#cfd6e4;
-    }
-    .secondary {
-      background:rgba(255,255,255,0.1) !important;
-      color:#fff;
-    }
+    .testimonials { background:#0f1326 !important; color:#cfd6e4; }
+    .secondary { background:rgba(255,255,255,0.1) !important; color:#fff; }
   </style>
 </head>
 <body>
@@ -117,21 +92,36 @@
 <!-- ===== PROFILE SECTION ===== -->
 <section class="profile">
   <div class="container profile-card">
-
     <!-- Profile Picture -->
     <div class="profile-pic-container">
       <img src="images/profile.png" alt="Profile Picture" class="profile-pic" id="profilePic" />
-      <input type="file" id="uploadProfilePic" accept="image/*" style="display: none;" />
-      <button id="uploadBtn" class="upload-btn" onclick="document.getElementById('uploadProfilePic').click()">Upload</button>
     </div>
 
     <!-- Profile Info -->
     <div class="profile-info">
-      <h2 id="fullName">Loading...</h2>
+      <!-- name + gold badge to the right -->
+      <div class="name-row">
+        <h2 id="fullName">Loading...</h2>
+        <span class="badge badge-gold">
+          <svg viewBox="0 0 20 20" class="i" aria-hidden="true">
+            <circle cx="10" cy="10" r="9"></circle>
+            <path d="M5.5 10.2 8.3 13l6.2-6.2"></path>
+          </svg>
+          Standard Verification
+        </span>
+      </div>
+
+      <!-- dark verified pill under the name -->
+      <div class="badge badge-dark">
+        <svg viewBox="0 0 20 20" class="i" aria-hidden="true">
+          <path d="M5 10l3 3 7-7"></path>
+        </svg>
+        Verified
+      </div>
+
       <p id="investmentPlan">Investment Plan: <span class="plan-value">...</span></p>
       <p id="amountInvested">Amount Invested: $<span class="amount-value">...</span></p>
     </div>
-
   </div>
 </section>
 
@@ -237,7 +227,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const user = await res.json();
 
     document.getElementById('fullName').textContent = user.fullname || 'User';
-    document.querySelector('.plan-value').textContent = user.investmentPlan || user.package || 'Free';
+    document.querySelector('.plan-value').textContent = user.investmentPlan || user.package || 'WEB3';
     document.querySelector('.amount-value').textContent = Number(user.amountInvested || 0).toLocaleString();
     if (user.profilePic) {
       document.getElementById('profilePic').src = user.profilePic;
@@ -248,45 +238,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     localStorage.removeItem('token');
     window.location.href = 'index.html';
   }
-
-  let selectedFile = null;
-  const uploadInput = document.getElementById('uploadProfilePic');
-  const uploadBtn = document.getElementById('uploadBtn');
-  const profilePic = document.getElementById('profilePic');
-
-  uploadInput.addEventListener('change', () => {
-    selectedFile = uploadInput.files[0];
-  });
-
-  uploadBtn.addEventListener('click', async () => {
-    if (!selectedFile) {
-      alert('Please choose a picture first.');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('profilePic', selectedFile);
-
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/api/upload-profile`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
-        body: formData
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Upload failed');
-
-      profilePic.src = data.profilePicUrl;
-      alert('Profile picture updated successfully!');
-    } catch (err) {
-      console.error('Upload failed:', err);
-      alert('Upload failed, please try again.');
-    }
-  });
 
   document.querySelector('a[href="#contact"]').addEventListener('click', (e) => {
     e.preventDefault();
