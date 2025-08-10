@@ -328,3 +328,17 @@ footer {
     margin-top: 10px;
   }
 }
+/* Profile info adjustments */
+.profile-info h2 {
+  color: #fff !important;       /* Name white */
+  font-size: 1.2rem;            /* Smaller font size */
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.profile-info p,
+.profile-info .plan-value,
+.profile-info .amount-value {
+  color: #fff !important;       /* Plan + Amount white */
+  font-weight: normal;          /* Keep normal weight for text */
+}

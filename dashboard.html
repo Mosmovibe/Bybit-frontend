@@ -6,6 +6,95 @@
   <title>BYBIT Dashboard</title>
   <link rel="stylesheet" href="dashboard.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      background:#0a0c1b;
+      color:#e5e7eb;
+    }
+    .profile {
+      padding:20px 0;
+      background:#0a0c1b;
+      color:#fff;
+    }
+    .profile-card {
+      display:flex;
+      align-items:center;
+      gap:20px;
+      max-width:900px;
+      margin:auto;
+      background:transparent !important;
+      padding:20px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.08);
+      box-shadow:0 4px 15px rgba(0,0,0,0.4);
+    }
+    .profile-pic-container {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+    }
+    .profile-pic {
+      width:90px;
+      height:90px;
+      border-radius:50%;
+      object-fit:cover;
+      border:2.5px solid #ffcc00;
+      box-shadow:0 0 8px #ffcc0055;
+      transition:box-shadow 0.3s ease;
+    }
+    .profile-pic:hover {
+      box-shadow:0 0 14px #ffcc00cc;
+    }
+    .upload-btn {
+      margin-top:12px;
+      padding:4px 10px;
+      background:#ffcc00dd;
+      color:#000;
+      font-weight:bold;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+      font-size:0.75rem;
+      transition:background 0.3s ease, transform 0.2s ease;
+    }
+    .upload-btn:hover {
+      background:#e6b800ee;
+      transform:translateY(-2px);
+    }
+    .profile-info { flex:1; }
+    .profile-info h2 {
+      margin:0;
+      font-size:1.8rem;
+      font-weight:bold;
+      color:#ffcc00;
+    }
+    .profile-info p {
+      margin:6px 0;
+      font-size:1rem;
+      color:#fff;
+    }
+    .plan-value, .amount-value {
+      font-weight:bold;
+      color:#ffcc00;
+    }
+    .crypto-banner {
+      background:transparent !important;
+    }
+    .about, .contact {
+      background:rgba(255,255,255,0.04) !important;
+      color:#e5e7eb;
+      border-radius:12px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.25);
+    }
+    .testimonials {
+      background:#0f1326 !important;
+      color:#cfd6e4;
+    }
+    .secondary {
+      background:rgba(255,255,255,0.1) !important;
+      color:#fff;
+    }
+  </style>
 </head>
 <body>
 
@@ -45,77 +134,6 @@
 
   </div>
 </section>
-
-<style>
-  .profile {
-    padding: 20px 0;
-    background: #0a0c1b; /* Bybit deep blue */
-    color: #fff;
-  }
-  .profile-card {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    max-width: 900px;
-    margin: auto;
-    background: #0a0c1b; /* darker card */
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-  }
-  .profile-pic-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .profile-pic {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2.5px solid #ffcc00; /* thinner Bybit gold accent */
-    box-shadow: 0 0 8px #ffcc0055;
-    transition: box-shadow 0.3s ease;
-  }
-  .profile-pic:hover {
-    box-shadow: 0 0 14px #ffcc00cc;
-  }
-  .upload-btn {
-    margin-top: 12px;
-    padding: 4px 10px; /* smaller padding */
-    background: #ffcc00dd; /* more solid */
-    color: #000;
-    font-weight: bold;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.75rem; /* smaller font */
-    transition: background 0.3s ease, transform 0.2s ease;
-  }
-  .upload-btn:hover {
-    background: #e6b800ee;
-    transform: translateY(-2px);
-  }
-  .profile-info {
-    flex: 1;
-  }
-  .profile-info h2 {
-    margin: 0;
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #ffcc00;
-  }
-  .profile-info p {
-    margin: 6px 0;
-    font-size: 1rem;
-    color: #fff;
-  }
-  .plan-value, .amount-value {
-    font-weight: bold;
-    color: #ffcc00;
-  }
-</style>
-
 
 <!-- ===== HERO ===== -->
 <section class="hero" id="hero">
@@ -192,9 +210,8 @@
 <!-- ===== SCRIPTS ===== -->
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
-  const API_URL = 'https://bybit-backend-xeuv.onrender.com'; // Your backend URL
+  const API_URL = 'https://bybit-backend-xeuv.onrender.com';
 
-  // Get token and validate it
   const token = localStorage.getItem('token');
   if (!token || token.trim() === '') {
     alert('Session expired. Please login again.');
@@ -203,14 +220,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  // Fetch user profile data
   try {
     const res = await fetch(`${API_URL}/api/dashboard`, {
       headers: { Authorization: `Bearer ${token}` }
     });
 
     if (res.status === 401) {
-      // Unauthorized - token invalid or expired
       alert('Session expired. Please login again.');
       localStorage.removeItem('token');
       window.location.href = 'index.html';
@@ -221,7 +236,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const user = await res.json();
 
-    // Update UI with user info
     document.getElementById('fullName').textContent = user.fullname || 'User';
     document.querySelector('.plan-value').textContent = user.investmentPlan || user.package || 'Free';
     document.querySelector('.amount-value').textContent = Number(user.amountInvested || 0).toLocaleString();
@@ -235,7 +249,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.location.href = 'index.html';
   }
 
-  // Profile pic upload logic
   let selectedFile = null;
   const uploadInput = document.getElementById('uploadProfilePic');
   const uploadBtn = document.getElementById('uploadBtn');
@@ -268,7 +281,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (!res.ok) throw new Error(data.error || 'Upload failed');
 
       profilePic.src = data.profilePicUrl;
-
       alert('Profile picture updated successfully!');
     } catch (err) {
       console.error('Upload failed:', err);
@@ -276,7 +288,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Navigation toggles
   document.querySelector('a[href="#contact"]').addEventListener('click', (e) => {
     e.preventDefault();
     document.querySelectorAll('section').forEach(s => s.style.display = 'none');
@@ -296,7 +307,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.querySelector('.contact').style.display = 'none';
   });
 
-  // Logout button clears token and redirects
   document.getElementById('logoutBtn').addEventListener('click', () => {
     localStorage.removeItem('token');
     window.location.href = 'index.html';
