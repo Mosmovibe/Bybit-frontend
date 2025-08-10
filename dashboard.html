@@ -28,37 +28,39 @@
     /* name row + sizing */
     .name-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .profile-info h2 {
-      margin:0; font-size:1.2rem; font-weight:700; color:#fff;   /* smaller name, white */
+      margin:0; font-size:1.2rem; font-weight:700; color:#fff;
     }
 
-    /* shared badge base */
-    .badge {
-      display:inline-flex; align-items:center; gap:8px;
-      font-size:.85rem; font-weight:600; line-height:1;
-      padding:8px 12px; border-radius:999px; width:fit-content;
+    /* gold tick (no text) to the right of name */
+    .gold-check {
+      width:22px; height:22px; border-radius:999px;
+      display:inline-flex; align-items:center; justify-content:center;
+      background:rgba(255,204,0,.15);
+      border:1px solid rgba(255,204,0,.6);
     }
-    .badge .i { width:16px; height:16px; display:block; }
+    .gold-check svg { width:14px; height:14px; display:block; }
+    .gold-check circle { fill:#ffcc00; }
+    .gold-check path { stroke:#0a0c1b; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; fill:none; }
 
-    /* gold badge to the right of the name */
-    .badge-gold {
-      color:#ffcc00; background:rgba(255,204,0,.12);
-      border:1px solid rgba(255,204,0,.45);
-    }
-    .badge-gold .i circle { fill:#ffcc00; }
-    .badge-gold .i path   { stroke:#0a0c1b; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; fill:none; }
-
-    /* dark verified pill under the name */
+    /* tiny verified pill below the name */
     .badge-dark {
-      margin-top:8px; background:#1b1f33; color:#e8edf7;
+      margin-top:6px;
+      background:#1b1f33; color:#e8edf7;
       border:1px solid rgba(255,255,255,.08);
+      display:inline-flex; align-items:center; gap:6px;
+      padding:4px 8px;           /* smaller */
+      border-radius:999px;
+      font-size:.65rem;          /* very small but readable */
+      line-height:1;
+      width:fit-content;
     }
-    .badge-dark .i path { stroke:#e8edf7; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; fill:none; }
+    .badge-dark svg { width:12px; height:12px; display:block; }
+    .badge-dark path { stroke:#e8edf7; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; fill:none; }
 
-    /* plan/amount white */
+    /* plan/amount white + gold values */
     .profile-info p,
     .profile-info .plan-value,
     .profile-info .amount-value { color:#fff; }
-
     .profile-info p { margin:6px 0; font-size:1rem; }
     .plan-value, .amount-value { font-weight:bold; color:#ffcc00; }
 
@@ -99,21 +101,20 @@
 
     <!-- Profile Info -->
     <div class="profile-info">
-      <!-- name + gold badge to the right -->
+      <!-- name + gold tick to the right -->
       <div class="name-row">
         <h2 id="fullName">Loading...</h2>
-        <span class="badge badge-gold">
-          <svg viewBox="0 0 20 20" class="i" aria-hidden="true">
+        <span class="gold-check" aria-label="Verified">
+          <svg viewBox="0 0 20 20" aria-hidden="true">
             <circle cx="10" cy="10" r="9"></circle>
             <path d="M5.5 10.2 8.3 13l6.2-6.2"></path>
           </svg>
-          Standard Verification
         </span>
       </div>
 
-      <!-- dark verified pill under the name -->
-      <div class="badge badge-dark">
-        <svg viewBox="0 0 20 20" class="i" aria-hidden="true">
+      <!-- tiny verified pill under the name -->
+      <div class="badge-dark" title="Verified">
+        <svg viewBox="0 0 20 20" aria-hidden="true">
           <path d="M5 10l3 3 7-7"></path>
         </svg>
         Verified
