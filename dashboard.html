@@ -19,16 +19,18 @@
     .profile-pic-container { display:flex; flex-direction:column; align-items:center; }
     .profile-pic {
       width:90px; height:90px; border-radius:50%; object-fit:cover;
-      border:2.5px solid #ffcc00; box-shadow:0 0 8px #ffcc0055; transition:box-shadow .3s;
+      border:2.5px solid #fff; /* white outline */
+      box-shadow:0 0 8px rgba(255,255,255,0.4);
+      transition:box-shadow .3s;
     }
-    .profile-pic:hover { box-shadow:0 0 14px #ffcc00cc; }
+    .profile-pic:hover { box-shadow:0 0 14px rgba(255,255,255,0.8); }
 
     .profile-info { flex:1; }
 
     /* name row + sizing */
     .name-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .profile-info h2 {
-      margin:0; font-size:1.2rem; font-weight:700; color:#fff;
+      margin:0; font-size:1.2rem; font-weight:800 !important; color:#fff;
     }
 
     /* gold tick (no text) to the right of name */
@@ -48,21 +50,20 @@
       background:#1b1f33; color:#e8edf7;
       border:1px solid rgba(255,255,255,.08);
       display:inline-flex; align-items:center; gap:6px;
-      padding:4px 8px;           /* smaller */
+      padding:4px 8px;
       border-radius:999px;
-      font-size:.65rem;          /* very small but readable */
+      font-size:.65rem;
       line-height:1;
       width:fit-content;
     }
     .badge-dark svg { width:12px; height:12px; display:block; }
     .badge-dark path { stroke:#e8edf7; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; fill:none; }
 
-    /* plan/amount white + gold values */
-    .profile-info p,
-    .profile-info .plan-value,
-    .profile-info .amount-value { color:#fff; }
-    .profile-info p { margin:6px 0; font-size:1rem; }
-    .plan-value, .amount-value { font-weight:bold; color:#ffcc00; }
+    /* labels white; values bold + gold */
+    .profile-info p { margin:6px 0; font-size:1rem; color:#fff; }
+    .plan-value, .amount-value {
+      font-weight:800 !important; color:#ffcc00;
+    }
 
     .crypto-banner { background:transparent !important; }
     .about, .contact {
@@ -103,7 +104,7 @@
     <div class="profile-info">
       <!-- name + gold tick to the right -->
       <div class="name-row">
-        <h2 id="fullName">Loading...</h2>
+        <h2 id="fullName">QUEEN PARKER</h2>
         <span class="gold-check" aria-label="Verified">
           <svg viewBox="0 0 20 20" aria-hidden="true">
             <circle cx="10" cy="10" r="9"></circle>
@@ -120,8 +121,8 @@
         Verified
       </div>
 
-      <p id="investmentPlan">Investment Plan: <span class="plan-value">...</span></p>
-      <p id="amountInvested">Amount Invested: $<span class="amount-value">...</span></p>
+      <p id="investmentPlan">Investment Plan: <span class="plan-value">WEB3</span></p>
+      <p id="amountInvested">Amount Invested: $<span class="amount-value">0</span></p>
     </div>
   </div>
 </section>
@@ -227,9 +228,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const user = await res.json();
 
-    document.getElementById('fullName').textContent = user.fullname || 'User';
-    document.querySelector('.plan-value').textContent = user.investmentPlan || user.package || 'WEB3';
-    document.querySelector('.amount-value').textContent = Number(user.amountInvested || 0).toLocaleString();
+    document.getElementById('fullName').textContent = user.fullname || 'QUEEN PARKER';
+    document.querySelector('.plan-value').textContent = (user.investmentPlan || user.package || 'WEB3');
+    document.querySelector('.amount-value').textContent = Number(user.amountInvested ?? 0).toLocaleString();
     if (user.profilePic) {
       document.getElementById('profilePic').src = user.profilePic;
     }
