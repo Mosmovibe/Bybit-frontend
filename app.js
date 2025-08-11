@@ -1,14 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
   /* ===================== CONFIG ===================== */
-  // Use your backend ORIGIN only (protocol + host [+port]), no trailing slash/path.
-  let API_URL = 'https://bybit-backend-xeuv.onrender.com';
+  // Prefer APP_CONFIG if you set it in HTML, else fall back to your backend.
+  let API_URL =
+    (window.APP_CONFIG && window.APP_CONFIG.API_URL) ||
+    'https://bybit-backend-xeuv.onrender.com';
 
-  // Normalize: strip any path or trailing slash
+  // Normalize to origin (scheme://host[:port])
   try {
     const u = new URL(API_URL);
     API_URL = `${u.protocol}//${u.host}`;
   } catch {
     console.warn('API_URL is not a valid URL origin. Fix this if requests fail:', API_URL);
+  }
+
+  // Guard: never let API_URL equal the frontend origin (that causes 404s)
+  if (API_URL === `${location.protocol}//${location.host}`) {
+    console.warn('API_URL resolved to frontend origin; forcing backend origin.');
+    API_URL = 'https://bybit-backend-xeuv.onrender.com';
   }
 
   const isDashboard = window.location.pathname.includes('dashboard.html');
@@ -95,6 +103,8 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.hash = '#login';
       } else if (res.status === 400) {
         alert(data.error || '❌ Invalid signup details.');
+      } else if (res.status === 404) {
+        alert('Endpoint not found on backend (404). Check API_URL and deploy.');
       } else {
         alert(data.error || `Signup failed (status ${res.status}).`);
       }

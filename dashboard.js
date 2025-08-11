@@ -11,6 +11,17 @@ try {
   console.warn("API_URL is not a valid URL origin. Using as-is:", API_URL);
 }
 
+// Never let API_URL equal the frontend origin (that would 404 on /api)
+const FRONTEND_ORIGIN = `${location.protocol}//${location.host}`;
+if (API_URL === FRONTEND_ORIGIN) {
+  console.warn("API_URL resolved to frontend; forcing backend origin.");
+  API_URL = "https://bybit-backend-xeuv.onrender.com";
+}
+
+// Where to send users when the session expires (your login is on index.html)
+const LOGIN_URL =
+  (window.APP_CONFIG && window.APP_CONFIG.LOGIN_URL) || "index.html#login";
+
 // ---------------- Utilities ----------------
 function buildURL(path) {
   const p = String(path || "");
@@ -29,7 +40,7 @@ function getToken() {
 function handleSessionExpired() {
   alert("Your session has expired. Please log in again.");
   try { localStorage.removeItem("token"); } catch {}
-  window.location.href = "/login.html";
+  window.location.href = LOGIN_URL;
 }
 
 function setText(selectorOrEl, value) {
@@ -52,7 +63,6 @@ function setImgSrc(selectorOrEl, src, fallback) {
       : selectorOrEl;
   if (!el) return;
   const url = src || fallback || el.src || "";
-  // cache-bust so users see the latest upload immediately
   const bust = url ? (url.includes("?") ? "&" : "?") + "t=" + Date.now() : "";
   el.src = url + bust;
 }
@@ -83,19 +93,24 @@ async function apiRequest(path, options = {}) {
     ...options,
   };
 
-  const res = await fetch(buildURL(path), init);
+  let res;
+  try {
+    res = await fetch(buildURL(path), init);
+  } catch (e) {
+    const err = new Error("Network/CORS error. Check FRONTEND_ORIGINS and API_URL.");
+    err.cause = e;
+    throw err;
+  }
 
-  // 401/403 -> treat as expired/unauthorized
   if (res.status === 401 || res.status === 403) {
     return handleSessionExpired();
   }
 
-  // try parse JSON (may fail on 204)
   let data = {};
   try { data = await res.json(); } catch {}
 
   if (!res.ok) {
-    const msg = data?.error || `${init.method || "GET"} ${path} failed`;
+    const msg = data?.error || `${init.method || "GET"} ${path} failed (status ${res.status})`;
     const err = new Error(msg);
     err.status = res.status;
     err.data = data;
@@ -104,18 +119,10 @@ async function apiRequest(path, options = {}) {
   return data;
 }
 
-async function apiGet(path) {
-  return apiRequest(path, { method: "GET" });
-}
-
+async function apiGet(path) { return apiRequest(path, { method: "GET" }); }
 async function apiPostForm(path, formData) {
-  return apiRequest(path, {
-    method: "POST",
-    // DO NOT set Content-Type when sending FormData
-    body: formData,
-  });
+  return apiRequest(path, { method: "POST", body: formData }); // no Content-Type with FormData
 }
-
 async function apiPostJSON(path, body) {
   return apiRequest(path, {
     method: "POST",
@@ -181,24 +188,15 @@ async function updatePlanAndAmount() {
   const amountRaw = document.getElementById("amountInput")?.value;
   const amount = toNumber(amountRaw, NaN);
 
-  if (!IS_ADMIN) {
-    if (msgEl) { msgEl.textContent = "Admin only."; msgEl.style.color = "red"; }
-    return;
-  }
-  if (!plan) {
-    if (msgEl) { msgEl.textContent = "Please enter a plan name."; msgEl.style.color = "red"; }
-    return;
-  }
+  if (!IS_ADMIN) { if (msgEl) { msgEl.textContent = "Admin only."; msgEl.style.color = "red"; } return; }
+  if (!plan)     { if (msgEl) { msgEl.textContent = "Please enter a plan name."; msgEl.style.color = "red"; } return; }
   if (!Number.isFinite(amount)) {
     if (msgEl) { msgEl.textContent = "Please enter a valid number for Amount Invested."; msgEl.style.color = "red"; }
     return;
   }
 
   const userId = CURRENT_USER?._id || CURRENT_USER?.id || CURRENT_USER?.userId;
-  if (!userId) {
-    if (msgEl) { msgEl.textContent = "Could not find current user id for admin update."; msgEl.style.color = "red"; }
-    return;
-  }
+  if (!userId) { if (msgEl) { msgEl.textContent = "Could not find current user id for admin update."; msgEl.style.color = "red"; } return; }
 
   if (msgEl) { msgEl.textContent = "Saving…"; msgEl.style.color = ""; }
 
@@ -209,9 +207,8 @@ async function updatePlanAndAmount() {
       amountInvested: amount,
     });
 
-    // Reflect immediately
     const newPlan = res.user?.investmentPlan ?? plan;
-    const newAmt = res.user?.amountInvested ?? amount;
+    const newAmt  = res.user?.amountInvested ?? amount;
 
     setText("#investmentPlan .plan-value", newPlan);
     setText("#amountInvested .amount-value", money(newAmt));
@@ -241,13 +238,8 @@ async function uploadProfilePic(e) {
     const data = await apiPostForm("/api/upload-profile", formData);
     if (!data) return;
 
-    const newUrl =
-      data.profilePicUrl || data.url || data.profilePic || data.profileImage;
-
-    if (!newUrl) {
-      alert("Upload reported success but returned no image URL.");
-      return;
-    }
+    const newUrl = data.profilePicUrl || data.url || data.profilePic || data.profileImage;
+    if (!newUrl) { alert("Upload reported success but returned no image URL."); return; }
 
     setImgSrc("#profilePic", newUrl, "images/profile.png");
     alert("Profile picture updated!");
@@ -259,29 +251,20 @@ async function uploadProfilePic(e) {
 
 /* --------------- Event listeners --------------- */
 function wireEvents() {
-  // Upload button
   const uploadBtn = document.getElementById("uploadBtn");
   if (uploadBtn) uploadBtn.addEventListener("click", uploadProfilePic);
 
-  // Admin: Update plan/amount
   const savePlanBtn = document.getElementById("savePlanBtn");
   if (savePlanBtn) savePlanBtn.addEventListener("click", updatePlanAndAmount);
 
-  // Optional: auto-upload when a file is chosen
   const fileInput = document.getElementById("uploadProfilePic");
-  if (fileInput) {
-    fileInput.addEventListener("change", () => {
-      // To auto-upload on select, uncomment the next line:
-      // uploadProfilePic();
-    });
-  }
+  if (fileInput) fileInput.addEventListener("change", () => { /* auto-upload if desired */ });
 
-  // Logout
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
       try { localStorage.removeItem("token"); } catch {}
-      window.location.href = "/login.html";
+      window.location.href = LOGIN_URL;
     });
   }
 }
@@ -289,8 +272,10 @@ function wireEvents() {
 // Kickoff when the page is ready
 document.addEventListener("DOMContentLoaded", () => {
   wireEvents();
-  // If this script is used on the dashboard page, load the profile.
-  // It’s safe to call on non-dashboard pages; the /api call will still work
-  // if a token exists, otherwise you’ll be redirected by the API helpers.
-  loadProfile();
+  // Only load profile when needed (dashboard or elements present)
+  const shouldLoadProfile =
+    document.getElementById("fullName") ||
+    document.getElementById("profilePic") ||
+    document.getElementById("investmentPlan");
+  if (shouldLoadProfile) loadProfile();
 });

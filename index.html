@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Bybit</title>
   <link rel="stylesheet" href="styles.css">
+  <!-- Inject runtime config so app.js always posts to the backend (not the frontend) -->
+  <script>
+    window.APP_CONFIG = {
+      API_URL: "https://bybit-backend-xeuv.onrender.com",
+      LOGIN_URL: "index.html#login"
+    };
+  </script>
 </head>
 <body>
 
@@ -13,18 +20,16 @@
     <img src="images/bybit-logo.png" alt="Logo" />
   </div>
   <script>
-    // Make sure transition is applied BEFORE changing opacity
     window.addEventListener('load', function () {
       const preloader = document.getElementById('preloader');
       if (!preloader) return;
       preloader.style.transition = 'opacity 0.5s ease';
-      preloader.offsetHeight; // force reflow so transition takes effect
+      preloader.offsetHeight; // force reflow
       preloader.style.opacity = '0';
       preloader.addEventListener('transitionend', () => {
         preloader.style.visibility = 'hidden';
         preloader.remove();
       }, { once: true });
-      // Fallback remove in case transitionend doesn't fire
       setTimeout(() => preloader?.remove(), 800);
     });
   </script>
@@ -107,7 +112,8 @@
     <form id="signup-form" autocomplete="on" novalidate>
       <input type="text" id="signup-name" name="fullname" placeholder="Full Name" required />
       <input type="email" id="signup-email" name="email" placeholder="Email Address" required />
-      <input type="password" id="signup-password" name="password" placeholder="Create Password" minlength="6" required />
+      <!-- backend requires >= 8 -->
+      <input type="password" id="signup-password" name="password" placeholder="Create Password" minlength="8" required />
       <button type="submit" class="primary">Register</button>
     </form>
     <div id="registerLoader" style="display:none;color:#fff;margin-top:10px;">⏳ Processing...</div>
@@ -179,7 +185,6 @@
 
   <!-- Section toggle & smooth scroll -->
   <script>
-    // Simple hash-based section reveal for About/Contact only.
     (function () {
       const sectionsToToggle = ['about', 'contact'];
       const showOnly = (id) => {
@@ -187,7 +192,6 @@
           const el = document.getElementById(sid);
           if (el) el.style.display = (sid === id) ? 'block' : 'none';
         });
-        // Scroll into view if target exists
         const target = document.getElementById(id);
         if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       };
@@ -197,7 +201,6 @@
         if (sectionsToToggle.includes(hash)) {
           showOnly(hash);
         } else {
-          // Default: hide About/Contact; show other sections per CSS
           sectionsToToggle.forEach(sid => {
             const el = document.getElementById(sid);
             if (el) el.style.display = 'none';
@@ -205,14 +208,11 @@
         }
       };
 
-      // Nav clicks: let the browser set the hash, then handle
       document.addEventListener('click', (e) => {
         const a = e.target.closest('a[href^="#"]');
         if (!a) return;
         const href = a.getAttribute('href');
         const id = href.slice(1);
-        // Always allow normal hash navigation for most sections
-        // Only intercept when showing About/Contact
         if (['about', 'contact'].includes(id)) {
           e.preventDefault();
           history.pushState(null, '', href);
@@ -226,7 +226,8 @@
   </script>
 
   <!-- App Logic (fetch, auth, etc.) -->
-  <script src="app.js" defer></script>
+  <!-- Add a version to bust browser cache so the latest JS (with correct API) is used -->
+  <script src="app.js?v=5" defer></script>
 
   <!-- CTA buttons -->
   <script>

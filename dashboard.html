@@ -19,7 +19,7 @@
     .profile-pic-container { display:flex; flex-direction:column; align-items:center; }
     .profile-pic {
       width:90px; height:90px; border-radius:50%; object-fit:cover;
-      border:2.5px solid #fff; /* white outline */
+      border:2.5px solid #fff;
       box-shadow:0 0 8px rgba(255,255,255,0.4);
       transition:box-shadow .3s;
     }
@@ -28,9 +28,7 @@
     .profile-info { flex:1; }
 
     .name-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-    .profile-info h2 {
-      margin:0; font-size:1.2rem; font-weight:800 !important; color:#fff;
-    }
+    .profile-info h2 { margin:0; font-size:1.2rem; font-weight:800 !important; color:#fff; }
 
     .gold-check {
       width:22px; height:22px; border-radius:999px;
@@ -49,9 +47,7 @@
       display:inline-flex; align-items:center; gap:6px;
       padding:4px 8px;
       border-radius:999px;
-      font-size:.65rem;
-      line-height:1;
-      width:fit-content;
+      font-size:.65rem; line-height:1; width:fit-content;
     }
     .badge-dark svg { width:12px; height:12px; display:block; }
     .badge-dark path { stroke:#e8edf7; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; fill:none; }
@@ -192,32 +188,30 @@
 <!-- ===== SCRIPTS ===== -->
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
-  /* ---------- API URL (normalize to origin) ---------- */
-  let API_URL = 'https://bybit-backend-xeuv.onrender.com';
-  try {
-    const u = new URL(API_URL);
-    API_URL = u.protocol + '//' + u.host; // strip any trailing slash/path
-  } catch {
-    console.warn('Invalid API_URL, requests may fail:', API_URL);
-  }
+  /* ---------- API URL (origin only) ---------- */
+  let API_URL = (window.APP_CONFIG && window.APP_CONFIG.API_URL) || 'https://bybit-backend-xeuv.onrender.com';
+  try { const u = new URL(API_URL); API_URL = u.protocol + '//' + u.host; } catch { console.warn('Invalid API_URL:', API_URL); }
+  // helper to build absolute URLs safely
+  const buildApi = (p) => API_URL + (String(p).startsWith('/') ? '' : '/') + p;
 
   /* ---------- Token helpers ---------- */
-  const getToken = () => { try { return localStorage.getItem('token') || ''; } catch { return ''; } };
+  const getToken = () => { try { return (localStorage.getItem('token')||'').trim(); } catch { return ''; } };
   const clearToken = () => { try { localStorage.removeItem('token'); } catch {} };
 
   /* ---------- Fetch helper (CORS-aware) ---------- */
   async function apiGet(path) {
-    const res = await fetch(API_URL + path, {
+    const res = await fetch(buildApi(path), {
       method: 'GET',
       mode: 'cors',
-      headers: { Authorization: 'Bearer ' + getToken() }
+      cache: 'no-store',
+      headers: { Authorization: 'Bearer ' + getToken(), Accept: 'application/json' }
     });
     return res;
   }
 
   /* ---------- Auth gate for dashboard ---------- */
   const token = getToken();
-  if (!token.trim()) {
+  if (!token) {
     alert('Session expired. Please login again.');
     clearToken();
     window.location.href = 'index.html';
@@ -249,8 +243,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const picEl = document.getElementById('profilePic');
     if (picEl && user.profilePic) {
-      // cache-bust to reflect latest upload
-      picEl.src = user.profilePic + '?t=' + Date.now();
+      picEl.src = user.profilePic + '?t=' + Date.now(); // cache-bust
     }
   } catch (err) {
     console.error('Failed to load user data:', err);
@@ -260,34 +253,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  /* ---------- Section toggle (only toggle content sections) ---------- */
+  /* ---------- Section toggle (content sections only) ---------- */
   function showOnly(sectionId) {
     const ids = ['profile','hero','crypto','forex','about','contact','testimonials'];
     ids.forEach(id => {
       const el = document.getElementById(id);
       if (!el) return;
-      el.style.display = (id === sectionId || (sectionId === 'hero' && (id === 'profile' || id === 'hero' || id === 'crypto' || id === 'forex' || id === 'testimonials'))) ? 'block' : 'none';
+      const keepForHero = (sectionId === 'hero' && (id === 'profile' || id === 'hero' || id === 'crypto' || id === 'forex' || id === 'testimonials'));
+      el.style.display = (id === sectionId || keepForHero) ? 'block' : 'none';
     });
-    // keep header/footer always visible
   }
 
   const linkContact = document.querySelector('a[href="#contact"]');
-  linkContact && linkContact.addEventListener('click', (e) => {
-    e.preventDefault();
-    showOnly('contact');
-  });
+  linkContact && linkContact.addEventListener('click', (e) => { e.preventDefault(); showOnly('contact'); });
 
   const linkAbout = document.querySelector('a[href="#about"]');
-  linkAbout && linkAbout.addEventListener('click', (e) => {
-    e.preventDefault();
-    showOnly('about');
-  });
+  linkAbout && linkAbout.addEventListener('click', (e) => { e.preventDefault(); showOnly('about'); });
 
   const linkHero = document.querySelector('a[href="#hero"]');
-  linkHero && linkHero.addEventListener('click', (e) => {
-    e.preventDefault();
-    showOnly('hero');
-  });
+  linkHero && linkHero.addEventListener('click', (e) => { e.preventDefault(); showOnly('hero'); });
 
   /* ---------- Logout ---------- */
   const logoutBtn = document.getElementById('logoutBtn');
