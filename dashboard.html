@@ -27,13 +27,11 @@
 
     .profile-info { flex:1; }
 
-    /* name row + sizing */
     .name-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .profile-info h2 {
       margin:0; font-size:1.2rem; font-weight:800 !important; color:#fff;
     }
 
-    /* gold tick (no text) to the right of name */
     .gold-check {
       width:22px; height:22px; border-radius:999px;
       display:inline-flex; align-items:center; justify-content:center;
@@ -44,7 +42,6 @@
     .gold-check circle { fill:#ffcc00; }
     .gold-check path { stroke:#0a0c1b; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; fill:none; }
 
-    /* tiny verified pill below the name */
     .badge-dark {
       margin-top:6px;
       background:#1b1f33; color:#e8edf7;
@@ -59,11 +56,8 @@
     .badge-dark svg { width:12px; height:12px; display:block; }
     .badge-dark path { stroke:#e8edf7; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; fill:none; }
 
-    /* labels white; values bold + gold */
     .profile-info p { margin:6px 0; font-size:1rem; color:#fff; }
-    .plan-value, .amount-value {
-      font-weight:800 !important; color:#ffcc00;
-    }
+    .plan-value, .amount-value { font-weight:800 !important; color:#ffcc00; }
 
     .crypto-banner { background:transparent !important; }
     .about, .contact {
@@ -93,16 +87,13 @@
 </header>
 
 <!-- ===== PROFILE SECTION ===== -->
-<section class="profile">
+<section class="profile" id="profile">
   <div class="container profile-card">
-    <!-- Profile Picture -->
     <div class="profile-pic-container">
       <img src="images/profile.png" alt="Profile Picture" class="profile-pic" id="profilePic" />
     </div>
 
-    <!-- Profile Info -->
     <div class="profile-info">
-      <!-- name + gold tick to the right -->
       <div class="name-row">
         <h2 id="fullName">QUEEN PARKER</h2>
         <span class="gold-check" aria-label="Verified">
@@ -113,7 +104,6 @@
         </span>
       </div>
 
-      <!-- tiny verified pill under the name -->
       <div class="badge-dark" title="Verified">
         <svg viewBox="0 0 20 20" aria-hidden="true">
           <path d="M5 10l3 3 7-7"></path>
@@ -136,7 +126,7 @@
 </section>
 
 <!-- ===== CRYPTO BANNER ===== -->
-<div class="crypto-banner container">
+<div class="crypto-banner container" id="crypto">
   <img src="images/bitcoin.png" alt="BTC" />
   <img src="images/ethereum.png" alt="ETH" />
   <img src="images/tether.png" alt="USDT" />
@@ -144,7 +134,7 @@
 </div>
 
 <!-- ===== FOREX TICKER ===== -->
-<div class="forex-ticker">
+<div class="forex-ticker" id="forex">
   <div class="forex-track">
     <span>EUR/USD 🔼 Buy @ 1.0880</span>
     <span>GBP/USD 🔽 Sell @ 1.2750</span>
@@ -166,7 +156,7 @@
 </section>
 
 <!-- ===== TESTIMONIALS ===== -->
-<section class="testimonials container">
+<section class="testimonials container" id="testimonials">
   <h2>What Our Investors Say</h2>
   <div class="testimonial">
     <p>“Bybit helped me grow my crypto portfolio safely!”</p>
@@ -202,66 +192,107 @@
 <!-- ===== SCRIPTS ===== -->
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
-  const API_URL = 'https://bybit-backend-xeuv.onrender.com';
+  /* ---------- API URL (normalize to origin) ---------- */
+  let API_URL = 'https://bybit-backend-xeuv.onrender.com';
+  try {
+    const u = new URL(API_URL);
+    API_URL = u.protocol + '//' + u.host; // strip any trailing slash/path
+  } catch {
+    console.warn('Invalid API_URL, requests may fail:', API_URL);
+  }
 
-  const token = localStorage.getItem('token');
-  if (!token || token.trim() === '') {
+  /* ---------- Token helpers ---------- */
+  const getToken = () => { try { return localStorage.getItem('token') || ''; } catch { return ''; } };
+  const clearToken = () => { try { localStorage.removeItem('token'); } catch {} };
+
+  /* ---------- Fetch helper (CORS-aware) ---------- */
+  async function apiGet(path) {
+    const res = await fetch(API_URL + path, {
+      method: 'GET',
+      mode: 'cors',
+      headers: { Authorization: 'Bearer ' + getToken() }
+    });
+    return res;
+  }
+
+  /* ---------- Auth gate for dashboard ---------- */
+  const token = getToken();
+  if (!token.trim()) {
     alert('Session expired. Please login again.');
-    localStorage.removeItem('token');
+    clearToken();
     window.location.href = 'index.html';
     return;
   }
 
+  /* ---------- Load dashboard data ---------- */
   try {
-    const res = await fetch(`${API_URL}/api/dashboard`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const res = await apiGet('/api/dashboard');
 
-    if (res.status === 401) {
+    if (res.status === 401 || res.status === 403) {
       alert('Session expired. Please login again.');
-      localStorage.removeItem('token');
+      clearToken();
       window.location.href = 'index.html';
       return;
     }
-
     if (!res.ok) throw new Error('Failed to fetch user data');
 
     const user = await res.json();
 
-    document.getElementById('fullName').textContent = user.fullname || 'QUEEN PARKER';
-    document.querySelector('.plan-value').textContent = (user.investmentPlan || user.package || 'WEB3');
-    document.querySelector('.amount-value').textContent = Number(user.amountInvested ?? 0).toLocaleString();
-    if (user.profilePic) {
-      document.getElementById('profilePic').src = user.profilePic;
+    const fullNameEl = document.getElementById('fullName');
+    if (fullNameEl) fullNameEl.textContent = user.fullname || 'QUEEN PARKER';
+
+    const planValEl = document.querySelector('.plan-value');
+    if (planValEl) planValEl.textContent = (user.investmentPlan || user.package || 'WEB3');
+
+    const amountValEl = document.querySelector('.amount-value');
+    if (amountValEl) amountValEl.textContent = Number(user.amountInvested ?? 0).toLocaleString();
+
+    const picEl = document.getElementById('profilePic');
+    if (picEl && user.profilePic) {
+      // cache-bust to reflect latest upload
+      picEl.src = user.profilePic + '?t=' + Date.now();
     }
   } catch (err) {
     console.error('Failed to load user data:', err);
     alert('Session expired or server error. Please login again.');
-    localStorage.removeItem('token');
+    clearToken();
     window.location.href = 'index.html';
+    return;
   }
 
-  document.querySelector('a[href="#contact"]').addEventListener('click', (e) => {
+  /* ---------- Section toggle (only toggle content sections) ---------- */
+  function showOnly(sectionId) {
+    const ids = ['profile','hero','crypto','forex','about','contact','testimonials'];
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.style.display = (id === sectionId || (sectionId === 'hero' && (id === 'profile' || id === 'hero' || id === 'crypto' || id === 'forex' || id === 'testimonials'))) ? 'block' : 'none';
+    });
+    // keep header/footer always visible
+  }
+
+  const linkContact = document.querySelector('a[href="#contact"]');
+  linkContact && linkContact.addEventListener('click', (e) => {
     e.preventDefault();
-    document.querySelectorAll('section').forEach(s => s.style.display = 'none');
-    document.querySelector('.contact').style.display = 'block';
+    showOnly('contact');
   });
 
-  document.querySelector('a[href="#about"]').addEventListener('click', (e) => {
+  const linkAbout = document.querySelector('a[href="#about"]');
+  linkAbout && linkAbout.addEventListener('click', (e) => {
     e.preventDefault();
-    document.querySelectorAll('section').forEach(s => s.style.display = 'none');
-    document.querySelector('.about').style.display = 'block';
+    showOnly('about');
   });
 
-  document.querySelector('a[href="#hero"]').addEventListener('click', (e) => {
+  const linkHero = document.querySelector('a[href="#hero"]');
+  linkHero && linkHero.addEventListener('click', (e) => {
     e.preventDefault();
-    document.querySelectorAll('section').forEach(s => s.style.display = 'block');
-    document.querySelector('.about').style.display = 'none';
-    document.querySelector('.contact').style.display = 'none';
+    showOnly('hero');
   });
 
-  document.getElementById('logoutBtn').addEventListener('click', () => {
-    localStorage.removeItem('token');
+  /* ---------- Logout ---------- */
+  const logoutBtn = document.getElementById('logoutBtn');
+  logoutBtn && logoutBtn.addEventListener('click', () => {
+    clearToken();
     window.location.href = 'index.html';
   });
 });

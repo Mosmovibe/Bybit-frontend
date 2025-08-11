@@ -1,104 +1,160 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const API_URL = 'https://bybit-backend-xeuv.onrender.com';
-  const token = localStorage.getItem('token');
+  /* ===================== CONFIG ===================== */
+  // Use your backend ORIGIN only (protocol + host [+port]), no trailing slash/path.
+  let API_URL = 'https://bybit-backend-xeuv.onrender.com';
+
+  // Normalize: strip any path or trailing slash
+  try {
+    const u = new URL(API_URL);
+    API_URL = `${u.protocol}//${u.host}`;
+  } catch {
+    console.warn('API_URL is not a valid URL origin. Fix this if requests fail:', API_URL);
+  }
+
   const isDashboard = window.location.pathname.includes('dashboard.html');
 
+  /* ===================== Token helpers ===================== */
+  const getToken = () => {
+    try {
+      const t = localStorage.getItem('token');
+      return (typeof t === 'string' && t.trim()) ? t : null;
+    } catch {
+      return null;
+    }
+  };
+  const setToken = (t) => { try { localStorage.setItem('token', t); } catch {} };
+  const clearToken = () => { try { localStorage.removeItem('token'); } catch {} };
+
   // Redirect to login if not authenticated on dashboard
-  if (isDashboard && !token) {
+  if (isDashboard && !getToken()) {
     window.location.href = 'index.html';
     return;
   }
 
-  // Small helpers
+  /* ===================== Small helpers ===================== */
   const $ = (s) => document.querySelector(s);
   const setText = (sel, v) => { const el = $(sel); if (el) el.textContent = v ?? ''; };
+  const buildApi = (path) => `${API_URL}${path.startsWith('/') ? '' : '/'}${path}`;
+  const disable = (el, on) => { if (el) { el.disabled = !!on; el.style.opacity = on ? '0.7' : ''; } };
 
-  /* ========== SIGNUP (uses /api/register) ========== */
+  // Centralized fetch that parses JSON and surfaces common CORS/network errors
+  async function jsonFetch(path, opts = {}) {
+    const url = buildApi(path);
+    const base = {
+      method: 'GET',
+      mode: 'cors',
+      cache: 'no-store',
+      headers: { Accept: 'application/json', ...(opts.headers || {}) },
+      ...opts,
+    };
+    try {
+      const res = await fetch(url, base);
+      let data = {};
+      try { data = await res.json(); } catch { /* may be empty/204 */ }
+      return { res, data };
+    } catch (e) {
+      const err = new Error('Network/CORS error. Check FRONTEND_ORIGINS and API_URL.');
+      err.cause = e;
+      throw err;
+    }
+  }
+
+  /* ===================== SIGNUP ===================== */
   const signupForm = document.getElementById('signup-form');
   const registerLoader = document.getElementById('registerLoader');
+  const signupBtn = signupForm?.querySelector('button[type="submit"]');
 
   signupForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const fullname = signupForm.querySelector('input[name="fullname"]')?.value.trim();
-    const email = signupForm.querySelector('input[name="email"]')?.value.trim();
-    const password = signupForm.querySelector('input[name="password"]')?.value.trim();
+    const email = signupForm.querySelector('input[name="email"]')?.value.trim().toLowerCase();
+    const password = signupForm.querySelector('input[name="password"]')?.value;
 
     if (!fullname || !email || !password) return alert('❌ Please fill in all fields.');
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(email)) return alert('❌ Invalid email format.');
-    if (password.length < 6) return alert('❌ Password must be at least 6 characters.');
+    if (password.length < 8) return alert('❌ Password must be at least 8 characters.');
 
     try {
       if (registerLoader) registerLoader.style.display = 'block';
+      disable(signupBtn, true);
 
-      const res = await fetch(`${API_URL}/api/register`, {
+      const { res, data } = await jsonFetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fullname, email, password }),
       });
 
-      const data = await res.json();
       if (res.ok && data.token) {
-        localStorage.setItem('token', data.token);
+        setToken(data.token);
         alert('✅ Signup successful!');
         window.location.href = 'dashboard.html';
       } else if (res.status === 409) {
         alert('❌ Email already in use. Please log in.');
         window.location.hash = '#login';
+      } else if (res.status === 400) {
+        alert(data.error || '❌ Invalid signup details.');
       } else {
-        alert(data.error || 'Signup failed.');
+        alert(data.error || `Signup failed (status ${res.status}).`);
       }
     } catch (err) {
       console.error(err);
-      alert('❌ Signup error. Try again.');
+      alert(err.message || '❌ Signup error. Try again.');
     } finally {
       if (registerLoader) registerLoader.style.display = 'none';
+      disable(signupBtn, false);
     }
   });
 
-  /* ========== LOGIN ========== */
+  /* ===================== LOGIN ===================== */
   const loginForm = document.getElementById('login-form');
   const loginLoader = document.getElementById('loginLoader');
+  const loginBtn = loginForm?.querySelector('button[type="submit"]');
 
   loginForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (loginLoader) loginLoader.style.display = 'block';
 
-    const email = document.getElementById('login-email')?.value.trim();
+    const email = document.getElementById('login-email')?.value.trim().toLowerCase();
     const password = document.getElementById('login-password')?.value;
 
+    if (!email || !password) return alert('❌ Please enter email and password.');
+    if (loginLoader) loginLoader.style.display = 'block';
+    disable(loginBtn, true);
+
     try {
-      const res = await fetch(`${API_URL}/api/login`, {
+      const { res, data } = await jsonFetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-      const data = await res.json();
 
       if (res.ok && data.token) {
-        localStorage.setItem('token', data.token);
+        setToken(data.token);
         window.location.href = 'dashboard.html';
+      } else if (res.status === 401) {
+        alert('❌ Invalid credentials.');
       } else {
-        alert(data.error || 'Login failed.');
+        alert(data.error || `Login failed (status ${res.status}).`);
       }
     } catch (err) {
       console.error(err);
-      alert('❌ Login failed. Try again.');
+      alert(err.message || '❌ Login failed. Try again.');
     } finally {
       if (loginLoader) loginLoader.style.display = 'none';
+      disable(loginBtn, false);
     }
   });
 
-  /* ========== LOGOUT ========== */
+  /* ===================== LOGOUT ===================== */
   const logoutBtn = document.getElementById('logoutBtn') || document.querySelector('.logout-button');
   logoutBtn?.addEventListener('click', () => {
-    localStorage.removeItem('token');
+    clearToken();
     alert('✅ Logged out successfully');
     window.location.href = 'index.html';
   });
 
-  /* ========== PROFILE PIC UPLOAD ========== */
+  /* ===================== PROFILE PIC UPLOAD ===================== */
   const profilePicInput = document.getElementById('uploadProfilePic');
   const uploadBtn = document.getElementById('uploadBtn');
 
@@ -111,12 +167,11 @@ document.addEventListener('DOMContentLoaded', () => {
     formData.append('profilePic', file);
 
     try {
-      const res = await fetch(`${API_URL}/api/upload-profile`, {
+      const { res, data } = await jsonFetch('/api/upload-profile', {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` }, // no Content-Type for FormData
+        headers: { Authorization: `Bearer ${getToken()}` }, // do NOT set Content-Type with FormData
         body: formData,
       });
-      const data = await res.json();
 
       if (res.ok && data.profilePicUrl) {
         document.querySelectorAll('.user-image,#profilePic').forEach(img => {
@@ -128,38 +183,37 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch (err) {
       console.error(err);
-      alert('❌ Upload error. Try again.');
+      alert(err.message || '❌ Upload error. Try again.');
     }
   });
 
-  /* ========== DASHBOARD LOAD (captures _id + isAdmin) ========== */
+  /* ===================== DASHBOARD LOAD ===================== */
   let CURRENT_USER_ID = null;
   let IS_ADMIN = false;
 
   async function fetchDashboard() {
-    if (!token || !isDashboard) return;
+    if (!isDashboard) return;
+    const token = getToken();
+    if (!token) return;
 
     try {
-      const res = await fetch(`${API_URL}/api/dashboard`, {
+      const { res, data } = await jsonFetch('/api/dashboard', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await res.json();
 
       if (!res.ok) {
         console.error(data.error || 'Failed to fetch dashboard data');
-        if (res.status === 401) {
+        if (res.status === 401 || res.status === 403) {
           alert('Session expired. Please log in again.');
-          localStorage.removeItem('token');
+          clearToken();
           window.location.href = 'index.html';
         }
         return;
       }
 
-      // keep id/admin for admin actions
       CURRENT_USER_ID = data._id || null;
       IS_ADMIN = !!data.isAdmin;
 
-      // UI
       setText('#fullName', data.fullname || 'N/A');
       setText('.plan-value', data.investmentPlan || data.package || 'N/A');
       setText('.amount-value', data.amountInvested ? Number(data.amountInvested).toLocaleString() : '0');
@@ -167,13 +221,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('profilePic').src = `${data.profilePic}?t=${Date.now()}`;
       }
 
-      // Prefill admin controls if present
       const planInput = document.getElementById('planInput');
       const amountInput = document.getElementById('amountInput');
       if (planInput) planInput.value = data.investmentPlan || 'Free';
       if (amountInput) amountInput.value = Number(data.amountInvested || 0);
 
-      // Show admin-only section if present
       const updateSection = document.getElementById('updateSection');
       if (updateSection) updateSection.style.display = IS_ADMIN ? 'block' : 'none';
     } catch (err) {
@@ -182,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   fetchDashboard();
 
-  /* ========== ADMIN: UPDATE PLAN/AMOUNT (self, using /api/admin/update-user) ========== */
+  /* ===================== ADMIN: UPDATE PLAN/AMOUNT ===================== */
   const savePlanBtn = document.getElementById('savePlanBtn');
   const updateMsg = document.getElementById('updateMsg');
 
@@ -205,15 +257,14 @@ document.addEventListener('DOMContentLoaded', () => {
     updateMsg.textContent = 'Saving…'; updateMsg.style.color = '';
 
     try {
-      const res = await fetch(`${API_URL}/api/admin/update-user`, {
+      const { res, data } = await jsonFetch('/api/admin/update-user', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
         body: JSON.stringify({ userId: CURRENT_USER_ID, investmentPlan: plan, amountInvested: amount }),
       });
-      const data = await res.json().catch(() => ({}));
+
       if (!res.ok) throw new Error(data.error || 'Update failed');
 
-      // reflect new values
       setText('.plan-value', data.user?.investmentPlan ?? plan);
       setText('.amount-value', Number(data.user?.amountInvested ?? amount).toLocaleString());
 
@@ -224,25 +275,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  /* ========== ADMIN: EDIT BALANCE (your backend has NO /api/admin/edit-balance) ========== */
-  // If you want to edit balance via UI, reuse /api/admin/update-user similarly:
+  /* ===================== ADMIN: EDIT BALANCE ===================== */
   const editBalanceForm = document.getElementById('edit-balance-form');
   editBalanceForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!IS_ADMIN) return alert('Admin only.');
+    if (!CURRENT_USER_ID) return alert('Missing user id.');
 
-    // This updates the CURRENT (logged-in) admin user. To edit others by email,
-    // you need a backend route to look up userId by email.
     const newBalance = Number(document.getElementById('edit-balance')?.value);
     if (!Number.isFinite(newBalance)) return alert('Enter a valid number.');
 
     try {
-      const res = await fetch(`${API_URL}/api/admin/update-user`, {
+      const { res, data } = await jsonFetch('/api/admin/update-user', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
         body: JSON.stringify({ userId: CURRENT_USER_ID, balance: newBalance }),
       });
-      const data = await res.json();
       if (res.ok) {
         alert(`✅ Balance updated to $${data.user?.balance ?? newBalance}`);
       } else {
@@ -250,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch (err) {
       console.error(err);
-      alert('❌ Error updating balance.');
+      alert(err.message || '❌ Error updating balance.');
     }
   });
 });

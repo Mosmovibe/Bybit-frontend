@@ -1,16 +1,34 @@
-const API_URL =
+// ---- Config / API origin (prefer window.APP_CONFIG.API_URL if present) ----
+let API_URL =
   (window.APP_CONFIG && window.APP_CONFIG.API_URL) ||
   "https://bybit-backend-xeuv.onrender.com";
 
-/* ---------------- Utilities ---------------- */
+// Normalize API_URL to just scheme://host[:port]
+try {
+  const u = new URL(API_URL);
+  API_URL = `${u.protocol}//${u.host}`;
+} catch {
+  console.warn("API_URL is not a valid URL origin. Using as-is:", API_URL);
+}
+
+// ---------------- Utilities ----------------
+function buildURL(path) {
+  const p = String(path || "");
+  return `${API_URL}${p.startsWith("/") ? "" : "/"}${p}`;
+}
 
 function getToken() {
-  return localStorage.getItem("token");
+  try {
+    const t = localStorage.getItem("token");
+    return t && t.trim() ? t : null;
+  } catch {
+    return null;
+  }
 }
 
 function handleSessionExpired() {
   alert("Your session has expired. Please log in again.");
-  localStorage.removeItem("token");
+  try { localStorage.removeItem("token"); } catch {}
   window.location.href = "/login.html";
 }
 
@@ -32,7 +50,11 @@ function setImgSrc(selectorOrEl, src, fallback) {
     typeof selectorOrEl === "string"
       ? document.querySelector(selectorOrEl)
       : selectorOrEl;
-  if (el) el.src = src || fallback || el.src || "";
+  if (!el) return;
+  const url = src || fallback || el.src || "";
+  // cache-bust so users see the latest upload immediately
+  const bust = url ? (url.includes("?") ? "&" : "?") + "t=" + Date.now() : "";
+  el.src = url + bust;
 }
 
 function toNumber(n, def = 0) {
@@ -44,86 +66,88 @@ function money(n) {
   return toNumber(n).toFixed(2);
 }
 
-async function apiGet(path) {
+// ---- Centralized fetch helpers (CORS-aware, better errors) ----
+async function apiRequest(path, options = {}) {
   const token = getToken();
   if (!token) return handleSessionExpired();
 
-  const res = await fetch(`${API_URL}${path}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const init = {
+    method: "GET",
+    mode: "cors",
+    cache: "no-store",
+    headers: {
+      Accept: "application/json",
+      ...(options.headers || {}),
+      Authorization: `Bearer ${token}`,
+    },
+    ...options,
+  };
 
-  if (res.status === 401) return handleSessionExpired();
+  const res = await fetch(buildURL(path), init);
 
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || `GET ${path} failed`);
+  // 401/403 -> treat as expired/unauthorized
+  if (res.status === 401 || res.status === 403) {
+    return handleSessionExpired();
+  }
+
+  // try parse JSON (may fail on 204)
+  let data = {};
+  try { data = await res.json(); } catch {}
+
+  if (!res.ok) {
+    const msg = data?.error || `${init.method || "GET"} ${path} failed`;
+    const err = new Error(msg);
+    err.status = res.status;
+    err.data = data;
+    throw err;
+  }
   return data;
+}
+
+async function apiGet(path) {
+  return apiRequest(path, { method: "GET" });
 }
 
 async function apiPostForm(path, formData) {
-  const token = getToken();
-  if (!token) return handleSessionExpired();
-
-  const res = await fetch(`${API_URL}${path}`, {
+  return apiRequest(path, {
     method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
+    // DO NOT set Content-Type when sending FormData
     body: formData,
   });
-
-  if (res.status === 401) return handleSessionExpired();
-
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || `POST ${path} failed`);
-  return data;
 }
 
 async function apiPostJSON(path, body) {
-  const token = getToken();
-  if (!token) return handleSessionExpired();
-
-  const res = await fetch(`${API_URL}${path}`, {
+  return apiRequest(path, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body || {}),
   });
-
-  if (res.status === 401) return handleSessionExpired();
-
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || `POST ${path} failed`);
-  return data;
 }
 
 /* ---------------- State ---------------- */
-
 let CURRENT_USER = null; // {_id, email, investmentPlan, amountInvested, isAdmin, ...}
 let IS_ADMIN = false;
 
 /* --------------- Page wiring --------------- */
-
 async function loadProfile() {
   try {
-    // Backend should return flat fields incl. _id and isAdmin
     const data = await apiGet("/api/dashboard");
     if (!data) return;
 
     CURRENT_USER = data;
     IS_ADMIN = !!data.isAdmin;
 
-    // Basic identity
+    // Identity
     setText("#fullName", data.fullname || data.name || "");
     setText("#email", data.email || "");
 
     // Plan & investment
     const plan = data.investmentPlan ?? "Free";
     const amount = data.amountInvested ?? 0;
-
     setText("#investmentPlan .plan-value", plan);
     setText("#amountInvested .amount-value", money(amount));
 
-    // Prefill inputs (if present on page)
+    // Prefill inputs (if present)
     setValue("#planInput", plan);
     setValue("#amountInput", toNumber(amount));
 
@@ -132,17 +156,14 @@ async function loadProfile() {
     setText("#availableBalance", money(data.availableBalance || 0));
     setText("#profit", money(data.profit || 0));
 
-    // Package (fallbacks)
-    setText("#package", data.package || data.investmentPlan || "Free");
+    // Package fallback
+    setText("#package", data.package || plan);
 
     // Profile picture
-    const imgUrl =
-      data.profilePic ||
-      data.profileImage ||
-      "images/profile.png";
+    const imgUrl = data.profilePic || data.profileImage || "images/profile.png";
     setImgSrc("#profilePic", imgUrl, "images/profile.png");
 
-    // Show admin-only update section if present
+    // Admin-only section
     const updateSection = document.getElementById("updateSection");
     if (updateSection) updateSection.style.display = IS_ADMIN ? "block" : "none";
   } catch (err) {
@@ -161,45 +182,25 @@ async function updatePlanAndAmount() {
   const amount = toNumber(amountRaw, NaN);
 
   if (!IS_ADMIN) {
-    if (msgEl) {
-      msgEl.textContent = "Admin only.";
-      msgEl.style.color = "red";
-    }
+    if (msgEl) { msgEl.textContent = "Admin only."; msgEl.style.color = "red"; }
     return;
   }
-
   if (!plan) {
-    if (msgEl) {
-      msgEl.textContent = "Please enter a plan name.";
-      msgEl.style.color = "red";
-    }
+    if (msgEl) { msgEl.textContent = "Please enter a plan name."; msgEl.style.color = "red"; }
     return;
   }
   if (!Number.isFinite(amount)) {
-    if (msgEl) {
-      msgEl.textContent = "Please enter a valid number for Amount Invested.";
-      msgEl.style.color = "red";
-    }
+    if (msgEl) { msgEl.textContent = "Please enter a valid number for Amount Invested."; msgEl.style.color = "red"; }
     return;
   }
 
-  const userId =
-    CURRENT_USER?._id ||
-    CURRENT_USER?.id ||
-    CURRENT_USER?.userId;
-
+  const userId = CURRENT_USER?._id || CURRENT_USER?.id || CURRENT_USER?.userId;
   if (!userId) {
-    if (msgEl) {
-      msgEl.textContent = "Could not find current user id for admin update.";
-      msgEl.style.color = "red";
-    }
+    if (msgEl) { msgEl.textContent = "Could not find current user id for admin update."; msgEl.style.color = "red"; }
     return;
   }
 
-  if (msgEl) {
-    msgEl.textContent = "Saving…";
-    msgEl.style.color = "";
-  }
+  if (msgEl) { msgEl.textContent = "Saving…"; msgEl.style.color = ""; }
 
   try {
     const res = await apiPostJSON("/api/admin/update-user", {
@@ -217,16 +218,10 @@ async function updatePlanAndAmount() {
     setValue("#planInput", newPlan);
     setValue("#amountInput", toNumber(newAmt));
 
-    if (msgEl) {
-      msgEl.textContent = "Updated!";
-      msgEl.style.color = "green";
-    }
+    if (msgEl) { msgEl.textContent = "Updated!"; msgEl.style.color = "green"; }
   } catch (e) {
     console.error("Admin update failed:", e);
-    if (msgEl) {
-      msgEl.textContent = e.message || "Update failed.";
-      msgEl.style.color = "red";
-    }
+    if (msgEl) { msgEl.textContent = e.message || "Update failed."; msgEl.style.color = "red"; }
   }
 }
 
@@ -247,10 +242,7 @@ async function uploadProfilePic(e) {
     if (!data) return;
 
     const newUrl =
-      data.profilePicUrl ||
-      data.url ||
-      data.profilePic ||
-      data.profileImage;
+      data.profilePicUrl || data.url || data.profilePic || data.profileImage;
 
     if (!newUrl) {
       alert("Upload reported success but returned no image URL.");
@@ -266,7 +258,6 @@ async function uploadProfilePic(e) {
 }
 
 /* --------------- Event listeners --------------- */
-
 function wireEvents() {
   // Upload button
   const uploadBtn = document.getElementById("uploadBtn");
@@ -280,7 +271,7 @@ function wireEvents() {
   const fileInput = document.getElementById("uploadProfilePic");
   if (fileInput) {
     fileInput.addEventListener("change", () => {
-      // uncomment to auto-upload on select:
+      // To auto-upload on select, uncomment the next line:
       // uploadProfilePic();
     });
   }
@@ -289,10 +280,17 @@ function wireEvents() {
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
-      localStorage.removeItem("token");
+      try { localStorage.removeItem("token"); } catch {}
       window.location.href = "/login.html";
     });
   }
 }
 
-
+// Kickoff when the page is ready
+document.addEventListener("DOMContentLoaded", () => {
+  wireEvents();
+  // If this script is used on the dashboard page, load the profile.
+  // It’s safe to call on non-dashboard pages; the /api call will still work
+  // if a token exists, otherwise you’ll be redirected by the API helpers.
+  loadProfile();
+});
