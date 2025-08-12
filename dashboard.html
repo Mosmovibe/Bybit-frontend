@@ -27,30 +27,33 @@
 
     .profile-info { flex:1; }
 
-    .name-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-    .profile-info h2 { margin:0; font-size:1.2rem; font-weight:800 !important; color:#fff; }
+    .name-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .profile-info h2 { margin:0; font-size:1.2rem; font-weight:800 !important; color:#fff; line-height:1.1; }
 
+    /* Green verified tick */
     .gold-check {
-      width:22px; height:22px; border-radius:999px;
+      width:20px; height:20px; border-radius:999px;
       display:inline-flex; align-items:center; justify-content:center;
-      background:rgba(255,204,0,.15);
-      border:1px solid rgba(255,204,0,.6);
+      background:rgba(34,197,94,0.10);
+      border:1px solid rgba(34,197,94,0.6);
     }
     .gold-check svg { width:14px; height:14px; display:block; }
-    .gold-check circle { fill:#ffcc00; }
-    .gold-check path { stroke:#0a0c1b; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; fill:none; }
+    .gold-check circle { fill:transparent; }
+    .gold-check path { stroke:#22c55e; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; fill:none; }
 
+    /* Green "Verified" badge below name */
     .badge-dark {
-      margin-top:6px;
-      background:#1b1f33; color:#e8edf7;
-      border:1px solid rgba(255,255,255,.08);
+      margin-top:2px;
+      background:rgba(34,197,94,0.08);
+      color:#22c55e;
+      border:1px solid rgba(34,197,94,0.5);
       display:inline-flex; align-items:center; gap:6px;
       padding:4px 8px;
       border-radius:999px;
       font-size:.65rem; line-height:1; width:fit-content;
     }
     .badge-dark svg { width:12px; height:12px; display:block; }
-    .badge-dark path { stroke:#e8edf7; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; fill:none; }
+    .badge-dark path { stroke:#22c55e; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; fill:none; }
 
     .profile-info p { margin:6px 0; font-size:1rem; color:#fff; }
     .plan-value, .amount-value { font-weight:800 !important; color:#ffcc00; }
@@ -188,17 +191,11 @@
 <!-- ===== SCRIPTS ===== -->
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
-  /* ---------- API URL (origin only) ---------- */
   let API_URL = (window.APP_CONFIG && window.APP_CONFIG.API_URL) || 'https://bybit-backend-xeuv.onrender.com';
   try { const u = new URL(API_URL); API_URL = u.protocol + '//' + u.host; } catch { console.warn('Invalid API_URL:', API_URL); }
-  // helper to build absolute URLs safely
   const buildApi = (p) => API_URL + (String(p).startsWith('/') ? '' : '/') + p;
-
-  /* ---------- Token helpers ---------- */
   const getToken = () => { try { return (localStorage.getItem('token')||'').trim(); } catch { return ''; } };
   const clearToken = () => { try { localStorage.removeItem('token'); } catch {} };
-
-  /* ---------- Fetch helper (CORS-aware) ---------- */
   async function apiGet(path) {
     const res = await fetch(buildApi(path), {
       method: 'GET',
@@ -208,8 +205,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     return res;
   }
-
-  /* ---------- Auth gate for dashboard ---------- */
   const token = getToken();
   if (!token) {
     alert('Session expired. Please login again.');
@@ -217,11 +212,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.location.href = 'index.html';
     return;
   }
-
-  /* ---------- Load dashboard data ---------- */
   try {
     const res = await apiGet('/api/dashboard');
-
     if (res.status === 401 || res.status === 403) {
       alert('Session expired. Please login again.');
       clearToken();
@@ -229,21 +221,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
     if (!res.ok) throw new Error('Failed to fetch user data');
-
     const user = await res.json();
-
     const fullNameEl = document.getElementById('fullName');
     if (fullNameEl) fullNameEl.textContent = user.fullname || 'QUEEN PARKER';
-
     const planValEl = document.querySelector('.plan-value');
     if (planValEl) planValEl.textContent = (user.investmentPlan || user.package || 'WEB3');
-
     const amountValEl = document.querySelector('.amount-value');
     if (amountValEl) amountValEl.textContent = Number(user.amountInvested ?? 0).toLocaleString();
-
     const picEl = document.getElementById('profilePic');
     if (picEl && user.profilePic) {
-      picEl.src = user.profilePic + '?t=' + Date.now(); // cache-bust
+      picEl.src = user.profilePic + '?t=' + Date.now();
     }
   } catch (err) {
     console.error('Failed to load user data:', err);
@@ -252,8 +239,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.location.href = 'index.html';
     return;
   }
-
-  /* ---------- Section toggle (content sections only) ---------- */
   function showOnly(sectionId) {
     const ids = ['profile','hero','crypto','forex','about','contact','testimonials'];
     ids.forEach(id => {
@@ -263,17 +248,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       el.style.display = (id === sectionId || keepForHero) ? 'block' : 'none';
     });
   }
-
   const linkContact = document.querySelector('a[href="#contact"]');
   linkContact && linkContact.addEventListener('click', (e) => { e.preventDefault(); showOnly('contact'); });
-
   const linkAbout = document.querySelector('a[href="#about"]');
   linkAbout && linkAbout.addEventListener('click', (e) => { e.preventDefault(); showOnly('about'); });
-
   const linkHero = document.querySelector('a[href="#hero"]');
   linkHero && linkHero.addEventListener('click', (e) => { e.preventDefault(); showOnly('hero'); });
-
-  /* ---------- Logout ---------- */
   const logoutBtn = document.getElementById('logoutBtn');
   logoutBtn && logoutBtn.addEventListener('click', () => {
     clearToken();
