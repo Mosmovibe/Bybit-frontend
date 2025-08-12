@@ -3,19 +3,24 @@ let API_URL =
   (window.APP_CONFIG && window.APP_CONFIG.API_URL) ||
   "https://bybit-backend-xeuv.onrender.com";
 
-// Normalize API_URL to just scheme://host[:port]
+// Normalize API_URL to origin + pathname (keep any path prefix like /v1)
 try {
   const u = new URL(API_URL);
-  API_URL = `${u.protocol}//${u.host}`;
+  API_URL = (u.origin + u.pathname).replace(/\/+$/, ""); // trim trailing slash only
 } catch {
-  console.warn("API_URL is not a valid URL origin. Using as-is:", API_URL);
+  console.warn("API_URL is not a valid URL. Using as-is:", API_URL);
 }
 
-// Never let API_URL equal the frontend origin (that would 404 on /api)
-const FRONTEND_ORIGIN = `${location.protocol}//${location.host}`;
-if (API_URL === FRONTEND_ORIGIN) {
-  console.warn("API_URL resolved to frontend; forcing backend origin.");
-  API_URL = "https://bybit-backend-xeuv.onrender.com";
+// Never let API_URL point at the frontend origin (that would 404 on /api)
+try {
+  const apiOrigin = new URL(API_URL).origin;
+  const FRONTEND_ORIGIN = location.origin;
+  if (apiOrigin === FRONTEND_ORIGIN) {
+    console.warn("API_URL resolved to frontend; forcing backend origin.");
+    API_URL = "https://bybit-backend-xeuv.onrender.com";
+  }
+} catch {
+  // ignore
 }
 
 // Where to send users when the session expires (your login is on index.html)

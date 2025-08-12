@@ -110,10 +110,10 @@
   <section class="register-form" id="register">
     <h2>Register</h2>
     <form id="signup-form" autocomplete="on" novalidate>
-      <input type="text" id="signup-name" name="fullname" placeholder="Full Name" required />
-      <input type="email" id="signup-email" name="email" placeholder="Email Address" required />
+      <input type="text" id="signup-name" name="fullname" placeholder="Full Name" required autocomplete="name" />
+      <input type="email" id="signup-email" name="email" placeholder="Email Address" required autocomplete="email" />
       <!-- backend requires >= 8 -->
-      <input type="password" id="signup-password" name="password" placeholder="Create Password" minlength="8" required />
+      <input type="password" id="signup-password" name="password" placeholder="Create Password" minlength="8" required autocomplete="new-password" />
       <button type="submit" class="primary">Register</button>
     </form>
     <div id="registerLoader" style="display:none;color:#fff;margin-top:10px;">⏳ Processing...</div>
@@ -123,8 +123,8 @@
   <section class="login-form" id="login">
     <h2>Login</h2>
     <form id="login-form" autocomplete="on" novalidate>
-      <input type="email" id="login-email" name="email" placeholder="Email Address" required />
-      <input type="password" id="login-password" name="password" placeholder="Password" required />
+      <input type="email" id="login-email" name="email" placeholder="Email Address" required autocomplete="email" />
+      <input type="password" id="login-password" name="password" placeholder="Password" required autocomplete="current-password" />
       <button type="submit" class="primary">Login</button>
     </form>
     <div id="loginLoader" style="display:none;color:#fff;margin-top:10px;">⏳ Processing...</div>
@@ -183,7 +183,7 @@
     </div>
   </footer>
 
-  <!-- Section toggle & smooth scroll -->
+  <!-- Section toggle & smooth scroll (About/Contact only) -->
   <script>
     (function () {
       const sectionsToToggle = ['about', 'contact'];

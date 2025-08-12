@@ -1,121 +1,177 @@
-// app.js  (copy/paste)
-document.addEventListener('DOMContentLoaded', () => {
-  /* ===== CONFIG: force backend origin, never the frontend ===== */
-  const BACKEND_ORIGIN = 'https://bybit-backend-xeuv.onrender.com';
-  let API_URL = (window.APP_CONFIG && window.APP_CONFIG.API_URL) || BACKEND_ORIGIN;
+// app.js  (drop-in)
+document.addEventListener('DOMContentLoaded', function () {
+  /* ===== CONFIG (keeps path prefixes like /v1) ===== */
+  var BACKEND_ORIGIN = 'https://bybit-backend-xeuv.onrender.com';
+  var API_URL = (window.APP_CONFIG && window.APP_CONFIG.API_URL) || BACKEND_ORIGIN;
 
+  function normalizeApiUrl(input) {
+    try {
+      var u = new URL(input);
+      return (u.origin + u.pathname).replace(/\/+$/, ''); // keep path, drop trailing slash
+    } catch (e) {
+      return BACKEND_ORIGIN;
+    }
+  }
+  API_URL = normalizeApiUrl(API_URL);
+
+  // Never point API_URL at the frontend
   try {
-    const u = new URL(API_URL);
-    API_URL = `${u.protocol}//${u.host}`;
-  } catch { API_URL = BACKEND_ORIGIN; }
+    var FE = normalizeApiUrl(location.origin);
+    if (API_URL === FE) API_URL = normalizeApiUrl(BACKEND_ORIGIN);
+  } catch (e) {}
 
-  const FRONTEND_ORIGIN = `${location.protocol}//${location.host}`;
-  if (API_URL === FRONTEND_ORIGIN) {
-    console.warn('API_URL resolved to frontend; forcing backend.');
-    API_URL = BACKEND_ORIGIN;
+  function buildURL(p) {
+    p = String(p || '');
+    return API_URL + (p.charAt(0) === '/' ? '' : '/') + p;
   }
 
-  const buildURL = (p) => `${API_URL}${p.startsWith('/') ? '' : '/'}${p}`;
+  /* ===== tiny helpers ===== */
+  function $(sel) { return document.querySelector(sel); }
+  function setToken(t) { try { localStorage.setItem('token', t); } catch (e) {} }
 
-  /* ===== helpers ===== */
-  const $ = (s) => document.querySelector(s);
-  const setToken = (t) => { try { localStorage.setItem('token', t); } catch {} };
-  const getToken = () => { try { return localStorage.getItem('token'); } catch { return null; } };
+  async function jsonFetch(path, opts) {
+    var url = buildURL(path);
+    var options = Object.assign({
+      method: 'GET',
+      mode: 'cors',
+      cache: 'no-store',
+      headers: { Accept: 'application/json' }
+    }, (opts || {}));
 
-  async function jsonFetch(path, opts = {}) {
-    const url = buildURL(path);
-    console.log('[FETCH]', url); // <-- see exact endpoint in DevTools
+    // Ensure no Authorization header is sent unless explicitly provided
+    if (!opts || !opts.headers || !('Authorization' in opts.headers)) {
+      if (options.headers && options.headers.Authorization) {
+        delete options.headers.Authorization;
+      }
+    }
+
+    var res, data = {};
     try {
-      const res = await fetch(url, {
-        method: 'GET',
-        mode: 'cors',
-        cache: 'no-store',
-        headers: { Accept: 'application/json', ...(opts.headers || {}) },
-        ...opts,
-      });
-      let data = {};
-      try { data = await res.json(); } catch {}
-      return { res, data, url };
+      res = await fetch(url, options);
     } catch (e) {
-      alert('Network/CORS error. Check FRONTEND_ORIGINS on backend.');
+      alert('Network/CORS error contacting the API.');
       throw e;
     }
+    try { data = await res.json(); } catch (e) { data = {}; }
+    return { res: res, data: data, url: url };
   }
 
   /* ===== SIGNUP ===== */
-  const signupForm = $('#signup-form');
-  const registerLoader = $('#registerLoader');
-  const signupBtn = signupForm?.querySelector('button[type="submit"]');
+  var signupForm = $('#signup-form');
+  var registerLoader = $('#registerLoader');
+  var signupBtn = signupForm ? signupForm.querySelector('button[type="submit"]') : null;
 
-  signupForm?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const fullname = signupForm.querySelector('input[name="fullname"]')?.value.trim();
-    const email = signupForm.querySelector('input[name="email"]')?.value.trim().toLowerCase();
-    const password = signupForm.querySelector('input[name="password"]')?.value;
+  if (signupForm) {
+    signupForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var fullnameEl = signupForm.querySelector('input[name="fullname"]');
+      var emailEl = signupForm.querySelector('input[name="email"]');
+      var passwordEl = signupForm.querySelector('input[name="password"]');
 
-    if (!fullname || !email || !password) return alert('❌ Please fill in all fields.');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return alert('❌ Invalid email.');
-    if (password.length < 8) return alert('❌ Password must be at least 8 characters.');
+      var fullname = (fullnameEl && fullnameEl.value || '').trim();
+      var email = (emailEl && emailEl.value || '').trim().toLowerCase();
+      var password = (passwordEl && passwordEl.value || '');
 
-    registerLoader && (registerLoader.style.display = 'block');
-    signupBtn && (signupBtn.disabled = true);
+      if (!fullname || !email || !password) { alert('❌ Please fill in all fields.'); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('❌ Invalid email.'); return; }
+      if (password.length < 8) { alert('❌ Password must be at least 8 characters.'); return; }
 
-    try {
-      const { res, data, url } = await jsonFetch('/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullname, email, password }),
-      });
+      if (registerLoader) registerLoader.style.display = 'block';
+      if (signupBtn) signupBtn.disabled = true;
 
-      if (res.ok && data.token) {
-        setToken(data.token);
-        alert('✅ Signup successful!');
-        location.href = 'dashboard.html';
-      } else if (res.status === 409) {
-        alert('❌ Email already in use. Please log in.');
-        location.hash = '#login';
-      } else if (res.status === 404) {
-        alert('Endpoint not found on backend (404). Check API_URL and deploy.');
-        console.error('404 URL was:', url); // <-- confirm where it went
-      } else {
-        alert(data.error || `Signup failed (status ${res.status}).`);
+      try {
+        // Try /api/register; if 404, try /api/signup
+        var attempt = await jsonFetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fullname: fullname, email: email, password: password })
+        });
+
+        if (attempt.res.status === 404) {
+          attempt = await jsonFetch('/api/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fullname: fullname, email: email, password: password })
+          });
+        }
+
+        if (attempt.res.ok && attempt.data && attempt.data.token) {
+          setToken(attempt.data.token);
+          alert('✅ Signup successful!');
+          location.href = 'dashboard.html';
+          return;
+        }
+
+        if (attempt.res.status === 409) {
+          alert(attempt.data.message || '❌ Email already in use. Please log in.');
+          location.hash = '#login';
+          return;
+        }
+
+        if (attempt.res.status === 401 || attempt.res.status === 403) {
+          alert(attempt.data.message || '❌ Signup blocked by auth. Check backend to allow public signup.');
+          return;
+        }
+
+        if (attempt.res.status === 404) {
+          alert('❌ Signup endpoint not found. Confirm your backend route (/api/register or /api/signup).');
+          return;
+        }
+
+        alert((attempt.data && (attempt.data.error || attempt.data.message)) || ('Signup failed (status ' + attempt.res.status + ').'));
+      } catch (err) {
+        console.error(err);
+        alert('❌ Signup error. Try again.');
+      } finally {
+        if (registerLoader) registerLoader.style.display = 'none';
+        if (signupBtn) signupBtn.disabled = false;
       }
-    } catch (err) {
-      console.error(err);
-      alert('❌ Signup error. Try again.');
-    } finally {
-      registerLoader && (registerLoader.style.display = 'none');
-      signupBtn && (signupBtn.disabled = false);
-    }
-  });
+    });
+  }
 
-  /* ===== LOGIN (unchanged) ===== */
-  const loginForm = $('#login-form');
-  const loginLoader = $('#loginLoader');
-  const loginBtn = loginForm?.querySelector('button[type="submit"]');
+  /* ===== LOGIN (left simple and separate) ===== */
+  var loginForm = $('#login-form');
+  var loginLoader = $('#loginLoader');
+  var loginBtn = loginForm ? loginForm.querySelector('button[type="submit"]') : null;
 
-  loginForm?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = $('#login-email')?.value.trim().toLowerCase();
-    const password = $('#login-password')?.value;
-    if (!email || !password) return alert('❌ Please enter email and password.');
-    loginLoader && (loginLoader.style.display = 'block');
-    loginBtn && (loginBtn.disabled = true);
-    try {
-      const { res, data } = await jsonFetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      if (res.ok && data.token) {
-        setToken(data.token);
-        location.href = 'dashboard.html';
-      } else {
-        alert(data.error || `Login failed (status ${res.status}).`);
+  if (loginForm) {
+    loginForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var emailEl = $('#login-email');
+      var passwordEl = $('#login-password');
+      var email = (emailEl && emailEl.value || '').trim().toLowerCase();
+      var password = (passwordEl && passwordEl.value || '');
+      if (!email || !password) { alert('❌ Please enter email and password.'); return; }
+
+      if (loginLoader) loginLoader.style.display = 'block';
+      if (loginBtn) loginBtn.disabled = true;
+
+      try {
+        var result = await jsonFetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, password: password })
+        });
+
+        if (result.res.ok && result.data && result.data.token) {
+          setToken(result.data.token);
+          location.href = 'dashboard.html';
+          return;
+        }
+
+        if (result.res.status === 404) {
+          alert('❌ Login endpoint not found. Check /api/login on backend.');
+          return;
+        }
+
+        alert((result.data && (result.data.error || result.data.message)) || ('Login failed (status ' + result.res.status + ').'));
+      } catch (err) {
+        console.error(err);
+        alert('❌ Login error. Try again.');
+      } finally {
+        if (loginLoader) loginLoader.style.display = 'none';
+        if (loginBtn) loginBtn.disabled = false;
       }
-    } finally {
-      loginLoader && (loginLoader.style.display = 'none');
-      loginBtn && (loginBtn.disabled = false);
-    }
-  });
+    });
+  }
 });
