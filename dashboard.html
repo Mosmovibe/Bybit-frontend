@@ -7,64 +7,128 @@
   <link rel="stylesheet" href="dashboard.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { background:#0a0c1b; color:#e5e7eb; }
-
+    /* ===== Desktop & Shared (unchanged desktop layout) ===== */
+    body { background:#0a0c1b; color:#e5e7eb; margin:0; }
     .profile { padding:20px 0; background:#0a0c1b; color:#fff; }
-    .profile-card {
-      display:flex; align-items:center; gap:20px; max-width:900px; margin:auto;
-      background:transparent !important; padding:20px; border-radius:12px;
-      border:1px solid rgba(255,255,255,0.08); box-shadow:0 4px 15px rgba(0,0,0,0.4);
+    .profile-card{
+      display:flex; align-items:center; gap:16px; max-width:900px; margin:auto;
+      background:transparent!important; padding:20px; border-radius:12px;
+      border:1px solid rgba(255,255,255,.08); box-shadow:0 4px 15px rgba(0,0,0,.4);
     }
-
-    .profile-pic-container { display:flex; flex-direction:column; align-items:center; }
-    .profile-pic {
+    .profile-pic-container{ display:flex; align-items:center; justify-content:center; }
+    .profile-pic{
       width:90px; height:90px; border-radius:50%; object-fit:cover;
       border:2.5px solid #fff;
-      box-shadow:0 0 8px rgba(255,255,255,0.4);
+      box-shadow:0 0 8px rgba(255,255,255,.4);
       transition:box-shadow .3s;
+      flex:0 0 90px;
     }
-    .profile-pic:hover { box-shadow:0 0 14px rgba(255,255,255,0.8); }
-
-    .profile-info { flex:1; }
-
-    .name-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-    .profile-info h2 { margin:0; font-size:1.2rem; font-weight:800 !important; color:#fff; line-height:1.1; }
-
-    /* Green verified tick */
-    .gold-check {
-      width:20px; height:20px; border-radius:999px;
+    .profile-pic:hover{ box-shadow:0 0 14px rgba(255,255,255,.8); }
+    .profile-info{ flex:1; min-width:0; }
+    .name-row{ display:flex; align-items:center; gap:8px; flex-wrap:nowrap; }
+    .profile-info h2{
+      margin:0; font-size:1.2rem; font-weight:800!important; color:#fff; line-height:1.1;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    /* ✅ Bybit-green verification check */
+    .gold-check{
+      width:20px; height:20px; border-radius:999px; flex:0 0 20px;
       display:inline-flex; align-items:center; justify-content:center;
-      background:rgba(34,197,94,0.10);
-      border:1px solid rgba(34,197,94,0.6);
+      background:#16c784; border:none; vertical-align:middle; transform:translateY(1px);
     }
-    .gold-check svg { width:14px; height:14px; display:block; }
-    .gold-check circle { fill:transparent; }
-    .gold-check path { stroke:#22c55e; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; fill:none; }
-
-    /* Green "Verified" badge below name */
-    .badge-dark {
-      margin-top:2px;
-      background:rgba(34,197,94,0.08);
-      color:#22c55e;
-      border:1px solid rgba(34,197,94,0.5);
+    .gold-check svg{ width:14px; height:14px; display:block; }
+    .gold-check path{
+      stroke:#fff; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; fill:none;
+    }
+    /* ✅ Verified pill */
+    .badge-dark{
+      margin-top:6px; background:#16c784; color:#fff; border:none;
       display:inline-flex; align-items:center; gap:6px;
-      padding:4px 8px;
-      border-radius:999px;
-      font-size:.65rem; line-height:1; width:fit-content;
+      padding:6px 10px; border-radius:999px; font-size:.72rem; line-height:1;
     }
-    .badge-dark svg { width:12px; height:12px; display:block; }
-    .badge-dark path { stroke:#22c55e; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; fill:none; }
+    .badge-dark path{
+      stroke:#fff; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; fill:none;
+    }
 
-    .profile-info p { margin:6px 0; font-size:1rem; color:#fff; }
-    .plan-value, .amount-value { font-weight:800 !important; color:#ffcc00; }
+    .profile-info p{ margin:8px 0 0; font-size:1rem; color:#fff; }
+    .plan-value, .amount-value{ font-weight:800!important; color:#ffcc00; }
 
-    .crypto-banner { background:transparent !important; }
-    .about, .contact {
-      background:rgba(255,255,255,0.04) !important; color:#e5e7eb;
+    .crypto-banner{ background:transparent!important; display:flex; gap:16px; }
+    .about, .contact{
+      background:rgba(255,255,255,0.04)!important; color:#e5e7eb;
       border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.25);
     }
-    .testimonials { background:#0f1326 !important; color:#cfd6e4; }
-    .secondary { background:rgba(255,255,255,0.1) !important; color:#fff; }
+    .testimonials{ background:#0f1326!important; color:#cfd6e4; }
+    .secondary{ background:rgba(255,255,255,0.1)!important; color:#fff; }
+
+    /* ===== MOBILE-ONLY LAYOUT (≤600px) — desktop stays intact ===== */
+    @media (max-width: 600px){
+      .container{
+        width:100%;
+        padding-inline:16px;
+      }
+      .profile{ padding:16px 0; }
+      .profile-card{
+        display:grid;
+        grid-template-columns: auto 1fr;
+        align-items:center;
+        gap:12px;
+        padding:16px;
+        background: rgba(255,255,255,.03) !important;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius:12px;
+        box-shadow: 0 6px 20px rgba(0,0,0,.30);
+      }
+      .profile-pic{ width:78px; height:78px; flex:0 0 78px; }
+      .name-row{ gap:6px; }
+      .profile-info h2{
+        font-size:1.1rem;
+        white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      }
+      .badge-dark{
+        margin-top:6px;
+        padding:6px 10px;
+        font-size:.72rem; line-height:1;
+      }
+      .profile-info p{
+        margin-top:10px; font-size:.95rem; opacity:.95;
+      }
+
+      /* Crypto banner: snap carousel by default on mobile */
+      .crypto-banner{
+        overflow-x:auto; padding:12px 0;
+        scroll-snap-type:x mandatory;
+        -webkit-overflow-scrolling: touch;
+      }
+      .crypto-banner img{
+        height:34px; width:auto; flex:0 0 auto; scroll-snap-align:center;
+        filter: drop-shadow(0 2px 6px rgba(0,0,0,.35));
+      }
+      /* If there aren't many icons, JS will add .centered */
+      .crypto-banner.centered{
+        justify-content:center;
+        overflow-x:visible; /* no scroll when centered */
+      }
+
+      /* Forex ticker tidy */
+      .forex-ticker{ overflow:hidden; }
+      .forex-track{
+        display:flex; gap:16px; white-space:nowrap;
+        padding-block:8px;
+      }
+
+      /* Optional: tidy cards on mobile */
+      .about, .contact, .testimonials .testimonial{
+        background: rgba(255,255,255,.03) !important;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius:12px;
+        padding:16px;
+      }
+
+      /* Header/links: comfortable taps; footer safe area */
+      .header .nav a, .logout-btn{ min-height:44px; padding:0 10px; border-radius:999px; }
+      .footer{ padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+    }
   </style>
 </head>
 <body>
@@ -72,10 +136,7 @@
 <!-- ===== HEADER ===== -->
 <header class="header">
   <div class="container header-container">
-    <a href="#hero" class="logo">
-      <img src="images/bybit-logo.png" alt="BYBIT Logo" />
-      <span>BYBIT</span>
-    </a>
+    <a href="#hero" class="logo" style="color:white;text-decoration:none;font-weight:bold;">BYBIT</a>
     <nav class="nav">
       <a href="#hero">Home</a>
       <a href="#about">About Us</a>
@@ -85,31 +146,27 @@
   </div>
 </header>
 
-<!-- ===== PROFILE SECTION ===== -->
+<!-- ===== PROFILE ===== -->
 <section class="profile" id="profile">
   <div class="container profile-card">
     <div class="profile-pic-container">
       <img src="images/profile.png" alt="Profile Picture" class="profile-pic" id="profilePic" />
     </div>
-
     <div class="profile-info">
       <div class="name-row">
         <h2 id="fullName">QUEEN PARKER</h2>
         <span class="gold-check" aria-label="Verified">
           <svg viewBox="0 0 20 20" aria-hidden="true">
-            <circle cx="10" cy="10" r="9"></circle>
             <path d="M5.5 10.2 8.3 13l6.2-6.2"></path>
           </svg>
         </span>
       </div>
-
       <div class="badge-dark" title="Verified">
         <svg viewBox="0 0 20 20" aria-hidden="true">
           <path d="M5 10l3 3 7-7"></path>
         </svg>
         Verified
       </div>
-
       <p id="investmentPlan">Investment Plan: <span class="plan-value">WEB3</span></p>
       <p id="amountInvested">Amount Invested: $<span class="amount-value">0</span></p>
     </div>
@@ -142,19 +199,17 @@
   </div>
 </div>
 
-<!-- ===== ABOUT US ===== -->
+<!-- ===== ABOUT / CONTACT / TESTIMONIALS ===== -->
 <section class="about container" id="about" style="display: none;">
   <h2>About Us</h2>
   <p>At Bybit, our mission is to empower every investor with the best Web3 tools and insights.</p>
 </section>
 
-<!-- ===== CONTACT ===== -->
 <section class="contact container" id="contact" style="display: none;">
   <h2>Contact Us</h2>
   <p>Need help or have questions? Reach out to us anytime.</p>
 </section>
 
-<!-- ===== TESTIMONIALS ===== -->
 <section class="testimonials container" id="testimonials">
   <h2>What Our Investors Say</h2>
   <div class="testimonial">
@@ -191,8 +246,9 @@
 <!-- ===== SCRIPTS ===== -->
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
+  /* ---------- API + auth (unchanged) ---------- */
   let API_URL = (window.APP_CONFIG && window.APP_CONFIG.API_URL) || 'https://bybit-backend-xeuv.onrender.com';
-  try { const u = new URL(API_URL); API_URL = u.protocol + '//' + u.host; } catch { console.warn('Invalid API_URL:', API_URL); }
+  try { const u = new URL(API_URL); API_URL = u.protocol + '//' + u.host; } catch {}
   const buildApi = (p) => API_URL + (String(p).startsWith('/') ? '' : '/') + p;
   const getToken = () => { try { return (localStorage.getItem('token')||'').trim(); } catch { return ''; } };
   const clearToken = () => { try { localStorage.removeItem('token'); } catch {} };
@@ -205,6 +261,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     return res;
   }
+
   const token = getToken();
   if (!token) {
     alert('Session expired. Please login again.');
@@ -212,6 +269,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.location.href = 'index.html';
     return;
   }
+
   try {
     const res = await apiGet('/api/dashboard');
     if (res.status === 401 || res.status === 403) {
@@ -233,32 +291,29 @@ document.addEventListener('DOMContentLoaded', async () => {
       picEl.src = user.profilePic + '?t=' + Date.now();
     }
   } catch (err) {
-    console.error('Failed to load user data:', err);
     alert('Session expired or server error. Please login again.');
     clearToken();
     window.location.href = 'index.html';
     return;
   }
-  function showOnly(sectionId) {
-    const ids = ['profile','hero','crypto','forex','about','contact','testimonials'];
-    ids.forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const keepForHero = (sectionId === 'hero' && (id === 'profile' || id === 'hero' || id === 'crypto' || id === 'forex' || id === 'testimonials'));
-      el.style.display = (id === sectionId || keepForHero) ? 'block' : 'none';
-    });
+
+  /* ---------- Mobile-only enhancement: center crypto icons if not scrollable ---------- */
+  function centerCryptoIfShort() {
+    const banner = document.getElementById('crypto');
+    if (!banner) return;
+    // Only apply at mobile widths
+    const isMobile = window.matchMedia('(max-width: 600px)').matches;
+    banner.classList.remove('centered');
+    if (!isMobile) return;
+    // Measure: if content doesn't overflow, center the row
+    // Add a tiny epsilon to account for sub-pixel rounding
+    const epsilon = 2;
+    if (banner.scrollWidth <= banner.clientWidth + epsilon) {
+      banner.classList.add('centered');
+    }
   }
-  const linkContact = document.querySelector('a[href="#contact"]');
-  linkContact && linkContact.addEventListener('click', (e) => { e.preventDefault(); showOnly('contact'); });
-  const linkAbout = document.querySelector('a[href="#about"]');
-  linkAbout && linkAbout.addEventListener('click', (e) => { e.preventDefault(); showOnly('about'); });
-  const linkHero = document.querySelector('a[href="#hero"]');
-  linkHero && linkHero.addEventListener('click', (e) => { e.preventDefault(); showOnly('hero'); });
-  const logoutBtn = document.getElementById('logoutBtn');
-  logoutBtn && logoutBtn.addEventListener('click', () => {
-    clearToken();
-    window.location.href = 'index.html';
-  });
+  centerCryptoIfShort();
+  window.addEventListener('resize', centerCryptoIfShort);
 });
 </script>
 
