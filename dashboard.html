@@ -54,11 +54,11 @@
     .profile-info p{ margin:8px 0 0; font-size:1rem; color:#fff; }
     .plan-value, .amount-value{ font-weight:800!important; color:#ffcc00; }
 
-    /* ===== CRYPTO LOGO STRONG CENTER ===== */
+    /* ===== CRYPTO LOGO STRONG CENTER + white-box suppression ===== */
     .crypto-banner{
       width:100%;
-      max-width:900px;              /* visually aligned with card */
-      margin:16px auto;             /* centers the whole block */
+      max-width:900px;
+      margin:16px auto;
       padding:12px 0;
       display:flex !important;
       justify-content:center !important;
@@ -70,7 +70,11 @@
     .crypto-banner img{
       display:block;
       height:40px; width:auto;
-      filter: drop-shadow(0 2px 6px rgba(0,0,0,.35));
+      /* If logo PNGs have a white box, this blends it into dark bg */
+      mix-blend-mode:multiply;
+      filter: contrast(1.15) brightness(1.05);
+      background: transparent;
+      border-radius:8px; /* softens harsh raster edges */
     }
 
     .about, .contact{
@@ -223,12 +227,12 @@
   </div>
 </section>
 
-<!-- ===== CRYPTO BANNER (now truly centered) ===== -->
+<!-- ===== CRYPTO BANNER ===== -->
 <div class="crypto-banner" id="crypto">
-  <img src="images/bitcoin.png" alt="BTC" />
-  <img src="images/ethereum.png" alt="ETH" />
-  <img src="images/tether.png" alt="USDT" />
-  <img src="images/solana.png" alt="SOL" />
+  <img class="crypto-logo" src="images/bitcoin.png" alt="BTC" loading="lazy" />
+  <img class="crypto-logo" src="images/ethereum.png" alt="ETH" loading="lazy" />
+  <img class="crypto-logo" src="images/tether.png" alt="USDT" loading="lazy" />
+  <img class="crypto-logo" src="images/solana.png" alt="SOL" loading="lazy" />
 </div>
 
 <!-- ===== FOREX TICKER ===== -->
@@ -340,7 +344,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!res.ok) throw new Error('Failed to fetch user data');
     user = await res.json();
 
-    /* ---------- NORMALIZE FIELDS FROM MONGODB ---------- */
     const trimTail = (s) => String(s ?? '').replace(/[,\s]+$/,'').trim();
     const toNumber = (v) => {
       const n = Number(String(v ?? 0).replace(/[^\d.-]/g,''));
@@ -349,7 +352,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const amountRaw = user.amountInvested ?? user.amountinvested ?? user.balance ?? user.amount ?? 0;
     const amount = toNumber(amountRaw);
-
     const fullName = trimTail(user.fullname || user.name || 'QUEEN PARKER');
     const plan = trimTail(user.investmentPlan || user.package || user.plan || 'WEB3');
 
@@ -407,7 +409,82 @@ document.addEventListener('DOMContentLoaded', async () => {
   const initial = (location.hash || '#hero').slice(1);
   showOnly(['hero','about','contact'].includes(initial) ? initial : 'hero');
 
-  /* ================== Avatar Picker (20 BYBIT-STYLE IMAGES) ================== */
+  /* ================== Hamster Generator (20 SVG data-URL avatars) ================== */
+  function hamsterSVG(theme) {
+    const {
+      sky1, sky2, sea, wall, ear, fur, snout, nose, glasses, shirt, badge, text, phone, candUp, candDown
+    } = theme;
+
+    const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${sky1}"/>
+      <stop offset="100%" stop-color="${sky2}"/>
+    </linearGradient>
+    <clipPath id="round"><circle cx="64" cy="64" r="62"/></clipPath>
+  </defs>
+  <g clip-path="url(#round)">
+    <rect width="128" height="128" fill="url(#sky)"/>
+    <rect y="78" width="128" height="50" fill="${sea}" opacity=".45"/>
+    <rect x="90" y="40" width="80" height="80" fill="${wall}" transform="rotate(-20 90 40)" opacity=".55"/>
+    <!-- Body -->
+    <circle cx="64" cy="62" r="36" fill="${fur}"/>
+    <circle cx="44" cy="40" r="12" fill="${ear}"/>
+    <circle cx="84" cy="40" r="12" fill="${ear}"/>
+    <circle cx="44" cy="40" r="7" fill="${fur}"/>
+    <circle cx="84" cy="40" r="7" fill="${fur}"/>
+    <!-- Snout -->
+    <ellipse cx="64" cy="70" rx="16" ry="12" fill="${snout}"/>
+    <circle cx="64" cy="66" r="4" fill="${nose}"/>
+    <!-- Sunglasses -->
+    <circle cx="51" cy="56" r="11" fill="${glasses}"/>
+    <circle cx="77" cy="56" r="11" fill="${glasses}"/>
+    <rect x="51" y="55" width="26" height="2.5" fill="${glasses}"/>
+    <!-- Shirt -->
+    <path d="M36 84c6-10 20-12 28-12s22 2 28 12v22H36V84z" fill="${shirt}"/>
+    <text x="75" y="98" font-family="ui-sans-serif,system-ui,Segoe UI,Roboto" font-size="10" text-anchor="middle" fill="${text}" opacity=".9">BYBIT</text>
+    <!-- Badge -->
+    <circle cx="87" cy="83" r="7" fill="${badge}"/>
+    <path d="M84 83l2 2 4-4" stroke="#0b0f1f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Phone with tiny candles -->
+    <rect x="28" y="78" rx="3" ry="3" width="16" height="26" fill="${phone}"/>
+    <line x1="33" y1="84" x2="33" y2="95" stroke="${candUp}" stroke-width="2"/>
+    <line x1="38" y1="90" x2="38" y2="100" stroke="${candDown}" stroke-width="2"/>
+    <line x1="36" y1="98" x2="36" y2="105" stroke="${candUp}" stroke-width="2"/>
+  </g>
+</svg>`;
+    return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+  }
+
+  // 20 palettes (beach / city / night variants)
+  const THEMES = [
+    { sky1:"#aee3ff", sky2:"#79bfff", sea:"#5ecbe0", wall:"#ffe9b3", ear:"#ffd9b8", fur:"#f2cda7", snout:"#f6e1cc", nose:"#f39", glasses:"#121212", shirt:"#1e293b", badge:"#16c784", text:"#ffffff", phone:"#0b0f1f", candUp:"#16c784", candDown:"#ef4444" },
+    { sky1:"#fef3c7", sky2:"#fde68a", sea:"#60a5fa", wall:"#ffd8a8", ear:"#ffd9b8", fur:"#f3d9b1", snout:"#f7e7d6", nose:"#ff6b6b", glasses:"#0f172a", shirt:"#334155", badge:"#facc15", text:"#0b0f1f", phone:"#0b0f1f", candUp:"#22c55e", candDown:"#ef4444" },
+    { sky1:"#c7d2fe", sky2:"#818cf8", sea:"#60a5fa", wall:"#fbcfe8", ear:"#ffd9b8", fur:"#f2cda7", snout:"#f6e1cc", nose:"#fb7185", glasses:"#111827", shirt:"#111827", badge:"#16c784", text:"#facc15", phone:"#0b0f1f", candUp:"#16c784", candDown:"#ef4444" },
+    { sky1:"#d1fae5", sky2:"#6ee7b7", sea:"#34d399", wall:"#fde68a", ear:"#ffe0c2", fur:"#f3d5b5", snout:"#ffe8d6", nose:"#ff7aa2", glasses:"#0b0f1f", shirt:"#1f2937", badge:"#facc15", text:"#ffffff", phone:"#0b0f1f", candUp:"#22c55e", candDown:"#ef4444" },
+    { sky1:"#f5d0fe", sky2:"#e879f9", sea:"#93c5fd", wall:"#fef3c7", ear:"#ffd9b8", fur:"#f2cda7", snout:"#f6e1cc", nose:"#fb7185", glasses:"#111827", shirt:"#0f172a", badge:"#16c784", text:"#facc15", phone:"#0b0f1f", candUp:"#16c784", candDown:"#ef4444" },
+    { sky1:"#caffbf", sky2:"#9bf6ff", sea:"#80ed99", wall:"#ffd6a5", ear:"#ffd9b8", fur:"#f2cda7", snout:"#f6e1cc", nose:"#ff6b6b", glasses:"#0b0f1f", shirt:"#1e293b", badge:"#facc15", text:"#ffffff", phone:"#0b0f1f", candUp:"#16c784", candDown:"#ef4444" },
+    { sky1:"#bae6fd", sky2:"#60a5fa", sea:"#38bdf8", wall:"#fde68a", ear:"#ffdccc", fur:"#f2cda7", snout:"#f6e1cc", nose:"#ff6b6b", glasses:"#111827", shirt:"#111827", badge:"#16c784", text:"#facc15", phone:"#0b0f1f", candUp:"#22c55e", candDown:"#ef4444" },
+    { sky1:"#fecaca", sky2:"#fda4af", sea:"#93c5fd", wall:"#fde68a", ear:"#ffdccc", fur:"#f3d9b1", snout:"#f7e7d6", nose:"#fb7185", glasses:"#0f172a", shirt:"#1f2937", badge:"#facc15", text:"#ffffff", phone:"#0b0f1f", candUp:"#16c784", candDown:"#ef4444" },
+    { sky1:"#e9d5ff", sky2:"#c4b5fd", sea:"#93c5fd", wall:"#ffd6a5", ear:"#ffd9b8", fur:"#f2cda7", snout:"#f6e1cc", nose:"#fb7185", glasses:"#0b0f1f", shirt:"#0b0f1f", badge:"#16c784", text:"#facc15", phone:"#0b0f1f", candUp:"#22c55e", candDown:"#ef4444" },
+    { sky1:"#ede9fe", sky2:"#ddd6fe", sea:"#93c5fd", wall:"#fef3c7", ear:"#ffdccc", fur:"#f3d5b5", snout:"#ffe8d6", nose:"#ff6b6b", glasses:"#111827", shirt:"#1f2937", badge:"#facc15", text:"#ffffff", phone:"#0b0f1f", candUp:"#16c784", candDown:"#ef4444" },
+    // 10 more with bolder shirts & accents
+    { sky1:"#bae6fd", sky2:"#7dd3fc", sea:"#38bdf8", wall:"#fde68a", ear:"#ffd9b8", fur:"#f2cda7", snout:"#f6e1cc", nose:"#fb7185", glasses:"#0b0f1f", shirt:"#2563eb", badge:"#facc15", text:"#ffffff", phone:"#0b0f1f", candUp:"#22c55e", candDown:"#ef4444" },
+    { sky1:"#bbf7d0", sky2:"#86efac", sea:"#34d399", wall:"#ffd6a5", ear:"#ffdccc", fur:"#f3d9b1", snout:"#f7e7d6", nose:"#ff7aa2", glasses:"#0f172a", shirt:"#059669", badge:"#facc15", text:"#ffffff", phone:"#0b0f1f", candUp:"#16c784", candDown:"#ef4444" },
+    { sky1:"#fed7aa", sky2:"#fdba74", sea:"#60a5fa", wall:"#fef3c7", ear:"#ffd9b8", fur:"#f2cda7", snout:"#f6e1cc", nose:"#fb7185", glasses:"#0b0f1f", shirt:"#f59e0b", badge:"#16c784", text:"#0b0f1f", phone:"#0b0f1f", candUp:"#22c55e", candDown:"#ef4444" },
+    { sky1:"#fca5a5", sky2:"#f87171", sea:"#60a5fa", wall:"#ffd6a5", ear:"#ffdccc", fur:"#f3d5b5", snout:"#ffe8d6", nose:"#ff6b6b", glasses:"#111827", shirt:"#ef4444", badge:"#facc15", text:"#0b0f1f", phone:"#0b0f1f", candUp:"#16c784", candDown:"#ef4444" },
+    { sky1:"#a5b4fc", sky2:"#818cf8", sea:"#93c5fd", wall:"#fde68a", ear:"#ffd9b8", fur:"#f2cda7", snout:"#f6e1cc", nose:"#fb7185", glasses:"#0b0f1f", shirt:"#8b5cf6", badge:"#facc15", text:"#ffffff", phone:"#0b0f1f", candUp:"#22c55e", candDown:"#ef4444" },
+    { sky1:"#f5d0fe", sky2:"#e879f9", sea:"#93c5fd", wall:"#ffd6a5", ear:"#ffdccc", fur:"#f3d9b1", snout:"#f7e7d6", nose:"#ff6b6b", glasses:"#0f172a", shirt:"#d946ef", badge:"#16c784", text:"#0b0f1f", phone:"#0b0f1f", candUp:"#16c784", candDown:"#ef4444" },
+    { sky1:"#67e8f9", sky2:"#22d3ee", sea:"#38bdf8", wall:"#fde68a", ear:"#ffd9b8", fur:"#f2cda7", snout:"#f6e1cc", nose:"#fb7185", glasses:"#111827", shirt:"#06b6d4", badge:"#facc15", text:"#0b0f1f", phone:"#0b0f1f", candUp:"#22c55e", candDown:"#ef4444" },
+    { sky1:"#fde68a", sky2:"#f59e0b", sea:"#60a5fa", wall:"#ffd6a5", ear:"#ffdccc", fur:"#f3d5b5", snout:"#ffe8d6", nose:"#ff6b6b", glasses:"#0b0f1f", shirt:"#f97316", badge:"#16c784", text:"#0b0f1f", phone:"#0b0f1f", candUp:"#16c784", candDown:"#ef4444" },
+    { sky1:"#e5e7eb", sky2:"#cbd5e1", sea:"#93c5fd", wall:"#fde68a", ear:"#ffd9b8", fur:"#f2cda7", snout:"#f6e1cc", nose:"#fb7185", glasses:"#111827", shirt:"#0b0f1f", badge:"#16c784", text:"#facc15", phone:"#0b0f1f", candUp:"#22c55e", candDown:"#ef4444" },
+    { sky1:"#0ea5e9", sky2:"#0284c7", sea:"#38bdf8", wall:"#fef3c7", ear:"#ffd9b8", fur:"#f2cda7", snout:"#f6e1cc", nose:"#fb7185", glasses:"#0b0f1f", shirt:"#111827", badge:"#facc15", text:"#ffffff", phone:"#0b0f1f", candUp:"#16c784", candDown:"#ef4444" }
+  ];
+
+  const AVATARS = THEMES.map(hamsterSVG);
+
+  /* ================== Avatar Picker UI ================== */
   const modal = document.getElementById('avatarModal');
   const grid = document.getElementById('avatarGrid');
   const saveBtn = document.getElementById('avatarSaveBtn');
@@ -416,18 +493,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const picEl = document.getElementById('profilePic');
   let selectedSrc = null;
 
-  // Build list of 20 local images: images/avatars/bybit-01.jpg ... bybit-20.jpg
-  const AVATARS = Array.from({length: 20}, (_,i) =>
-    `images/avatars/bybit-${String(i+1).padStart(2,'0')}.jpg`
-  );
-
   function renderAvatars() {
     grid.innerHTML = '';
     AVATARS.forEach((src, i) => {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'avatar-tile';
-      btn.innerHTML = `<img class="avatar-img" src="${src}" alt="Avatar ${i+1}" onerror="this.src='images/profile.png'">`;
+      btn.innerHTML = `<img class="avatar-img" src="${src}" alt="Hamster ${i+1}">`;
       btn.addEventListener('click', () => {
         [...grid.querySelectorAll('.avatar-tile')].forEach(n => n.classList.remove('selected'));
         btn.classList.add('selected');
@@ -467,10 +539,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + (getToken ? getToken() : '')
         },
-        // send as URL (not data URL). Server already accepts http(s) or relative paths.
-        body: JSON.stringify({ image: selectedSrc, isDataUrl: false })
+        body: JSON.stringify({ image: selectedSrc, isDataUrl: true })
       });
       if (!res.ok) throw new Error('save failed');
+      try { localStorage.removeItem('profilePic'); } catch {}
     } catch (err) {
       try { localStorage.setItem('profilePic', selectedSrc); } catch {}
     }
