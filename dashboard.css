@@ -342,3 +342,36 @@ footer {
   color: #fff !important;       /* Plan + Amount white */
   font-weight: normal;          /* Keep normal weight for text */
 }
+/* ==== CRYPTO ROW: show logos + no white strip, keep centered ==== */
+#crypto {
+  width:100%;
+  max-width:900px;
+  margin:16px auto;
+  padding:12px 0;
+  display:flex !important;
+  justify-content:center !important;
+  align-items:center !important;
+  gap:16px;
+  flex-wrap:wrap;
+  text-align:center;
+  background:transparent !important;   /* remove the white bar */
+  border:0 !important;
+  box-shadow:none !important;
+  opacity:1 !important;
+}
+
+#crypto img,
+#crypto .crypto-logo {
+  height:40px;
+  width:auto;
+  display:block;
+  background:transparent !important;
+  mix-blend-mode: normal !important;   /* <- fix: no multiply */
+  filter:none !important;
+  opacity:1 !important;
+  border-radius:8px;                   /* optional soften */
+}
+
+@media (max-width:600px){
+  #crypto img, #crypto .crypto-logo { height:34px; }
+}
