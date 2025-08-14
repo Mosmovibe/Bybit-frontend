@@ -21,7 +21,7 @@
       border:2.5px solid #fff;
       box-shadow:0 0 8px rgba(255,255,255,.4);
       transition:box-shadow .3s;
-      flex:0 0 90px;
+      flex:0 0 90px; cursor:pointer;
     }
     .profile-pic:hover{ box-shadow:0 0 14px rgba(255,255,255,.8); }
     .profile-info{ flex:1; min-width:0; }
@@ -53,12 +53,13 @@
     .profile-info p{ margin:8px 0 0; font-size:1rem; color:#fff; }
     .plan-value, .amount-value{ font-weight:800!important; color:#ffcc00; }
 
-    /* Base crypto banner */
+    /* Base crypto banner (centered) */
     .crypto-banner{
       background:transparent!important;
       display:flex; gap:16px;
       justify-content:center; align-items:center;
       flex-wrap:wrap; margin-top:8px;
+      padding:12px 0;
     }
     .crypto-banner img{ height:40px; width:auto; }
 
@@ -102,18 +103,62 @@
       .footer{ padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
     }
 
-    /* Force center crypto logos (override safety) */
-    .crypto-banner,
-    .crypto-banner.centered {
-      display:flex !important;
-      justify-content:center !important;
-      align-items:center !important;
-      gap:16px; flex-wrap:wrap; overflow-x:visible !important;
-      padding:12px 0; text-align:center;
+    /* ===== Avatar picker modal ===== */
+    #avatarModal {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.6);
+      display: none; align-items: center; justify-content: center;
+      z-index: 9999;
     }
-    @media (max-width: 600px){
-      .crypto-banner, .crypto-banner.centered { gap:12px; }
+    #avatarModal.open { display: flex; }
+    #avatarModal .sheet {
+      width: min(720px, 92vw);
+      background: #0b0f1f;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+      color:#e5e7eb;
     }
+    .sheet-head {
+      display:flex; align-items:center; justify-content:space-between;
+      padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .sheet-head h3 { margin:0; font-size:1rem; font-weight:800; }
+    .sheet-head .close {
+      background:transparent; color:#fff; border:none; font-size:22px; cursor:pointer; line-height:1;
+    }
+    .sheet-body { padding: 16px; }
+    .avatar-grid {
+      display: grid; gap: 12px;
+      grid-template-columns: repeat(5, 64px);
+      justify-content: center;
+    }
+    @media (max-width: 520px){
+      .avatar-grid { grid-template-columns: repeat(4, 64px); }
+    }
+    .avatar-tile {
+      width: 64px; height: 64px; border-radius: 50%;
+      overflow: hidden; display: grid; place-items: center;
+      border: 2px solid transparent; padding: 2px; cursor: pointer;
+      background: radial-gradient(120px 120px at 50% -30% , rgba(255,255,255,.08), rgba(255,255,255,0));
+      transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+    }
+    .avatar-tile:hover { transform: translateY(-1px); }
+    .avatar-tile.selected {
+      border-color: #16c784;
+      box-shadow: 0 0 0 3px rgba(22,199,132,.25);
+    }
+    .sheet-foot {
+      padding: 12px 16px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      display:flex; gap:10px; justify-content:flex-end;
+    }
+    .sheet-foot button{
+      border:none; padding:10px 14px; border-radius:10px; cursor:pointer;
+    }
+    .btn-muted{ background:#1a2035; color:#e5e7eb; }
+    .btn-primary{ background:#16c784; color:#0b0f1f; font-weight:700; }
+    .btn-primary:disabled{ opacity:.5; cursor:not-allowed; }
   </style>
 </head>
 <body>
@@ -228,6 +273,23 @@
   </div>
 </footer>
 
+<!-- ===== AVATAR PICKER MODAL ===== -->
+<div id="avatarModal" role="dialog" aria-modal="true" aria-labelledby="avatarTitle">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h3 id="avatarTitle">Choose your avatar</h3>
+      <button class="close" id="avatarCloseBtn" aria-label="Close">×</button>
+    </div>
+    <div class="sheet-body">
+      <div id="avatarGrid" class="avatar-grid"></div>
+    </div>
+    <div class="sheet-foot">
+      <button class="btn-muted" id="avatarCancelBtn">Cancel</button>
+      <button class="btn-primary" id="avatarSaveBtn" disabled>Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== SCRIPTS ===== -->
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
@@ -253,6 +315,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
+  /* ---------- Load user ---------- */
+  let user = {};
   try {
     const res = await apiGet('/api/dashboard');
     if (res.status === 401 || res.status === 403) {
@@ -262,7 +326,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
     if (!res.ok) throw new Error('Failed to fetch user data');
-    const user = await res.json();
+    user = await res.json();
 
     /* ---------- NORMALIZE FIELDS FROM MONGODB ---------- */
     const trimTail = (s) => String(s ?? '').replace(/[,\s]+$/,'').trim();
@@ -289,8 +353,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (amountValEl) amountValEl.textContent = amount.toLocaleString();
 
     const picEl = document.getElementById('profilePic');
-    if (picEl && user.profilePic) { picEl.src = user.profilePic + '?t=' + Date.now(); }
+    // Prefer server pic; fallback to saved local
+    const savedLocalPic = (()=>{ try { return localStorage.getItem('profilePic') || ''; } catch { return ''; }})();
+    if (picEl) {
+      if (user.profilePic) picEl.src = user.profilePic + (user.profilePic.startsWith('data:') ? '' : ('?t=' + Date.now()));
+      else if (savedLocalPic) picEl.src = savedLocalPic;
+    }
+
   } catch (err) {
+    console.error(err);
     alert('Session expired or server error. Please login again.');
     clearToken();
     window.location.href = 'index.html';
@@ -313,19 +384,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // Wire header + footer links (Home, About, Contact)
   [['#hero','hero'], ['#about','about'], ['#contact','contact']].forEach(([href, id]) => {
     document.querySelectorAll(`a[href="${href}"]`).forEach(a => {
       a.addEventListener('click', (e) => { e.preventDefault(); showOnly(id); });
     });
   });
 
-  // Logo acts as Home
   document.querySelectorAll('.logo').forEach(el => {
     el.addEventListener('click', (e) => { e.preventDefault(); showOnly('hero'); });
   });
 
-  // Logout → clear token and go to homepage
   const logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', (e) => {
@@ -336,9 +404,120 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Initial view based on hash (default to Home)
   const initial = (location.hash || '#hero').slice(1);
   showOnly(['hero','about','contact'].includes(initial) ? initial : 'hero');
+
+  /* ================== Avatar Picker ================== */
+  const modal = document.getElementById('avatarModal');
+  const grid = document.getElementById('avatarGrid');
+  const saveBtn = document.getElementById('avatarSaveBtn');
+  const closeBtn = document.getElementById('avatarCloseBtn');
+  const cancelBtn = document.getElementById('avatarCancelBtn');
+  const picEl = document.getElementById('profilePic');
+  let selectedSrc = null;
+
+  function makeBybitFavicon(bg1, bg2, ring, glyph) {
+    const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+      <defs>
+        <radialGradient id="g" cx="50%" cy="0%" r="100%">
+          <stop offset="0%" stop-color="${bg2}" />
+          <stop offset="100%" stop-color="${bg1}" />
+        </radialGradient>
+      </defs>
+      <circle cx="64" cy="64" r="60" fill="url(#g)"/>
+      <circle cx="64" cy="64" r="58" fill="none" stroke="${ring}" stroke-width="3"/>
+      <g transform="translate(40,36)">
+        <path d="M10 0h12c10 0 18 8 18 18s-8 18-18 18H10V0zm12 8v20h0c5 0 10-4 10-10s-5-10-10-10z" fill="${glyph}"/>
+        <rect x="0" y="0" width="6" height="36" rx="3" fill="${glyph}"/>
+      </g>
+    </svg>`;
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  }
+
+  function buildAvatars() {
+    const palettes = [
+      ['#0b0f1f','#101429','#f0b90b','#f0b90b'],
+      ['#0b0f1f','#141a34','#f9d34c','#f9d34c'],
+      ['#0b0f1f','#121a2b','#ffd166','#ffd166'],
+      ['#0b0f1f','#101829','#ffcc00','#ffcc00'],
+      ['#0b0f1f','#0f152a','#ffe082','#ffe082'],
+      ['#0b0f1f','#081225','#eab308','#eab308'],
+      ['#0b0f1f','#111827','#facc15','#facc15'],
+      ['#0b0f1f','#0e1428','#ffd54f','#ffd54f'],
+      ['#0b0f1f','#0e152b','#ffde59','#ffde59'],
+      ['#0b0f1f','#0d1426','#ffc107','#ffc107'],
+      ['#0b0f1f','#131a2e','#ffd166','#f0b90b'],
+      ['#0b0f1f','#121a2d','#f9d34c','#ffd166'],
+      ['#0b0f1f','#0f172a','#ffd166','#f9d34c'],
+      ['#0b0f1f','#0e1528','#f0b90b','#ffd166'],
+      ['#0b0f1f','#111a2e','#ffe082','#f0b90b'],
+      ['#0b0f1f','#101a2b','#ffc107','#ffe082'],
+      ['#0b0f1f','#0f1628','#facc15','#ffc107'],
+      ['#0b0f1f','#0d1526','#ffd54f','#facc15'],
+      ['#0b0f1f','#0d1528','#ffde59','#ffd54f'],
+      ['#0b0f1f','#0f182c','#f0b90b','#ffde59']
+    ];
+    return palettes.map(p => makeBybitFavicon(...p));
+  }
+
+  const AVATARS = buildAvatars();
+  grid.innerHTML = '';
+  AVATARS.forEach((src, i) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'avatar-tile';
+    btn.innerHTML = `<img src="${src}" alt="Avatar ${i+1}" width="64" height="64" style="border-radius:50%;">`;
+    btn.addEventListener('click', () => {
+      [...grid.querySelectorAll('.avatar-tile')].forEach(n => n.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedSrc = src;
+      saveBtn.disabled = false;
+    });
+    grid.appendChild(btn);
+  });
+
+  function openAvatarModal() {
+    saveBtn.disabled = !selectedSrc;
+    modal.classList.add('open');
+  }
+  function closeAvatarModal() {
+    modal.classList.remove('open');
+  }
+
+  if (picEl) {
+    picEl.addEventListener('click', openAvatarModal);
+    const container = picEl.closest('.profile-pic-container');
+    if (container) container.addEventListener('click', (e)=> {
+      if (e.target === container) openAvatarModal();
+    });
+  }
+  document.getElementById('avatarCloseBtn').addEventListener('click', closeAvatarModal);
+  document.getElementById('avatarCancelBtn').addEventListener('click', closeAvatarModal);
+  modal.addEventListener('click', (e)=> { if (e.target === modal) closeAvatarModal(); });
+
+  async function saveSelectedAvatar() {
+    if (!selectedSrc) return;
+    // Update image immediately
+    if (picEl) picEl.src = selectedSrc;
+
+    // Persist to backend; fallback to localStorage
+    try {
+      const res = await fetch(buildApi('/api/profile/picture'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + (getToken ? getToken() : '')
+        },
+        body: JSON.stringify({ image: selectedSrc, isDataUrl: true })
+      });
+      if (!res.ok) throw new Error('save failed');
+    } catch (err) {
+      try { localStorage.setItem('profilePic', selectedSrc); } catch {}
+    }
+    closeAvatarModal();
+  }
+  document.getElementById('avatarSaveBtn').addEventListener('click', saveSelectedAvatar);
 });
 </script>
 
