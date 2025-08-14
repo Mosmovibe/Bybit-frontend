@@ -22,6 +22,7 @@
       box-shadow:0 0 8px rgba(255,255,255,.4);
       transition:box-shadow .3s;
       flex:0 0 90px; cursor:pointer;
+      background:#0b0f1f;
     }
     .profile-pic:hover{ box-shadow:0 0 14px rgba(255,255,255,.8); }
     .profile-info{ flex:1; min-width:0; }
@@ -53,15 +54,24 @@
     .profile-info p{ margin:8px 0 0; font-size:1rem; color:#fff; }
     .plan-value, .amount-value{ font-weight:800!important; color:#ffcc00; }
 
-    /* Base crypto banner (centered) */
+    /* ===== CRYPTO LOGO STRONG CENTER ===== */
     .crypto-banner{
-      background:transparent!important;
-      display:flex; gap:16px;
-      justify-content:center; align-items:center;
-      flex-wrap:wrap; margin-top:8px;
+      width:100%;
+      max-width:900px;              /* visually aligned with card */
+      margin:16px auto;             /* centers the whole block */
       padding:12px 0;
+      display:flex !important;
+      justify-content:center !important;
+      align-items:center !important;
+      gap:16px;
+      flex-wrap:wrap;
+      text-align:center;
     }
-    .crypto-banner img{ height:40px; width:auto; }
+    .crypto-banner img{
+      display:block;
+      height:40px; width:auto;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,.35));
+    }
 
     .about, .contact{
       background:rgba(255,255,255,0.04)!important; color:#e5e7eb;
@@ -88,7 +98,8 @@
       }
       .badge-dark{ margin-top:6px; padding:6px 10px; font-size:.72rem; line-height:1; }
       .profile-info p{ margin-top:10px; font-size:.95rem; opacity:.95; }
-      .crypto-banner{ gap:12px; }
+
+      .crypto-banner{ gap:12px; max-width:calc(100% - 32px); }
       .crypto-banner img{ height:34px; }
       .forex-ticker{ overflow:hidden; }
       .forex-track{ display:flex; gap:16px; white-space:nowrap; padding-block:8px; }
@@ -112,7 +123,7 @@
     }
     #avatarModal.open { display: flex; }
     #avatarModal .sheet {
-      width: min(720px, 92vw);
+      width: min(900px, 94vw);
       background: #0b0f1f;
       border: 1px solid rgba(255,255,255,.08);
       border-radius: 16px;
@@ -129,20 +140,21 @@
     }
     .sheet-body { padding: 16px; }
     .avatar-grid {
-      display: grid; gap: 12px;
-      grid-template-columns: repeat(5, 64px);
+      display: grid; gap: 14px;
+      grid-template-columns: repeat(5, 88px);
       justify-content: center;
     }
-    @media (max-width: 520px){
-      .avatar-grid { grid-template-columns: repeat(4, 64px); }
+    @media (max-width: 640px){
+      .avatar-grid { grid-template-columns: repeat(4, 80px); }
     }
     .avatar-tile {
-      width: 64px; height: 64px; border-radius: 50%;
+      width: 88px; height: 88px; border-radius: 50%;
       overflow: hidden; display: grid; place-items: center;
-      border: 2px solid transparent; padding: 2px; cursor: pointer;
-      background: radial-gradient(120px 120px at 50% -30% , rgba(255,255,255,.08), rgba(255,255,255,0));
+      border: 2px solid transparent; padding: 0; cursor: pointer;
+      background: #0b0f1f;
       transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
     }
+    .avatar-img{ width:100%; height:100%; object-fit:cover; border-radius:50%; display:block; }
     .avatar-tile:hover { transform: translateY(-1px); }
     .avatar-tile.selected {
       border-color: #16c784;
@@ -211,8 +223,8 @@
   </div>
 </section>
 
-<!-- ===== CRYPTO BANNER ===== -->
-<div class="crypto-banner container" id="crypto">
+<!-- ===== CRYPTO BANNER (now truly centered) ===== -->
+<div class="crypto-banner" id="crypto">
   <img src="images/bitcoin.png" alt="BTC" />
   <img src="images/ethereum.png" alt="ETH" />
   <img src="images/tether.png" alt="USDT" />
@@ -335,31 +347,22 @@ document.addEventListener('DOMContentLoaded', async () => {
       return Number.isFinite(n) ? n : 0;
     };
 
-    // Support both "amountInvested" and "amountinvested" + fallbacks
     const amountRaw = user.amountInvested ?? user.amountinvested ?? user.balance ?? user.amount ?? 0;
     const amount = toNumber(amountRaw);
 
     const fullName = trimTail(user.fullname || user.name || 'QUEEN PARKER');
     const plan = trimTail(user.investmentPlan || user.package || user.plan || 'WEB3');
 
-    // Populate UI
-    const fullNameEl = document.getElementById('fullName');
-    if (fullNameEl) fullNameEl.textContent = fullName;
-
-    const planValEl = document.querySelector('.plan-value');
-    if (planValEl) planValEl.textContent = plan;
-
-    const amountValEl = document.querySelector('.amount-value');
-    if (amountValEl) amountValEl.textContent = amount.toLocaleString();
+    document.getElementById('fullName').textContent = fullName;
+    document.querySelector('.plan-value').textContent = plan;
+    document.querySelector('.amount-value').textContent = amount.toLocaleString();
 
     const picEl = document.getElementById('profilePic');
-    // Prefer server pic; fallback to saved local
     const savedLocalPic = (()=>{ try { return localStorage.getItem('profilePic') || ''; } catch { return ''; }})();
     if (picEl) {
       if (user.profilePic) picEl.src = user.profilePic + (user.profilePic.startsWith('data:') ? '' : ('?t=' + Date.now()));
       else if (savedLocalPic) picEl.src = savedLocalPic;
     }
-
   } catch (err) {
     console.error(err);
     alert('Session expired or server error. Please login again.');
@@ -368,7 +371,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  /* ---------- Navigation: Home / About / Contact / Logout ---------- */
+  /* ---------- Navigation ---------- */
   function showOnly(sectionId) {
     const ids = ['profile','hero','crypto','forex','about','contact','testimonials'];
     ids.forEach(id => {
@@ -389,11 +392,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       a.addEventListener('click', (e) => { e.preventDefault(); showOnly(id); });
     });
   });
-
   document.querySelectorAll('.logo').forEach(el => {
     el.addEventListener('click', (e) => { e.preventDefault(); showOnly('hero'); });
   });
-
   const logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', (e) => {
@@ -403,11 +404,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       window.location.href = 'index.html#hero';
     });
   }
-
   const initial = (location.hash || '#hero').slice(1);
   showOnly(['hero','about','contact'].includes(initial) ? initial : 'hero');
 
-  /* ================== Avatar Picker ================== */
+  /* ================== Avatar Picker (20 BYBIT-STYLE IMAGES) ================== */
   const modal = document.getElementById('avatarModal');
   const grid = document.getElementById('avatarGrid');
   const saveBtn = document.getElementById('avatarSaveBtn');
@@ -416,74 +416,34 @@ document.addEventListener('DOMContentLoaded', async () => {
   const picEl = document.getElementById('profilePic');
   let selectedSrc = null;
 
-  function makeBybitFavicon(bg1, bg2, ring, glyph) {
-    const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-      <defs>
-        <radialGradient id="g" cx="50%" cy="0%" r="100%">
-          <stop offset="0%" stop-color="${bg2}" />
-          <stop offset="100%" stop-color="${bg1}" />
-        </radialGradient>
-      </defs>
-      <circle cx="64" cy="64" r="60" fill="url(#g)"/>
-      <circle cx="64" cy="64" r="58" fill="none" stroke="${ring}" stroke-width="3"/>
-      <g transform="translate(40,36)">
-        <path d="M10 0h12c10 0 18 8 18 18s-8 18-18 18H10V0zm12 8v20h0c5 0 10-4 10-10s-5-10-10-10z" fill="${glyph}"/>
-        <rect x="0" y="0" width="6" height="36" rx="3" fill="${glyph}"/>
-      </g>
-    </svg>`;
-    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
-  }
+  // Build list of 20 local images: images/avatars/bybit-01.jpg ... bybit-20.jpg
+  const AVATARS = Array.from({length: 20}, (_,i) =>
+    `images/avatars/bybit-${String(i+1).padStart(2,'0')}.jpg`
+  );
 
-  function buildAvatars() {
-    const palettes = [
-      ['#0b0f1f','#101429','#f0b90b','#f0b90b'],
-      ['#0b0f1f','#141a34','#f9d34c','#f9d34c'],
-      ['#0b0f1f','#121a2b','#ffd166','#ffd166'],
-      ['#0b0f1f','#101829','#ffcc00','#ffcc00'],
-      ['#0b0f1f','#0f152a','#ffe082','#ffe082'],
-      ['#0b0f1f','#081225','#eab308','#eab308'],
-      ['#0b0f1f','#111827','#facc15','#facc15'],
-      ['#0b0f1f','#0e1428','#ffd54f','#ffd54f'],
-      ['#0b0f1f','#0e152b','#ffde59','#ffde59'],
-      ['#0b0f1f','#0d1426','#ffc107','#ffc107'],
-      ['#0b0f1f','#131a2e','#ffd166','#f0b90b'],
-      ['#0b0f1f','#121a2d','#f9d34c','#ffd166'],
-      ['#0b0f1f','#0f172a','#ffd166','#f9d34c'],
-      ['#0b0f1f','#0e1528','#f0b90b','#ffd166'],
-      ['#0b0f1f','#111a2e','#ffe082','#f0b90b'],
-      ['#0b0f1f','#101a2b','#ffc107','#ffe082'],
-      ['#0b0f1f','#0f1628','#facc15','#ffc107'],
-      ['#0b0f1f','#0d1526','#ffd54f','#facc15'],
-      ['#0b0f1f','#0d1528','#ffde59','#ffd54f'],
-      ['#0b0f1f','#0f182c','#f0b90b','#ffde59']
-    ];
-    return palettes.map(p => makeBybitFavicon(...p));
-  }
-
-  const AVATARS = buildAvatars();
-  grid.innerHTML = '';
-  AVATARS.forEach((src, i) => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'avatar-tile';
-    btn.innerHTML = `<img src="${src}" alt="Avatar ${i+1}" width="64" height="64" style="border-radius:50%;">`;
-    btn.addEventListener('click', () => {
-      [...grid.querySelectorAll('.avatar-tile')].forEach(n => n.classList.remove('selected'));
-      btn.classList.add('selected');
-      selectedSrc = src;
-      saveBtn.disabled = false;
+  function renderAvatars() {
+    grid.innerHTML = '';
+    AVATARS.forEach((src, i) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'avatar-tile';
+      btn.innerHTML = `<img class="avatar-img" src="${src}" alt="Avatar ${i+1}" onerror="this.src='images/profile.png'">`;
+      btn.addEventListener('click', () => {
+        [...grid.querySelectorAll('.avatar-tile')].forEach(n => n.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedSrc = src;
+        saveBtn.disabled = false;
+      });
+      grid.appendChild(btn);
     });
-    grid.appendChild(btn);
-  });
+  }
+  renderAvatars();
 
   function openAvatarModal() {
     saveBtn.disabled = !selectedSrc;
     modal.classList.add('open');
   }
-  function closeAvatarModal() {
-    modal.classList.remove('open');
-  }
+  function closeAvatarModal() { modal.classList.remove('open'); }
 
   if (picEl) {
     picEl.addEventListener('click', openAvatarModal);
@@ -492,16 +452,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (e.target === container) openAvatarModal();
     });
   }
-  document.getElementById('avatarCloseBtn').addEventListener('click', closeAvatarModal);
-  document.getElementById('avatarCancelBtn').addEventListener('click', closeAvatarModal);
+  closeBtn.addEventListener('click', closeAvatarModal);
+  cancelBtn.addEventListener('click', closeAvatarModal);
   modal.addEventListener('click', (e)=> { if (e.target === modal) closeAvatarModal(); });
 
   async function saveSelectedAvatar() {
     if (!selectedSrc) return;
-    // Update image immediately
     if (picEl) picEl.src = selectedSrc;
 
-    // Persist to backend; fallback to localStorage
     try {
       const res = await fetch(buildApi('/api/profile/picture'), {
         method: 'POST',
@@ -509,7 +467,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + (getToken ? getToken() : '')
         },
-        body: JSON.stringify({ image: selectedSrc, isDataUrl: true })
+        // send as URL (not data URL). Server already accepts http(s) or relative paths.
+        body: JSON.stringify({ image: selectedSrc, isDataUrl: false })
       });
       if (!res.ok) throw new Error('save failed');
     } catch (err) {
