@@ -200,6 +200,81 @@
   <img class="crypto-logo" src="images/tether.png"   alt="USDT" loading="lazy" />
   <img class="crypto-logo" src="images/solana.png"   alt="SOL" loading="lazy" />
 </div>
+<!-- ===== INVESTMENT PLANS SECTION ===== -->
+<section class="plans container" id="plans">
+  <h2>Choose Your Plan</h2>
+  <div class="plans-grid">
+    <div class="plan-card">
+      <h3>WEB3 PUMPS</h3>
+      <ul>
+        <li><strong>Ethereum</strong> – $5,000–$50,000</li>
+        <li><strong>TronX</strong> – $3,000–$15,000</li>
+        <li><strong>Shiba</strong> – $5,000–$15,000</li>
+        <li><strong>ADA</strong> – $5,000–$30,000</li>
+      </ul>
+    </div>
+    <div class="plan-card">
+      <h3>WEB3 PUMPS (cont.)</h3>
+      <ul>
+        <li><strong>Solana</strong> – $5,000–$50,000</li>
+        <li><strong>Trump</strong> – $5,000–$25,000</li>
+        <li><strong>Doge</strong> – $4,000–$30,000</li>
+        <li><strong>Bitcoin</strong> – $20,000–1 BTC</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CSS STYLES FOR PLANS ===== -->
+<style>
+.plans {
+  margin-top: 2rem;
+  background: rgba(255,255,255,0.04);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+.plans h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  color: #fff;
+}
+.plans-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+.plan-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.plan-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+}
+.plan-card h3 {
+  color: #ffcc00;
+  margin-bottom: .8rem;
+  font-size: 1.2rem;
+}
+.plan-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.plan-card li {
+  margin-bottom: .5rem;
+  font-size: 0.95rem;
+  color: #ddd;
+}
+.plan-card li strong {
+  color: #fff;
+}
+</style>
 
 <!-- ===== FOREX TICKER ===== -->
 <div class="forex-ticker" id="forex">
