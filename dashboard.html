@@ -192,6 +192,151 @@
     <p>Track your investments, manage your plans, and grow your portfolio.</p>
   </div>
 </section>
+<!-- Plans Section -->
+<section id="plans-section">
+  <h2 class="section-title">Choose Your Plan</h2>
+  <div class="plans-container">
+    
+    <div class="plan" data-plan="WEB3 PUMPS">
+      <h3>WEB3 PUMPS</h3>
+      <ul class="crypto-list">
+        <li>ETHEREUM – $5,000–$50,000</li>
+        <li>TRONX – $3,000–$15,000</li>
+        <li>SHIBA – $5,000–$15,000</li>
+        <li>ADA – $5,000–$30,000</li>
+        <li>SOLANA – $5,000–$50,000</li>
+        <li>TRUMP – $5,000–$25,000</li>
+        <li>DOGE – $4,000–$30,000</li>
+        <li>BITCOIN – $20,000–1 BITCOIN</li>
+      </ul>
+    </div>
+
+    <div class="plan" data-plan="PARTNERS JOINT ACCOUNT">
+      <h3>PARTNERS JOINT ACCOUNT</h3>
+      <p>Stage 1 – $50,000–$100,000</p>
+      <p>Stage 2 – 2 BITCOIN–5 BITCOIN</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- Dashboard -->
+<section id="dashboard">
+  <h2 class="section-title">Your Selected Plan</h2>
+  <div id="selected-plan">No plan selected yet.</div>
+</section>
+
+<style>
+  /* Section titles */
+  .section-title {
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #222;
+  }
+
+  /* Center container */
+  .plans-container {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    flex-wrap: wrap;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  /* Plan cards */
+  .plan {
+    border: 2px solid #ccc;
+    padding: 20px;
+    width: 300px;
+    cursor: pointer;
+    border-radius: 12px;
+    opacity: 0.4;
+    transition: all 0.3s ease;
+    background: #fff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    text-align: center;
+  }
+
+  .plan:hover {
+    border-color: #888;
+    transform: translateY(-3px);
+  }
+
+  .plan.active {
+    opacity: 1;
+    border-color: #28a745;
+    background-color: #f9fff9;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  }
+
+  /* Crypto list styling */
+  .crypto-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
+    text-align: left;
+    font-size: 0.95rem;
+    color: #555;
+  }
+
+  .crypto-list li {
+    margin: 5px 0;
+  }
+
+  /* Dashboard */
+  #dashboard {
+    margin-top: 40px;
+    padding: 20px;
+    max-width: 500px;
+    border: 2px solid #ccc;
+    border-radius: 12px;
+    background: #fff;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  #selected-plan {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #333;
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const plans = document.querySelectorAll(".plan");
+    const selectedPlanDisplay = document.getElementById("selected-plan");
+
+    // Load saved plan
+    const savedPlan = localStorage.getItem("selectedPlan");
+    if (savedPlan) {
+      plans.forEach(plan => {
+        if (plan.dataset.plan === savedPlan) {
+          plan.classList.add("active");
+          selectedPlanDisplay.textContent = savedPlan;
+        }
+      });
+    }
+
+    // Handle click
+    plans.forEach(plan => {
+      plan.addEventListener("click", () => {
+        plans.forEach(p => p.classList.remove("active"));
+        plan.classList.add("active");
+
+        const chosenPlan = plan.dataset.plan;
+        selectedPlanDisplay.textContent = chosenPlan;
+
+        // Save to profile (currently localStorage)
+        localStorage.setItem("selectedPlan", chosenPlan);
+      });
+    });
+  });
+</script>
 
 <!-- ===== CRYPTO BANNER (centered) ===== -->
 <div class="crypto-banner" id="crypto">
