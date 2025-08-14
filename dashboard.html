@@ -104,20 +104,17 @@
         height:34px; width:auto; flex:0 0 auto; scroll-snap-align:center;
         filter: drop-shadow(0 2px 6px rgba(0,0,0,.35));
       }
-      /* If there aren't many icons, JS will add .centered */
       .crypto-banner.centered{
         justify-content:center;
-        overflow-x:visible; /* no scroll when centered */
+        overflow-x:visible;
       }
 
-      /* Forex ticker tidy */
       .forex-ticker{ overflow:hidden; }
       .forex-track{
         display:flex; gap:16px; white-space:nowrap;
         padding-block:8px;
       }
 
-      /* Optional: tidy cards on mobile */
       .about, .contact, .testimonials .testimonial{
         background: rgba(255,255,255,.03) !important;
         border: 1px solid rgba(255,255,255,.08);
@@ -125,7 +122,6 @@
         padding:16px;
       }
 
-      /* Header/links: comfortable taps; footer safe area */
       .header .nav a, .logout-btn{ min-height:44px; padding:0 10px; border-radius:999px; }
       .footer{ padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
     }
@@ -287,9 +283,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const amountValEl = document.querySelector('.amount-value');
     if (amountValEl) amountValEl.textContent = Number(user.amountInvested ?? 0).toLocaleString();
     const picEl = document.getElementById('profilePic');
-    if (picEl && user.profilePic) {
-      picEl.src = user.profilePic + '?t=' + Date.now();
-    }
+    if (picEl && user.profilePic) { picEl.src = user.profilePic + '?t=' + Date.now(); }
   } catch (err) {
     alert('Session expired or server error. Please login again.');
     clearToken();
@@ -297,20 +291,69 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
+  /* ---------- Navigation: Home / About / Contact / Logout ---------- */
+  function showOnly(sectionId) {
+    const ids = ['profile','hero','crypto','forex','about','contact','testimonials'];
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const keepForHero = (sectionId === 'hero' && ['profile','hero','crypto','forex','testimonials'].includes(id));
+      el.style.display = (id === sectionId || keepForHero) ? 'block' : 'none';
+    });
+    if (sectionId) {
+      const hash = '#' + sectionId;
+      if (location.hash !== hash) history.replaceState(null, '', hash);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Set About text exactly as requested when visiting About
+  function setAboutCopy() {
+    const aboutP = document.querySelector('#about p');
+    if (aboutP) aboutP.textContent = 'At Bybit, our mission is to empower every investor with the best';
+  }
+
+  // Wire header + footer links
+  [['#hero','hero'], ['#about','about'], ['#contact','contact']].forEach(([href, id]) => {
+    document.querySelectorAll(`a[href="${href}"]`).forEach(a => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (id === 'about') setAboutCopy();
+        showOnly(id);
+      });
+    });
+  });
+
+  // Logo behaves like Home
+  document.querySelectorAll('.logo').forEach(el => {
+    el.addEventListener('click', (e) => { e.preventDefault(); showOnly('hero'); });
+  });
+
+  // Logout -> clear token and go to homepage (hero)
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      clearToken();
+      showOnly('hero');
+      window.location.href = 'index.html#hero';
+    });
+  }
+
+  // Initial view from hash (defaults to Home)
+  const initial = (location.hash || '#hero').slice(1);
+  if (initial === 'about') setAboutCopy();
+  showOnly(['hero','about','contact'].includes(initial) ? initial : 'hero');
+
   /* ---------- Mobile-only enhancement: center crypto icons if not scrollable ---------- */
   function centerCryptoIfShort() {
     const banner = document.getElementById('crypto');
     if (!banner) return;
-    // Only apply at mobile widths
     const isMobile = window.matchMedia('(max-width: 600px)').matches;
     banner.classList.remove('centered');
     if (!isMobile) return;
-    // Measure: if content doesn't overflow, center the row
-    // Add a tiny epsilon to account for sub-pixel rounding
     const epsilon = 2;
-    if (banner.scrollWidth <= banner.clientWidth + epsilon) {
-      banner.classList.add('centered');
-    }
+    if (banner.scrollWidth <= banner.clientWidth + epsilon) banner.classList.add('centered');
   }
   centerCryptoIfShort();
   window.addEventListener('resize', centerCryptoIfShort);
