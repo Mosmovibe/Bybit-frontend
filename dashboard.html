@@ -53,7 +53,15 @@
     .profile-info p{ margin:8px 0 0; font-size:1rem; color:#fff; }
     .plan-value, .amount-value{ font-weight:800!important; color:#ffcc00; }
 
-    .crypto-banner{ background:transparent!important; display:flex; gap:16px; }
+    /* ✅ Center the crypto logos on desktop/tablet */
+    .crypto-banner{
+      background:transparent!important;
+      display:flex; gap:16px;
+      justify-content:center;      /* center horizontally */
+      align-items:center;          /* align vertically */
+    }
+    .crypto-banner img{ height:40px; width:auto; }
+
     .about, .contact{
       background:rgba(255,255,255,0.04)!important; color:#e5e7eb;
       border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.25);
@@ -94,18 +102,19 @@
         margin-top:10px; font-size:.95rem; opacity:.95;
       }
 
-      /* Crypto banner: snap carousel by default on mobile */
+      /* Mobile: scrollable row; auto-center if not overflowing */
       .crypto-banner{
         overflow-x:auto; padding:12px 0;
         scroll-snap-type:x mandatory;
         -webkit-overflow-scrolling: touch;
+        justify-content:flex-start;             /* default for scrolling */
       }
       .crypto-banner img{
         height:34px; width:auto; flex:0 0 auto; scroll-snap-align:center;
         filter: drop-shadow(0 2px 6px rgba(0,0,0,.35));
       }
       .crypto-banner.centered{
-        justify-content:center;
+        justify-content:center;                 /* center when not overflowing */
         overflow-x:visible;
       }
 
@@ -177,7 +186,7 @@
   </div>
 </section>
 
-<!-- ===== CRYPTO BANNER ===== -->
+<!-- ===== CRYPTO BANNER (centered) ===== -->
 <div class="crypto-banner container" id="crypto">
   <img src="images/bitcoin.png" alt="BTC" />
   <img src="images/ethereum.png" alt="ETH" />
@@ -291,61 +300,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  /* ---------- Navigation: Home / About / Contact / Logout ---------- */
-  function showOnly(sectionId) {
-    const ids = ['profile','hero','crypto','forex','about','contact','testimonials'];
-    ids.forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const keepForHero = (sectionId === 'hero' && ['profile','hero','crypto','forex','testimonials'].includes(id));
-      el.style.display = (id === sectionId || keepForHero) ? 'block' : 'none';
-    });
-    if (sectionId) {
-      const hash = '#' + sectionId;
-      if (location.hash !== hash) history.replaceState(null, '', hash);
-    }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  // Set About text exactly as requested when visiting About
-  function setAboutCopy() {
-    const aboutP = document.querySelector('#about p');
-    if (aboutP) aboutP.textContent = 'At Bybit, our mission is to empower every investor with the best';
-  }
-
-  // Wire header + footer links
-  [['#hero','hero'], ['#about','about'], ['#contact','contact']].forEach(([href, id]) => {
-    document.querySelectorAll(`a[href="${href}"]`).forEach(a => {
-      a.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (id === 'about') setAboutCopy();
-        showOnly(id);
-      });
-    });
-  });
-
-  // Logo behaves like Home
-  document.querySelectorAll('.logo').forEach(el => {
-    el.addEventListener('click', (e) => { e.preventDefault(); showOnly('hero'); });
-  });
-
-  // Logout -> clear token and go to homepage (hero)
-  const logoutBtn = document.getElementById('logoutBtn');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      clearToken();
-      showOnly('hero');
-      window.location.href = 'index.html#hero';
-    });
-  }
-
-  // Initial view from hash (defaults to Home)
-  const initial = (location.hash || '#hero').slice(1);
-  if (initial === 'about') setAboutCopy();
-  showOnly(['hero','about','contact'].includes(initial) ? initial : 'hero');
-
-  /* ---------- Mobile-only enhancement: center crypto icons if not scrollable ---------- */
+  /* ---------- Mobile-only: auto-center crypto if not scrollable ---------- */
   function centerCryptoIfShort() {
     const banner = document.getElementById('crypto');
     if (!banner) return;
