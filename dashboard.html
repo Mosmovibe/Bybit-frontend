@@ -53,13 +53,12 @@
     .profile-info p{ margin:8px 0 0; font-size:1rem; color:#fff; }
     .plan-value, .amount-value{ font-weight:800!important; color:#ffcc00; }
 
-    /* Base crypto banner (we'll force-center below) */
+    /* Base crypto banner */
     .crypto-banner{
       background:transparent!important;
       display:flex; gap:16px;
       justify-content:center; align-items:center;
-      flex-wrap:wrap;
-      margin-top:8px;
+      flex-wrap:wrap; margin-top:8px;
     }
     .crypto-banner img{ height:40px; width:auto; }
 
@@ -103,21 +102,17 @@
       .footer{ padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
     }
 
-    /* ==== FORCE CENTER CRYPTO LOGOS (OVERRIDE) ==== */
+    /* Force center crypto logos (override safety) */
     .crypto-banner,
     .crypto-banner.centered {
-      display: flex !important;
-      justify-content: center !important;
-      align-items: center !important;
-      gap: 16px;
-      flex-wrap: wrap;
-      overflow-x: visible !important;
-      padding: 12px 0;
-      text-align: center;
+      display:flex !important;
+      justify-content:center !important;
+      align-items:center !important;
+      gap:16px; flex-wrap:wrap; overflow-x:visible !important;
+      padding:12px 0; text-align:center;
     }
     @media (max-width: 600px){
-      .crypto-banner,
-      .crypto-banner.centered { gap: 12px; }
+      .crypto-banner, .crypto-banner.centered { gap:12px; }
     }
   </style>
 </head>
@@ -171,7 +166,7 @@
   </div>
 </section>
 
-<!-- ===== CRYPTO BANNER (centered) ===== -->
+<!-- ===== CRYPTO BANNER ===== -->
 <div class="crypto-banner container" id="crypto">
   <img src="images/bitcoin.png" alt="BTC" />
   <img src="images/ethereum.png" alt="ETH" />
@@ -198,7 +193,6 @@
 <section class="contact container" id="contact" style="display: none;">
   <h2>Contact Us</h2>
   <p>Need help or have questions? Reach out to us anytime.</p>
-  <!-- Email/Phone/Telegram removed as requested -->
 </section>
 
 <section class="testimonials container" id="testimonials">
@@ -270,12 +264,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!res.ok) throw new Error('Failed to fetch user data');
     const user = await res.json();
 
+    /* ---------- NORMALIZE FIELDS FROM MONGODB ---------- */
+    const trimTail = (s) => String(s ?? '').replace(/[,\s]+$/,'').trim();
+    const toNumber = (v) => {
+      const n = Number(String(v ?? 0).replace(/[^\d.-]/g,''));
+      return Number.isFinite(n) ? n : 0;
+    };
+
+    // Support both "amountInvested" and "amountinvested" + fallbacks
+    const amountRaw = user.amountInvested ?? user.amountinvested ?? user.balance ?? user.amount ?? 0;
+    const amount = toNumber(amountRaw);
+
+    const fullName = trimTail(user.fullname || user.name || 'QUEEN PARKER');
+    const plan = trimTail(user.investmentPlan || user.package || user.plan || 'WEB3');
+
+    // Populate UI
     const fullNameEl = document.getElementById('fullName');
-    if (fullNameEl) fullNameEl.textContent = user.fullname || 'QUEEN PARKER';
+    if (fullNameEl) fullNameEl.textContent = fullName;
+
     const planValEl = document.querySelector('.plan-value');
-    if (planValEl) planValEl.textContent = (user.investmentPlan || user.package || 'WEB3');
+    if (planValEl) planValEl.textContent = plan;
+
     const amountValEl = document.querySelector('.amount-value');
-    if (amountValEl) amountValEl.textContent = Number(user.amountInvested ?? 0).toLocaleString();
+    if (amountValEl) amountValEl.textContent = amount.toLocaleString();
+
     const picEl = document.getElementById('profilePic');
     if (picEl && user.profilePic) { picEl.src = user.profilePic + '?t=' + Date.now(); }
   } catch (err) {
