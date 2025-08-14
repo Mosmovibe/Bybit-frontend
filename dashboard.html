@@ -53,12 +53,12 @@
     .profile-info p{ margin:8px 0 0; font-size:1rem; color:#fff; }
     .plan-value, .amount-value{ font-weight:800!important; color:#ffcc00; }
 
-    /* ✅ Center the crypto logos on all screens */
+    /* Base crypto banner (we'll force-center below) */
     .crypto-banner{
       background:transparent!important;
       display:flex; gap:16px;
       justify-content:center; align-items:center;
-      flex-wrap:wrap;    /* wraps nicely if many icons */
+      flex-wrap:wrap;
       margin-top:8px;
     }
     .crypto-banner img{ height:40px; width:auto; }
@@ -88,8 +88,6 @@
       }
       .badge-dark{ margin-top:6px; padding:6px 10px; font-size:.72rem; line-height:1; }
       .profile-info p{ margin-top:10px; font-size:.95rem; opacity:.95; }
-
-      /* Mobile: still centered; smaller icons */
       .crypto-banner{ gap:12px; }
       .crypto-banner img{ height:34px; }
       .forex-ticker{ overflow:hidden; }
@@ -103,6 +101,23 @@
 
       .header .nav a, .logout-btn{ min-height:44px; padding:0 10px; border-radius:999px; }
       .footer{ padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+    }
+
+    /* ==== FORCE CENTER CRYPTO LOGOS (OVERRIDE) ==== */
+    .crypto-banner,
+    .crypto-banner.centered {
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+      gap: 16px;
+      flex-wrap: wrap;
+      overflow-x: visible !important;
+      padding: 12px 0;
+      text-align: center;
+    }
+    @media (max-width: 600px){
+      .crypto-banner,
+      .crypto-banner.centered { gap: 12px; }
     }
   </style>
 </head>
@@ -183,7 +198,7 @@
 <section class="contact container" id="contact" style="display: none;">
   <h2>Contact Us</h2>
   <p>Need help or have questions? Reach out to us anytime.</p>
-  <!-- Removed Email / Phone / Telegram block as requested -->
+  <!-- Email/Phone/Telegram removed as requested -->
 </section>
 
 <section class="testimonials container" id="testimonials">
@@ -246,7 +261,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   try {
     const res = await apiGet('/api/dashboard');
-    if (res.status === 401 || res === 403) {
+    if (res.status === 401 || res.status === 403) {
       alert('Session expired. Please login again.');
       clearToken();
       window.location.href = 'index.html';
