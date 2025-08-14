@@ -242,16 +242,16 @@ body {
 
 .plans {
   display: flex;
-  justify-content: center; /* Centers horizontally */
-  align-items: center; /* Centers vertically */
-  min-height: 100vh; /* Full page height */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Align vertically */
+  min-height: 100vh; /* Full height */
 }
 
 .plans-container {
   display: flex;
-  gap: 30px;
-  flex-wrap: wrap;
+  gap: 30px; /* Space between boxes */
   justify-content: center;
+  flex-wrap: wrap; /* Stacks on smaller screens */
 }
 
 .plan-card {
@@ -260,9 +260,6 @@ body {
   border-radius: 10px;
   color: #fff;
   flex: 0 1 320px;
-  min-height: 350px;
-  display: flex;
-  flex-direction: column;
 }
 
 .plan-card h3 {
@@ -274,7 +271,6 @@ body {
   list-style: none;
   padding: 0;
   margin: 0;
-  flex-grow: 1;
 }
 
 .plan-card li {
