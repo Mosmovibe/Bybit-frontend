@@ -6,9 +6,25 @@
   <title>BYBIT Dashboard</title>
   <link rel="stylesheet" href="dashboard.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
-    /* ===== Desktop & Shared (desktop layout preserved) ===== */
-    body { background:#0a0c1b; color:#e5e7eb; margin:0; }
+    /* ===== Base / Desktop (unchanged layout) ===== */
+    :root { --container-max: 1100px; }
+    * { box-sizing: border-box; }
+    body { background:#0a0c1b; color:#e5e7eb; margin:0; -webkit-font-smoothing:antialiased; }
+    .container { max-width:var(--container-max); margin:0 auto; padding:0 24px; }
+
+    /* Header */
+    .header .header-container{ display:flex; align-items:center; justify-content:space-between; padding:12px 0; }
+    .logo { font-weight:800; letter-spacing:.5px; }
+    .header .nav{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+    .header .nav a, .logout-btn{
+      color:#e5e7eb; text-decoration:none; background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08); padding:8px 12px; border-radius:999px;
+    }
+    .logout-btn{ cursor:pointer; }
+
+    /* Profile card */
     .profile { padding:20px 0; background:#0a0c1b; color:#fff; }
     .profile-card{
       display:flex; align-items:center; gap:16px; max-width:900px; margin:auto;
@@ -17,10 +33,9 @@
     }
     .profile-pic{
       width:90px; height:90px; border-radius:50%; object-fit:cover;
-      border:2.5px solid #fff;
+      border:2.5px solid #fff; background:#0b0f1f;
       box-shadow:0 0 8px rgba(255,255,255,.4);
-      transition:box-shadow .3s; cursor:pointer; background:#0b0f1f;
-      flex:0 0 90px;
+      transition:box-shadow .3s; cursor:pointer; flex:0 0 90px;
     }
     .profile-pic:hover{ box-shadow:0 0 14px rgba(255,255,255,.8); }
     .profile-info{ flex:1; min-width:0; }
@@ -44,28 +59,36 @@
     .profile-info p{ margin:8px 0 0; font-size:1rem; color:#fff; }
     .plan-value, .amount-value{ font-weight:800!important; color:#ffcc00; }
 
-    /* ===== Centered crypto row ===== */
+    /* Hero */
+    .hero .hero-content { padding:8px 0 6px; }
+
+    /* Crypto banner (centered) */
     .crypto-banner{
-      width:100%; max-width:900px; margin:16px auto; padding:12px 0;
-      display:flex !important; justify-content:center !important; align-items:center !important;
-      gap:16px; flex-wrap:wrap; text-align:center;
+      background:transparent!important;
+      display:flex; gap:16px;
+      justify-content:center; align-items:center;
+      flex-wrap:wrap; margin-top:8px;
+      max-width:900px; margin-left:auto; margin-right:auto;
+      padding:12px 0;
     }
     .crypto-banner img{
       height:40px; width:auto; display:block; background:transparent;
-      /* visually suppresses white boxes on non-transparent PNGs */
-      mix-blend-mode:multiply; filter:contrast(1.1) brightness(1.03);
-      border-radius:8px;
     }
 
+    /* Sections */
     .about, .contact{
       background:rgba(255,255,255,0.04)!important; color:#e5e7eb;
       border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.25);
     }
     .testimonials{ background:#0f1326!important; color:#cfd6e4; }
 
-    /* ===== MOBILE (≤600px) — desktop stays intact ===== */
+    /* ===== Mobile (≤600px) — professional alignment ===== */
     @media (max-width:600px){
-      .container{ width:100%; padding-inline:16px; }
+      .container{ padding:0 16px; }
+      .header .header-container { padding:10px 0; }
+      .header .nav{ justify-content:center; gap:10px; }
+      .header .nav a, .logout-btn{ min-height:44px; padding:8px 12px; }
+
       .profile{ padding:16px 0; }
       .profile-card{
         display:grid; grid-template-columns:auto 1fr; gap:12px; padding:16px;
@@ -77,11 +100,31 @@
       .profile-info h2{ font-size:1.1rem; }
       .badge-dark{ margin-top:6px; padding:6px 10px; font-size:.72rem; }
       .profile-info p{ margin-top:10px; font-size:.95rem; opacity:.95; }
+
+      .hero .hero-content{ text-align:center; }
       .crypto-banner{ gap:12px; max-width:calc(100% - 32px); }
       .crypto-banner img{ height:34px; }
+
+      .about, .contact, .testimonials .testimonial{
+        background: rgba(255,255,255,.03) !important;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius:12px; padding:16px;
+      }
+      .footer{ padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
     }
 
-    /* ===== Avatar picker modal ===== */
+    /* Force center crypto logos (defensive override) */
+    .crypto-banner, .crypto-banner.centered {
+      display:flex !important;
+      justify-content:center !important;
+      align-items:center !important;
+      gap:16px; flex-wrap:wrap; overflow-x:visible !important; text-align:center;
+    }
+    @media (max-width:600px){
+      .crypto-banner, .crypto-banner.centered { gap:12px; }
+    }
+
+    /* Avatar picker modal (kept, optional to use) */
     #avatarModal{ position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; z-index:9999; }
     #avatarModal.open{ display:flex; }
     #avatarModal .sheet{
@@ -102,11 +145,6 @@
     .btn-muted{ background:#1a2035; color:#e5e7eb; }
     .btn-primary{ background:#16c784; color:#0b0f1f; font-weight:700; }
     .btn-primary:disabled{ opacity:.5; cursor:not-allowed; }
-
-    /* ===== HARD OVERRIDE: remove any white bar styles from other CSS ===== */
-    #crypto, #crypto.crypto-banner, .crypto-banner, .crypto-banner.container {
-      background:transparent !important; border:0 !important; box-shadow:none !important;
-    }
   </style>
 </head>
 <body>
@@ -155,7 +193,7 @@
   </div>
 </section>
 
-<!-- ===== CRYPTO BANNER (centered, transparent) ===== -->
+<!-- ===== CRYPTO BANNER (centered) ===== -->
 <div class="crypto-banner" id="crypto">
   <img class="crypto-logo" src="images/bitcoin.png"  alt="BTC" loading="lazy" />
   <img class="crypto-logo" src="images/ethereum.png" alt="ETH" loading="lazy" />
@@ -217,7 +255,7 @@
   </div>
 </footer>
 
-<!-- ===== AVATAR PICKER MODAL ===== -->
+<!-- ===== AVATAR PICKER MODAL (optional) ===== -->
 <div id="avatarModal" role="dialog" aria-modal="true" aria-labelledby="avatarTitle">
   <div class="sheet">
     <div class="sheet-head">
@@ -243,6 +281,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const buildApi = (p) => API_URL + (String(p).startsWith('/') ? '' : '/') + p;
   const getToken = () => { try { return (localStorage.getItem('token')||'').trim(); } catch { return ''; } };
   const clearToken = () => { try { localStorage.removeItem('token'); } catch {} };
+
   async function apiGet(path) {
     const res = await fetch(buildApi(path), {
       method: 'GET', mode: 'cors', cache: 'no-store',
@@ -252,12 +291,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   const token = getToken();
-  if (!token) {
-    alert('Session expired. Please login again.');
-    clearToken();
-    window.location.href = 'index.html';
-    return;
-  }
+  if (!token) { alert('Session expired. Please login again.'); clearToken(); window.location.href='index.html'; return; }
 
   /* ---------- Load user ---------- */
   try {
@@ -287,7 +321,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  /* ---------- Navigation ---------- */
+  /* ---------- Navigation (show sections without reloading) ---------- */
   function showOnly(sectionId) {
     const ids = ['profile','hero','crypto','forex','about','contact','testimonials'];
     ids.forEach(id => {
@@ -296,19 +330,24 @@ document.addEventListener('DOMContentLoaded', async () => {
       el.style.display = (id === sectionId || keepForHero) ? 'block' : 'none';
     });
     if (sectionId) history.replaceState(null,'','#'+sectionId);
-    window.scrollTo({ top:0, behavior:'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   [['#hero','hero'], ['#about','about'], ['#contact','contact']].forEach(([href,id])=>{
     document.querySelectorAll(`a[href="${href}"]`).forEach(a=>{
       a.addEventListener('click',(e)=>{ e.preventDefault(); showOnly(id); });
     });
   });
-  document.querySelectorAll('.logo').forEach(el=> el.addEventListener('click',(e)=>{ e.preventDefault(); showOnly('hero'); }));
+  document.querySelectorAll('.logo').forEach(el=>{
+    el.addEventListener('click',(e)=>{ e.preventDefault(); showOnly('hero'); });
+  });
   const logoutBtn = document.getElementById('logoutBtn');
-  if (logoutBtn) logoutBtn.addEventListener('click',(e)=>{ e.preventDefault(); clearToken(); showOnly('hero'); window.location.href='index.html#hero'; });
-  showOnly(['hero','about','contact'].includes((location.hash||'#hero').slice(1)) ? (location.hash||'#hero').slice(1) : 'hero');
+  if (logoutBtn) logoutBtn.addEventListener('click',(e)=>{
+    e.preventDefault(); clearToken(); showOnly('hero'); window.location.href='index.html#hero';
+  });
+  const initial = (location.hash || '#hero').slice(1);
+  showOnly(['hero','about','contact'].includes(initial) ? initial : 'hero');
 
-  /* ================== Hamster Avatar Generator (20 variants) ================== */
+  /* ================== Avatar Picker (20 hamster variants) ================== */
   function hamsterSVG(theme){
     const { sky1, sky2, sea, wall, ear, fur, snout, nose, glasses, shirt, badge, text, phone, candUp, candDown } = theme;
     const svg = `
@@ -353,7 +392,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     { sky1:"#ede9fe", sky2:"#ddd6fe", sea:"#93c5fd", wall:"#fef3c7", ear:"#ffdccc", fur:"#f3d5b5", snout:"#ffe8d6", nose:"#ff6b6b", glasses:"#111827", shirt:"#1f2937", badge:"#facc15", text:"#ffffff", phone:"#0b0f1f", candUp:"#16c784", candDown:"#ef4444" },
     { sky1:"#bae6fd", sky2:"#7dd3fc", sea:"#38bdf8", wall:"#fde68a", ear:"#ffd9b8", fur:"#f2cda7", snout:"#f6e1cc", nose:"#fb7185", glasses:"#0b0f1f", shirt:"#2563eb", badge:"#facc15", text:"#ffffff", phone:"#0b0f1f", candUp:"#22c55e", candDown:"#ef4444" },
     { sky1:"#bbf7d0", sky2:"#86efac", sea:"#34d399", wall:"#ffd6a5", ear:"#ffdccc", fur:"#f3d9b1", snout:"#f7e7d6", nose:"#ff7aa2", glasses:"#0f172a", shirt:"#059669", badge:"#facc15", text:"#ffffff", phone:"#0b0f1f", candUp:"#16c784", candDown:"#ef4444" },
-    { sky1:"#fed7aa", sky2:"#fdba74", sea:"#60a5fa", wall:"#fef3c7", ear:"#ffd9b8", fur:"#f2cda7", snout:"#f6e1cc", nose:"#fb7185", glasses:"#0b0f1f", shirt:"#f59e0b", badge:"#16c784", text:"#0b0f1f", phone:"#0b0f1f", candUp:"#22c55e", candDown:"#ef4444" },
+    { sky1:"#fed7aa", sky2:"#fdba74", sea:"#60a5fa", wall:"#fef3c7", ear:"#ffd9b8", fur:"#f2cda7", snout:"#f6e1cc", nose:"#fb7185", glasses:"#0f0f0f", shirt:"#f59e0b", badge:"#16c784", text:"#0b0f1f", phone:"#0b0f1f", candUp:"#22c55e", candDown:"#ef4444" },
     { sky1:"#fca5a5", sky2:"#f87171", sea:"#60a5fa", wall:"#ffd6a5", ear:"#ffdccc", fur:"#f3d5b5", snout:"#ffe8d6", nose:"#ff6b6b", glasses:"#111827", shirt:"#ef4444", badge:"#facc15", text:"#0b0f1f", phone:"#0b0f1f", candUp:"#16c784", candDown:"#ef4444" },
     { sky1:"#a5b4fc", sky2:"#818cf8", sea:"#93c5fd", wall:"#fde68a", ear:"#ffd9b8", fur:"#f2cda7", snout:"#f6e1cc", nose:"#fb7185", glasses:"#0b0f1f", shirt:"#8b5cf6", badge:"#facc15", text:"#ffffff", phone:"#0b0f1f", candUp:"#22c55e", candDown:"#ef4444" },
     { sky1:"#f5d0fe", sky2:"#e879f9", sea:"#93c5fd", wall:"#ffd6a5", ear:"#ffdccc", fur:"#f3d9b1", snout:"#f7e7d6", nose:"#ff6b6b", glasses:"#0f172a", shirt:"#d946ef", badge:"#16c784", text:"#0b0f1f", phone:"#0b0f1f", candUp:"#16c784", candDown:"#ef4444" },
@@ -364,9 +403,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   ];
   const AVATARS = THEMES.map(hamsterSVG);
 
-  /* ----- Avatar Picker UI ----- */
   const modal = document.getElementById('avatarModal');
-  const grid = document.getElementById('avatarGrid');
+  const grid  = document.getElementById('avatarGrid');
   const saveBtn = document.getElementById('avatarSaveBtn');
   const closeBtn = document.getElementById('avatarCloseBtn');
   const cancelBtn = document.getElementById('avatarCancelBtn');
@@ -416,7 +454,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     closeAvatarModal();
   }
-  document.getElementById('avatarSaveBtn').addEventListener('click', saveSelectedAvatar);
+  saveBtn.addEventListener('click', saveSelectedAvatar);
 });
 </script>
 
