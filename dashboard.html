@@ -207,22 +207,22 @@
     <!-- WEB3 PUMPS -->
     <div class="plan-card">
       <h3>WEB3 Pumps</h3>
-      <ul class="crypto-list">
-        <li><span>Ethereum</span> – $5,000 – $50,000</li>
-        <li><span>TronX</span> – $3,000 – $15,000</li>
-        <li><span>Shiba</span> – $5,000 – $15,000</li>
-        <li><span>ADA</span> – $5,000 – $30,000</li>
-        <li><span>Solana</span> – $5,000 – $50,000</li>
-        <li><span>Trump</span> – $5,000 – $25,000</li>
-        <li><span>Doge</span> – $4,000 – $30,000</li>
-        <li><span>Bitcoin</span> – $20,000 – 1 Bitcoin</li>
+      <ul>
+        <li>Ethereum – $5,000 – $50,000</li>
+        <li>TronX – $3,000 – $15,000</li>
+        <li>Shiba – $5,000 – $15,000</li>
+        <li>ADA – $5,000 – $30,000</li>
+        <li>Solana – $5,000 – $50,000</li>
+        <li>Trump – $5,000 – $25,000</li>
+        <li>Doge – $4,000 – $30,000</li>
+        <li>Bitcoin – $20,000 – 1 Bitcoin</li>
       </ul>
     </div>
 
     <!-- PARTNERS JOINT ACCOUNT -->
     <div class="plan-card">
       <h3>Partners Joint Account</h3>
-      <ul class="stage-list">
+      <ul>
         <li><strong>Stage 1:</strong> $50,000 – $100,000</li>
         <li><strong>Stage 2:</strong> 2 BTC – 5 BTC</li>
       </ul>
@@ -233,86 +233,43 @@
 
 <!-- ===== CSS ===== -->
 <style>
-.plans {
-  padding: 2rem;
-  text-align: center;
-  color: #fff;
-}
-
-.plans h2 {
-  margin-bottom: 1.5rem;
-  font-size: 1.8rem;
-  color: #ffcc00;
-}
-
 .plans-container {
   display: flex;
-  gap: 1.5rem;
-  justify-content: center;
+  gap: 20px;
   flex-wrap: wrap;
 }
 
 .plan-card {
-  background: #1a1a1a;
-  padding: 1.5rem;
+  background: #111827;
+  padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.4);
-  width: 300px;
-  text-align: left;
+  color: #fff;
+  flex: 1 1 300px;
+  min-height: 350px; /* Ensures equal height */
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 
 .plan-card h3 {
   color: #ffcc00;
-  margin-bottom: 1rem;
+  margin-bottom: 15px;
 }
 
-.crypto-list, .stage-list {
+.plan-card ul {
   list-style: none;
   padding: 0;
-  margin: 0 0 1rem 0;
+  margin: 0;
+  flex-grow: 1; /* Pushes content evenly */
 }
 
-.crypto-list li, .stage-list li {
-  margin: 0.4rem 0;
+.plan-card li {
+  padding: 6px 0;
+  border-bottom: 1px solid #2d2d2d;
   font-size: 0.95rem;
-  border-bottom: 1px solid #333;
-  padding-bottom: 0.3rem;
 }
 
-.stage-list li {
+.plan-card li:last-child {
   border-bottom: none;
-}
-
-button.primary, button.secondary {
-  padding: 0.6rem 1rem;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  width: 100%;
-}
-
-button.primary {
-  background: #ffcc00;
-  border: none;
-  color: #000;
-}
-
-button.primary:hover {
-  background: #e6b800;
-}
-
-button.secondary {
-  border: 1px solid #ffcc00;
-  background: transparent;
-  color: #ffcc00;
-}
-
-button.secondary:hover {
-  background: #ffcc00;
-  color: #000;
 }
 </style>
 
