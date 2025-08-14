@@ -200,13 +200,22 @@
   <img class="crypto-logo" src="images/tether.png"   alt="USDT" loading="lazy" />
   <img class="crypto-logo" src="images/solana.png"   alt="SOL" loading="lazy" />
 </div>
-<!-- ===== INVESTMENT PLANS SECTION ===== -->
-<section class="plans" id="plans">
+<!-- ===== NAVIGATION ===== -->
+<nav>
+  <ul>
+    <li><a href="#" onclick="showSection('home')">Home</a></li>
+    <li><a href="#" onclick="showSection('about')">About Us</a></li>
+    <li><a href="#" onclick="showSection('contact')">Contact Us</a></li>
+  </ul>
+</nav>
+
+<!-- ===== HOME SECTION ===== -->
+<section id="home">
   <div class="plans-container">
 
     <!-- WEB3 PUMPS -->
     <div class="plan-card">
-      <h3>WEB3 Pumps</h3>
+      <h3 class="uppercase">WEB3 PUMPS</h3>
       <ul>
         <li>Ethereum – $5,000 – $50,000</li>
         <li>TronX – $3,000 – $15,000</li>
@@ -231,28 +240,63 @@
   </div>
 </section>
 
+<!-- ===== ABOUT SECTION ===== -->
+<section id="about" style="display:none;">
+  <h2>About Us</h2>
+  <p>We are committed to providing top-tier crypto investment opportunities...</p>
+</section>
+
+<!-- ===== CONTACT SECTION ===== -->
+<section id="contact" style="display:none;">
+  <h2>Contact Us</h2>
+  <p>Email: info@example.com</p>
+</section>
+
 <!-- ===== CSS ===== -->
 <style>
 body {
   background: #0f111a;
   color: white;
-  margin: 0;
   font-family: Arial, sans-serif;
+}
+
+nav {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+}
+
+nav ul li {
+  display: inline-block;
+  margin: 0 15px;
+}
+
+nav ul li a {
+  color: #ffcc00;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.uppercase {
+  text-transform: uppercase;
 }
 
 .plans-container {
   display: flex;
-  justify-content: center; /* Centers both boxes horizontally */
-  gap: 30px; /* Space between them */
-  align-items: flex-start; /* Top-align them */
+  justify-content: center;
+  gap: 30px;
+  align-items: flex-start;
 }
 
 .plan-card {
   background: #111827;
   padding: 20px;
   border-radius: 10px;
-  color: #fff;
-  width: 320px; /* Same width for both */
+  width: 320px;
 }
 
 .plan-card h3 {
@@ -269,13 +313,21 @@ body {
 .plan-card li {
   padding: 6px 0;
   border-bottom: 1px solid #2d2d2d;
-  font-size: 0.95rem;
 }
 
 .plan-card li:last-child {
   border-bottom: none;
 }
 </style>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+function showSection(section) {
+  document.getElementById('home').style.display = section === 'home' ? 'block' : 'none';
+  document.getElementById('about').style.display = section === 'about' ? 'block' : 'none';
+  document.getElementById('contact').style.display = section === 'contact' ? 'block' : 'none';
+}
+</script>
 
 <!-- ===== FOREX TICKER ===== -->
 <div class="forex-ticker" id="forex">
