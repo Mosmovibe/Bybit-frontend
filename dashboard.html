@@ -233,10 +233,25 @@
 
 <!-- ===== CSS ===== -->
 <style>
+body {
+  background: #0f111a;
+  color: white;
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.plans {
+  display: flex;
+  justify-content: center; /* Centers horizontally */
+  align-items: center; /* Centers vertically */
+  min-height: 100vh; /* Full page height */
+}
+
 .plans-container {
   display: flex;
-  gap: 20px;
+  gap: 30px;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 .plan-card {
@@ -244,8 +259,8 @@
   padding: 20px;
   border-radius: 10px;
   color: #fff;
-  flex: 1 1 300px;
-  min-height: 350px; /* Ensures equal height */
+  flex: 0 1 320px;
+  min-height: 350px;
   display: flex;
   flex-direction: column;
 }
@@ -259,7 +274,7 @@
   list-style: none;
   padding: 0;
   margin: 0;
-  flex-grow: 1; /* Pushes content evenly */
+  flex-grow: 1;
 }
 
 .plan-card li {
@@ -270,82 +285,6 @@
 
 .plan-card li:last-child {
   border-bottom: none;
-}
-</style>
-
-
-<!-- ===== CSS STYLES ===== -->
-<style>
-.plans {
-  margin-top: 2rem;
-  padding: 1.5rem;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.03);
-}
-.plans h2 {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  font-size: 1.8rem;
-  color: #fff;
-}
-.plans-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-}
-.plan-card {
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px;
-  padding: 1rem 1.2rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.plan-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
-}
-.plan-card h3 {
-  color: #ffcc00;
-  margin-bottom: .8rem;
-}
-.crypto-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1rem;
-}
-.crypto-list li {
-  margin-bottom: .5rem;
-  font-size: 0.95rem;
-  color: #ddd;
-}
-.crypto-list li strong {
-  color: #fff;
-}
-button.primary, button.secondary {
-  padding: 0.6rem 1rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-}
-button.primary {
-  background: #ffcc00;
-  color: #000;
-}
-button.primary:hover {
-  background: #e6b800;
-}
-button.secondary {
-  background: transparent;
-  border: 1px solid #ffcc00;
-  color: #ffcc00;
-}
-button.secondary:hover {
-  background: #ffcc00;
-  color: #000;
 }
 </style>
 
