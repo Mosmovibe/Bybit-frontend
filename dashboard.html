@@ -240,18 +240,11 @@ body {
   font-family: Arial, sans-serif;
 }
 
-.plans {
-  display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Align vertically */
-  min-height: 100vh; /* Full height */
-}
-
 .plans-container {
   display: flex;
-  gap: 30px; /* Space between boxes */
-  justify-content: center;
-  flex-wrap: wrap; /* Stacks on smaller screens */
+  justify-content: center; /* Centers both boxes horizontally */
+  gap: 30px; /* Space between them */
+  align-items: flex-start; /* Top-align them */
 }
 
 .plan-card {
@@ -259,7 +252,7 @@ body {
   padding: 20px;
   border-radius: 10px;
   color: #fff;
-  flex: 0 1 320px;
+  width: 320px; /* Same width for both */
 }
 
 .plan-card h3 {
