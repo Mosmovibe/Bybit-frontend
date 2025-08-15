@@ -192,149 +192,124 @@
     <p>Track your investments, manage your plans, and grow your portfolio.</p>
   </div>
 </section>
-<!-- Plans Section -->
-<section id="plans-section">
-  <h2 class="section-title">Choose Your Plan</h2>
-  <div class="plans-container">
-    
-    <div class="plan" data-plan="WEB3 PUMPS">
-      <h3>WEB3 PUMPS</h3>
-      <ul class="crypto-list">
-        <li>ETHEREUM – $5,000–$50,000</li>
-        <li>TRONX – $3,000–$15,000</li>
-        <li>SHIBA – $5,000–$15,000</li>
-        <li>ADA – $5,000–$30,000</li>
-        <li>SOLANA – $5,000–$50,000</li>
-        <li>TRUMP – $5,000–$25,000</li>
-        <li>DOGE – $4,000–$30,000</li>
-        <li>BITCOIN – $20,000–1 BITCOIN</li>
-      </ul>
-    </div>
+<!-- ===== YOUR PLANS BUTTON ===== -->
+<section class="container" style="margin-top:20px;text-align:center;">
+  <button id="showPlansBtn" class="bybit-btn">Your Plans</button>
+</section>
 
-    <div class="plan" data-plan="PARTNERS JOINT ACCOUNT">
-      <h3>PARTNERS JOINT ACCOUNT</h3>
-      <p>Stage 1 – $50,000–$100,000</p>
-      <p>Stage 2 – 2 BITCOIN–5 BITCOIN</p>
-    </div>
-
+<!-- ===== HIDDEN COIN SELECTOR ===== -->
+<section id="coinSelector" class="container" style="display:none; margin-top:20px;">
+  <div class="coin-grid">
+    <div class="coin-card" data-coin="ETHEREUM">ETHEREUM</div>
+    <div class="coin-card" data-coin="TRONX">TRONX</div>
+    <div class="coin-card" data-coin="SHIBA">SHIBA</div>
+    <div class="coin-card" data-coin="ADA">ADA</div>
+    <div class="coin-card" data-coin="SOLANA">SOLANA</div>
+    <div class="coin-card" data-coin="TRUMP">TRUMP</div>
+    <div class="coin-card" data-coin="DOGE">DOGE</div>
+    <div class="coin-card" data-coin="BITCOIN">BITCOIN</div>
+    <div class="coin-card" data-coin="Stage 1">Stage 1</div>
+    <div class="coin-card" data-coin="Stage 2">Stage 2</div>
   </div>
 </section>
 
-<!-- Dashboard -->
-<section id="dashboard">
-  <h2 class="section-title">Your Selected Plan</h2>
-  <div id="selected-plan">No plan selected yet.</div>
+<!-- ===== SELECTED COINS DASHBOARD ===== -->
+<section id="selectedCoinsSection" class="container" style="margin-top:20px;">
+  <h3>Your Selected Coins</h3>
+  <div id="selectedCoins" class="coin-grid"></div>
 </section>
 
 <style>
-  /* Section titles */
-  .section-title {
-    text-align: center;
-    font-size: 1.8rem;
-    font-weight: 600;
-    margin-bottom: 20px;
-    color: #222;
-  }
-
-  /* Center container */
-  .plans-container {
-    display: flex;
-    justify-content: center;
-    gap: 25px;
-    flex-wrap: wrap;
-    max-width: 1000px;
-    margin: 0 auto;
-  }
-
-  /* Plan cards */
-  .plan {
-    border: 2px solid #ccc;
-    padding: 20px;
-    width: 300px;
+  .bybit-btn {
+    background: #16c784;
+    color: #0a0c1b;
+    border: none;
+    padding: 10px 18px;
+    font-size: 1rem;
+    border-radius: 8px;
     cursor: pointer;
-    border-radius: 12px;
-    opacity: 0.4;
-    transition: all 0.3s ease;
-    background: #fff;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    text-align: center;
-  }
-
-  .plan:hover {
-    border-color: #888;
-    transform: translateY(-3px);
-  }
-
-  .plan.active {
-    opacity: 1;
-    border-color: #28a745;
-    background-color: #f9fff9;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-  }
-
-  /* Crypto list styling */
-  .crypto-list {
-    list-style: none;
-    padding: 0;
-    margin: 10px 0 0;
-    text-align: left;
-    font-size: 0.95rem;
-    color: #555;
-  }
-
-  .crypto-list li {
-    margin: 5px 0;
-  }
-
-  /* Dashboard */
-  #dashboard {
-    margin-top: 40px;
-    padding: 20px;
-    max-width: 500px;
-    border: 2px solid #ccc;
-    border-radius: 12px;
-    background: #fff;
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  #selected-plan {
     font-weight: bold;
-    font-size: 1.2rem;
-    color: #333;
+    transition: 0.2s ease;
+  }
+  .bybit-btn:hover {
+    background: #13a56e;
+  }
+  .coin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+  }
+  .coin-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 12px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: bold;
+    color: #e5e7eb;
+    cursor: pointer;
+    transition: 0.2s ease;
+  }
+  .coin-card:hover {
+    border-color: #16c784;
+    background: rgba(22,199,132,0.08);
+  }
+  .coin-card.selected {
+    background: rgba(22,199,132,0.15);
+    border-color: #16c784;
+    color: #16c784;
   }
 </style>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const plans = document.querySelectorAll(".plan");
-    const selectedPlanDisplay = document.getElementById("selected-plan");
+  document.addEventListener("DOMContentLoaded", () => {
+    const showPlansBtn = document.getElementById("showPlansBtn");
+    const coinSelector = document.getElementById("coinSelector");
+    const coinCards = document.querySelectorAll(".coin-card");
+    const selectedCoinsDiv = document.getElementById("selectedCoins");
 
-    // Load saved plan
-    const savedPlan = localStorage.getItem("selectedPlan");
-    if (savedPlan) {
-      plans.forEach(plan => {
-        if (plan.dataset.plan === savedPlan) {
-          plan.classList.add("active");
-          selectedPlanDisplay.textContent = savedPlan;
+    // Load saved coins from localStorage
+    let selectedCoins = JSON.parse(localStorage.getItem("selectedCoins") || "[]");
+    renderSelectedCoins();
+
+    showPlansBtn.addEventListener("click", () => {
+      coinSelector.style.display = coinSelector.style.display === "none" ? "block" : "none";
+    });
+
+    coinCards.forEach(card => {
+      card.addEventListener("click", () => {
+        const coin = card.dataset.coin;
+        if (!selectedCoins.includes(coin)) {
+          selectedCoins.push(coin);
+        } else {
+          selectedCoins = selectedCoins.filter(c => c !== coin);
+        }
+        localStorage.setItem("selectedCoins", JSON.stringify(selectedCoins));
+        updateCoinSelectionUI();
+        renderSelectedCoins();
+      });
+    });
+
+    function updateCoinSelectionUI() {
+      coinCards.forEach(card => {
+        if (selectedCoins.includes(card.dataset.coin)) {
+          card.classList.add("selected");
+        } else {
+          card.classList.remove("selected");
         }
       });
     }
 
-    // Handle click
-    plans.forEach(plan => {
-      plan.addEventListener("click", () => {
-        plans.forEach(p => p.classList.remove("active"));
-        plan.classList.add("active");
-
-        const chosenPlan = plan.dataset.plan;
-        selectedPlanDisplay.textContent = chosenPlan;
-
-        // Save to profile (currently localStorage)
-        localStorage.setItem("selectedPlan", chosenPlan);
+    function renderSelectedCoins() {
+      selectedCoinsDiv.innerHTML = "";
+      selectedCoins.forEach(coin => {
+        const div = document.createElement("div");
+        div.className = "coin-card selected";
+        div.textContent = coin;
+        selectedCoinsDiv.appendChild(div);
       });
-    });
+      updateCoinSelectionUI();
+    }
   });
 </script>
 
